@@ -1,0 +1,244 @@
+/* [project]/src/app/globals.css [app-client] (css) */
+:root {
+  --lightningcss-light: initial;
+  --lightningcss-dark: ;
+  color-scheme: light;
+  --color-primary: #2563eb;
+  --color-primary-light: #3b82f6;
+  --color-primary-tint: #dbeafe;
+  --color-primary-dark: #1e3a8a;
+  --color-primary-hover: #1d4ed8;
+  --color-success: #10b981;
+  --color-success-tint: #d1fae5;
+  --color-warning: #f59e0b;
+  --color-warning-strong: #d97706;
+  --color-warning-tint: #fef3c7;
+  --color-danger: #ef4444;
+  --color-danger-tint: #fee2e2;
+  --color-info: #3b82f6;
+  --bg: #f8fafc;
+  --surface: #fff;
+  --border: #e2e8f0;
+  --border-soft: #f1f5f9;
+  --text: #0f172a;
+  --text-secondary: #64748b;
+  --text-disabled: #94a3b8;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --shadow-card: 0 1px 3px #0f172a0f;
+  --shadow-modal: 0 8px 30px #0f172a14;
+}
+
+:root[data-theme="dark"] {
+  --lightningcss-light: ;
+  --lightningcss-dark: initial;
+  color-scheme: dark;
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --border: #334155;
+  --border-soft: #27364b;
+  --text: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-disabled: #64748b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --lightningcss-light: ;
+    --lightningcss-dark: initial;
+    color-scheme: dark;
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --border: #334155;
+    --border-soft: #27364b;
+    --text: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-disabled: #64748b;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  margin: 0;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+input, select, textarea {
+  color: inherit;
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%);
+  }
+}
+
+@keyframes sheetUp {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 879px) {
+  .app-toast {
+    bottom: 96px !important;
+  }
+}
+
+.app-sidebar {
+  display: flex;
+}
+
+.app-bottom-nav, .app-fab {
+  display: none;
+}
+
+.app-topbar-title {
+  display: block;
+}
+
+.app-topbar-avatar, .config-categorias-link {
+  display: none;
+}
+
+@media (max-width: 879px) {
+  .app-sidebar {
+    display: none;
+  }
+
+  .app-bottom-nav, .app-fab {
+    display: flex;
+  }
+
+  .app-topbar-title {
+    display: none;
+  }
+
+  .app-topbar-avatar {
+    display: flex;
+  }
+
+  .config-categorias-link {
+    display: block;
+  }
+
+  .app-screen-body {
+    gap: 16px !important;
+    padding: 16px 16px 100px !important;
+  }
+
+  .app-balances-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .app-metrics-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .app-pie-lists-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.modal-overlay {
+  z-index: 60;
+  background: #0f172a73;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  position: fixed;
+  inset: 0;
+}
+
+.modal-panel {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  width: 440px;
+  max-width: 92vw;
+  max-height: 86vh;
+  color: var(--text);
+  padding: 26px;
+  animation: .2s fadeIn;
+  overflow-y: auto;
+}
+
+@media (max-width: 879px) {
+  .modal-overlay {
+    align-items: flex-end;
+  }
+
+  .modal-panel {
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 88vh;
+    padding: 20px 20px 28px;
+    animation: .28s sheetUp;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--border-soft) 25%, var(--border) 37%, var(--border-soft) 63%);
+  border-radius: var(--radius-sm);
+  background-size: 400% 100%;
+  animation: 1.4s infinite skeletonPulse;
+}
+
+@keyframes skeletonPulse {
+  0% {
+    background-position: 100%;
+  }
+
+  100% {
+    background-position: 0;
+  }
+}
+
+/*# sourceMappingURL=src_app_globals_css_bad6b30c._.single.css.map*/

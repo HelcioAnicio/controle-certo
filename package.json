@@ -1,0 +1,40 @@
+{
+  "name": "controle-certo",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.16.1",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "contract:emit": "cross-env NODE_OPTIONS=--experimental-strip-types prisma-next contract emit",
+    "db:init": "cross-env NODE_OPTIONS=--experimental-strip-types prisma-next db init",
+    "db:update": "cross-env NODE_OPTIONS=--experimental-strip-types prisma-next db update",
+    "migration:plan": "cross-env NODE_OPTIONS=--experimental-strip-types prisma-next migration plan",
+    "migrate": "cross-env NODE_OPTIONS=--experimental-strip-types prisma-next migrate"
+  },
+  "dependencies": {
+    "@prisma-next/postgres": "^0.16.0",
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "^2.111.0",
+    "dotenv": "^17.4.2",
+    "next": "16.1.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-icons": "^5.7.0",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "cross-env": "^10.1.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "prisma-next": "^0.16.0",
+    "tsx": "^4.7.1",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,82 @@
+[
+  {
+    "id": "index.Transaction.Transaction_fixedExpenseId_idx",
+    "label": "Create index \"Transaction_fixedExpenseId_idx\" on \"Transaction\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Transaction_fixedExpenseId_idx",
+        "table": "Transaction"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Transaction_fixedExpenseId_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Transaction_fixedExpenseId_idx\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Transaction_fixedExpenseId_idx\"",
+        "sql": "CREATE INDEX \"Transaction_fixedExpenseId_idx\" ON \"public\".\"Transaction\" (\"fixedExpenseId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Transaction_fixedExpenseId_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Transaction_fixedExpenseId_idx\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Transaction.Transaction_fixedExpenseId_fkey",
+    "label": "Add foreign key \"Transaction_fixedExpenseId_fkey\" on \"Transaction\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Transaction_fixedExpenseId_fkey",
+        "table": "Transaction"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Transaction_fixedExpenseId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Transaction_fixedExpenseId_fkey",
+          "public",
+          "\"public\".\"Transaction\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Transaction_fixedExpenseId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Transaction\"\nADD CONSTRAINT \"Transaction_fixedExpenseId_fkey\"\nFOREIGN KEY (\"fixedExpenseId\")\nREFERENCES \"public\".\"FixedExpense\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Transaction_fixedExpenseId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Transaction_fixedExpenseId_fkey",
+          "public",
+          "\"public\".\"Transaction\""
+        ]
+      }
+    ]
+  }
+]

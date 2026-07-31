@@ -1,0 +1,13 @@
+{
+  "/(app)/categorias/page": "/categorias",
+  "/(app)/configuracoes/page": "/configuracoes",
+  "/(app)/gastos-fixos/page": "/gastos-fixos",
+  "/(app)/lancamentos/page": "/lancamentos",
+  "/(app)/painel/page": "/painel",
+  "/(app)/relatorios/page": "/relatorios",
+  "/(auth)/login/page": "/login",
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/auth/callback/route": "/auth/callback",
+  "/page": "/"
+}
