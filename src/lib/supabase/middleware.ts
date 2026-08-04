@@ -27,11 +27,25 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
+  const pathname = request.nextUrl.pathname;
+
+  // Supabase redirects here with a lone `?code=...` whenever its "Site URL"
+  // (not our requested redirectTo) is used — e.g. its allow-list doesn't yet
+  // include this deployment's origin. Route it into the real callback
+  // instead of letting the auth gate below bounce an unauthenticated
+  // request to /login and drop the code.
+  const code = request.nextUrl.searchParams.get("code");
+  if (code && pathname !== "/auth/callback") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/callback";
+    url.search = `?code=${encodeURIComponent(code)}`;
+    return NextResponse.redirect(url);
+  }
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const pathname = request.nextUrl.pathname;
   const isPublicPath = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
 
   if (!user && !isPublicPath) {
