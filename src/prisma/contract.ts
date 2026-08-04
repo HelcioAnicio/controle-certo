@@ -83,8 +83,18 @@ export const contract = defineContract(
       },
     });
 
+    const UserSettings = model('UserSettings', {
+      fields: {
+        id: field.id.uuidv7String(),
+        userId: field.text().unique(),
+        monthStartDay: field.int().default(1),
+        createdAt: field.temporal.createdAt(),
+        updatedAt: field.temporal.updatedAt(),
+      },
+    });
+
     return {
-      models: { Category, Subcategory, FixedExpense, Transaction },
+      models: { Category, Subcategory, FixedExpense, Transaction, UserSettings },
       // RLS is enabled with no policies: only the trusted server-side Postgres
       // connection (table owner, bypasses RLS) reads/writes these tables. This
       // keeps Supabase's anon/authenticated PostgREST roles locked out by
@@ -94,6 +104,7 @@ export const contract = defineContract(
         rlsEnabled(Subcategory),
         rlsEnabled(FixedExpense),
         rlsEnabled(Transaction),
+        rlsEnabled(UserSettings),
       ],
     };
   },

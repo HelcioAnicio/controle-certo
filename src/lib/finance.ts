@@ -53,11 +53,53 @@ export function addMonths(period: string, delta: number): string {
   return periodKey(date);
 }
 
-/** The due date for a fixed expense's occurrence within a given "YYYY-MM" period. */
-export function dueDateForPeriod(period: string, dueDay: number): Date {
+/**
+ * The period a date belongs to, given the day of month the user's "month"
+ * starts on. With `startDay` 1 this is just the calendar month. With e.g.
+ * `startDay` 7 (paid on the 7th), the days before the 7th still belong to
+ * the previous period — someone paid on 07/08 is still living off that
+ * paycheck through 06/09, so 07/09 is when the "September" period starts.
+ */
+export function periodForDate(d: Date, startDay: number = 1): string {
+  if (startDay <= 1 || d.getDate() >= startDay) {
+    return periodKey(d);
+  }
+  return addMonths(periodKey(d), -1);
+}
+
+function clampedDate(year: number, monthIndex0: number, day: number): Date {
+  const lastDay = new Date(year, monthIndex0 + 1, 0).getDate();
+  return new Date(year, monthIndex0, Math.min(Math.max(day, 1), lastDay));
+}
+
+/** The real calendar date `startDay` of a period falls on (clamped to the month's length). */
+function periodStartDate(period: string, startDay: number): Date {
   const [y, m] = period.split("-").map(Number);
-  const lastDay = new Date(y, m, 0).getDate();
-  return new Date(y, m - 1, Math.min(dueDay, lastDay));
+  return clampedDate(y, m - 1, startDay);
+}
+
+/** The [start, end] calendar dates a "YYYY-MM" period spans, given the configured month-start day. */
+export function periodDateRange(period: string, startDay: number = 1): { start: Date; end: Date } {
+  const start = periodStartDate(period, startDay);
+  const nextStart = periodStartDate(addMonths(period, 1), startDay);
+  const end = new Date(nextStart);
+  end.setDate(end.getDate() - 1);
+  return { start, end };
+}
+
+/**
+ * The due date for a fixed expense's occurrence within a given "YYYY-MM"
+ * period. When `startDay` pushes the period's start past the 1st, a due day
+ * earlier than `startDay` falls in the following calendar month (that's the
+ * whole point: it's still within this pay period, just after the 1st).
+ */
+export function dueDateForPeriod(period: string, dueDay: number, startDay: number = 1): Date {
+  const [y, m] = period.split("-").map(Number);
+  if (dueDay < startDay) {
+    const [ny, nm] = addMonths(period, 1).split("-").map(Number);
+    return clampedDate(ny, nm - 1, dueDay);
+  }
+  return clampedDate(y, m - 1, dueDay);
 }
 
 export const DEFAULT_CATEGORIES = [

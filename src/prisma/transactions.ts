@@ -37,6 +37,7 @@ export async function listTransactionsForPeriod(
 export async function ensureFixedExpensesGeneratedForPeriod(
   userId: string,
   periodMonth: string,
+  monthStartDay: number = 1,
 ): Promise<void> {
   const [fixedExpenses, existing] = await Promise.all([
     listActiveFixedExpenses(userId),
@@ -60,7 +61,7 @@ export async function ensureFixedExpensesGeneratedForPeriod(
       amount: Number(f.estimatedAmount),
       isFixed: true,
       periodMonth,
-      dueDate: dueDateForPeriod(periodMonth, f.dueDay),
+      dueDate: dueDateForPeriod(periodMonth, f.dueDay, monthStartDay),
     })),
   ).toArray();
 }

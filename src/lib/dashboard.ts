@@ -123,8 +123,8 @@ export function computeMonthSummary(txs: EnrichedTransaction[]): MonthSummary {
 export { formatBRL };
 
 /** Loads and enriches a single period's transactions plus the user's category/subcategory lookups. */
-export async function loadMonthData(userId: string, periodMonth: string) {
-  await ensureFixedExpensesGeneratedForPeriod(userId, periodMonth);
+export async function loadMonthData(userId: string, periodMonth: string, monthStartDay: number = 1) {
+  await ensureFixedExpensesGeneratedForPeriod(userId, periodMonth, monthStartDay);
   const [transactions, categories, subcategories] = await Promise.all([
     listTransactionsForPeriod(userId, periodMonth),
     listCategories(userId),

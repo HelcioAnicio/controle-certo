@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { loadMonthData } from "@/lib/dashboard";
-import { formatBRL, periodKey } from "@/lib/finance";
+import { getUserSettings } from "@/prisma/settings";
+import { formatBRL, periodForDate } from "@/lib/finance";
 import CategoryIcon from "@/components/CategoryIcon";
 import StatusBadge from "@/components/StatusBadge";
 import PayButton from "@/components/PayButton";
@@ -13,9 +14,10 @@ export default async function PainelPage({
   searchParams: Promise<{ month?: string }>;
 }) {
   const { month } = await searchParams;
-  const period = month || periodKey(new Date());
   const user = await requireUser();
-  const { transactions, summary } = await loadMonthData(user.id, period);
+  const { monthStartDay } = await getUserSettings(user.id);
+  const period = month || periodForDate(new Date(), monthStartDay);
+  const { transactions, summary } = await loadMonthData(user.id, period, monthStartDay);
 
   if (transactions.length === 0) {
     return (

@@ -10,6 +10,7 @@ import {
   updateFixedExpense,
 } from "@/prisma/fixedExpenses";
 import { createTransaction, deleteTransaction, payTransaction } from "@/prisma/transactions";
+import { setMonthStartDay } from "@/prisma/settings";
 import type { TxType } from "@/lib/finance";
 
 function refresh() {
@@ -119,5 +120,11 @@ export async function updateSubcategoryAction(input: {
   const user = await requireUser();
   const { id, ...rest } = input;
   await updateSubcategory(user.id, id, rest);
+  refresh();
+}
+
+export async function updateMonthStartDayAction(day: number) {
+  const user = await requireUser();
+  await setMonthStartDay(user.id, day);
   refresh();
 }

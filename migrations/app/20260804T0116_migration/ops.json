@@ -1,0 +1,122 @@
+[
+  {
+    "id": "table.UserSettings",
+    "label": "Create table \"UserSettings\"",
+    "summary": "Creates table \"UserSettings\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "UserSettings"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"UserSettings\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"UserSettings\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"UserSettings\"",
+        "sql": "CREATE TABLE \"public\".\"UserSettings\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" character(36) NOT NULL,\n  \"monthStartDay\" int4 DEFAULT 1 NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"userId\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"UserSettings\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"UserSettings\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.UserSettings.UserSettings_userId_key",
+    "label": "Add unique constraint on \"UserSettings\" (userId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "UserSettings_userId_key",
+        "table": "UserSettings"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"UserSettings_userId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "UserSettings_userId_key",
+          "public",
+          "\"public\".\"UserSettings\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"UserSettings_userId_key\"",
+        "sql": "ALTER TABLE \"public\".\"UserSettings\" ADD CONSTRAINT \"UserSettings_userId_key\" UNIQUE (\"userId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"UserSettings_userId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "UserSettings_userId_key",
+          "public",
+          "\"public\".\"UserSettings\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rowLevelSecurity.public.UserSettings",
+    "label": "Enable row-level security on \"UserSettings\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "UserSettings"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"UserSettings\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "UserSettings"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"UserSettings\"",
+        "sql": "ALTER TABLE \"public\".\"UserSettings\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"UserSettings\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "UserSettings"
+        ]
+      }
+    ]
+  }
+]

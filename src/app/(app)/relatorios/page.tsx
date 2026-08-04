@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { loadMonthData } from "@/lib/dashboard";
-import { addMonths, formatBRL, periodKey } from "@/lib/finance";
+import { getUserSettings } from "@/prisma/settings";
+import { addMonths, formatBRL, periodForDate } from "@/lib/finance";
 
 export default async function RelatoriosPage({
   searchParams,
@@ -8,11 +9,12 @@ export default async function RelatoriosPage({
   searchParams: Promise<{ month?: string }>;
 }) {
   const { month } = await searchParams;
-  const period = month || periodKey(new Date());
   const user = await requireUser();
+  const { monthStartDay } = await getUserSettings(user.id);
+  const period = month || periodForDate(new Date(), monthStartDay);
 
   const periods = [addMonths(period, -3), addMonths(period, -2), addMonths(period, -1), period];
-  const monthData = await Promise.all(periods.map((p) => loadMonthData(user.id, p)));
+  const monthData = await Promise.all(periods.map((p) => loadMonthData(user.id, p, monthStartDay)));
   const current = monthData[monthData.length - 1];
   const previous = monthData[monthData.length - 2];
 

@@ -2,7 +2,8 @@ import { requireUser } from "@/lib/auth";
 import { listFixedExpenses } from "@/prisma/fixedExpenses";
 import { listCategories, listSubcategories } from "@/prisma/categories";
 import { ensureFixedExpensesGeneratedForPeriod, listTransactionsForPeriod } from "@/prisma/transactions";
-import { formatBRL, periodKey } from "@/lib/finance";
+import { getUserSettings } from "@/prisma/settings";
+import { formatBRL, periodForDate } from "@/lib/finance";
 import CategoryIcon from "@/components/CategoryIcon";
 import PauseButton from "@/components/PauseButton";
 import ModalTriggerButton from "@/components/ModalTriggerButton";
@@ -16,10 +17,11 @@ export default async function GastosFixosPage({
   searchParams: Promise<{ month?: string }>;
 }) {
   const { month } = await searchParams;
-  const period = month || periodKey(new Date());
   const user = await requireUser();
+  const { monthStartDay } = await getUserSettings(user.id);
+  const period = month || periodForDate(new Date(), monthStartDay);
 
-  await ensureFixedExpensesGeneratedForPeriod(user.id, period);
+  await ensureFixedExpensesGeneratedForPeriod(user.id, period, monthStartDay);
   const [fixedExpenses, categories, subcategories, transactions] = await Promise.all([
     listFixedExpenses(user.id),
     listCategories(user.id),

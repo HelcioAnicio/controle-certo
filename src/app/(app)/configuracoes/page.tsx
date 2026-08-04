@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { signOut } from "@/app/(auth)/actions";
+import { getUserSettings } from "@/prisma/settings";
+import MonthStartDaySelect from "@/components/MonthStartDaySelect";
 
 export default async function ConfiguracoesPage() {
   const user = await requireUser();
+  const { monthStartDay } = await getUserSettings(user.id);
   const name = (user.user_metadata?.name as string | undefined)?.trim() || user.email || "Você";
   const email = user.email ?? "";
   const initials = name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
@@ -45,8 +48,12 @@ export default async function ConfiguracoesPage() {
           <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>R$ (Real)</span>
         </Row>
         <Row label="Dia de início do mês" last>
-          <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>Dia 1</span>
+          <MonthStartDaySelect initialDay={monthStartDay} />
         </Row>
+      </div>
+      <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: -8, lineHeight: 1.5 }}>
+        Se você recebe salário depois do dia 1, defina o dia aqui — os primeiros dias do mês
+        continuam contando como parte do período anterior, junto com o que você já recebeu.
       </div>
 
       <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)", marginTop: 6 }}>Em breve</div>

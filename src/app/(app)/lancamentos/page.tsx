@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { loadMonthData } from "@/lib/dashboard";
-import { formatBRL, periodKey } from "@/lib/finance";
+import { getUserSettings } from "@/prisma/settings";
+import { formatBRL, periodForDate } from "@/lib/finance";
 import CategoryIcon from "@/components/CategoryIcon";
 import StatusBadge from "@/components/StatusBadge";
 import PayButton from "@/components/PayButton";
@@ -14,9 +15,10 @@ export default async function LancamentosPage({
   searchParams: Promise<{ month?: string; status?: string }>;
 }) {
   const { month, status } = await searchParams;
-  const period = month || periodKey(new Date());
   const user = await requireUser();
-  const { transactions } = await loadMonthData(user.id, period);
+  const { monthStartDay } = await getUserSettings(user.id);
+  const period = month || periodForDate(new Date(), monthStartDay);
+  const { transactions } = await loadMonthData(user.id, period, monthStartDay);
 
   if (transactions.length === 0) {
     return (

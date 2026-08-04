@@ -5,8 +5,9 @@ import { useSearchParams } from "next/navigation";
 import { useCategories } from "../providers/CategoriesProvider";
 import { useModal } from "../providers/ModalProvider";
 import { useToast } from "../providers/ToastProvider";
+import { useSettings } from "../providers/SettingsProvider";
 import { createTransactionAction } from "@/app/(app)/actions";
-import { buildSubcategoryOptions, periodKey, type TxType } from "@/lib/finance";
+import { buildSubcategoryOptions, periodForDate, type TxType } from "@/lib/finance";
 import {
   closeBtn,
   fieldLabel,
@@ -23,8 +24,9 @@ export default function NovoLancamentoModal() {
   const { categories, subcategories } = useCategories();
   const { closeModal } = useModal();
   const { showToast } = useToast();
+  const { monthStartDay } = useSettings();
   const searchParams = useSearchParams();
-  const currentPeriod = searchParams.get("month") || periodKey(new Date());
+  const currentPeriod = searchParams.get("month") || periodForDate(new Date(), monthStartDay);
 
   const [type, setType] = useState<TxType>("expense");
   const [subcategoryId, setSubcategoryId] = useState("");
@@ -56,7 +58,7 @@ export default function NovoLancamentoModal() {
         subcategoryId: sub,
         description,
         amount: amountNum,
-        periodMonth: date ? periodKey(new Date(date)) : currentPeriod,
+        periodMonth: date ? periodForDate(new Date(date), monthStartDay) : currentPeriod,
         dueDate: date || null,
         paid,
       });
