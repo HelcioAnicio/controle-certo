@@ -17,7 +17,7 @@ export default async function PainelPage({
   const user = await requireUser();
   const { monthStartDay } = await getUserSettings(user.id);
   const period = month || periodForDate(new Date(), monthStartDay);
-  const { transactions, summary } = await loadMonthData(user.id, period, monthStartDay);
+  const { transactions, summary, budgetProgress } = await loadMonthData(user.id, period, monthStartDay);
 
   if (transactions.length === 0) {
     return (
@@ -67,6 +67,40 @@ export default async function PainelPage({
           <div style={{ height: "100%", borderRadius: 99, background: "var(--color-success)", width: `${summary.progressPct}%` }} />
         </div>
       </div>
+
+      {budgetProgress.length > 0 && (
+        <div style={{ background: "var(--surface)", borderRadius: 16, padding: "18px 20px", border: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ fontSize: 14, fontWeight: 600 }}>Orçamentos do mês</div>
+          {budgetProgress.map((b) => (
+            <div key={b.subcategoryId}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "#334155", marginBottom: 6 }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <CategoryIcon icon={b.subcategoryIcon} color={b.categoryColor} size={24} />
+                  {b.subcategoryName}
+                </span>
+                <span style={{ fontWeight: 600, color: b.remaining < 0 ? "var(--color-danger)" : "var(--text)" }}>
+                  {formatBRL(b.spent)} de {formatBRL(b.monthlyAmount)}
+                </span>
+              </div>
+              <div style={{ height: 8, borderRadius: 99, background: "var(--border-soft)", overflow: "hidden" }}>
+                <div
+                  style={{
+                    height: "100%",
+                    borderRadius: 99,
+                    width: `${b.pct}%`,
+                    background: b.remaining < 0 ? "var(--color-danger)" : "var(--color-primary)",
+                  }}
+                />
+              </div>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
+                {b.remaining >= 0
+                  ? `${formatBRL(b.remaining)} restantes`
+                  : `${formatBRL(-b.remaining)} acima do orçamento`}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="app-metrics-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
         <MetricCard label="Receitas do mês" value={summary.incomeTotal} color="var(--color-success)" />

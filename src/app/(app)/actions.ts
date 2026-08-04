@@ -2,7 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
-import { createCategory, createSubcategory, updateSubcategory } from "@/prisma/categories";
+import {
+  createCategory,
+  createSubcategory,
+  deleteCategory,
+  deleteSubcategory,
+  updateSubcategory,
+} from "@/prisma/categories";
+import { deleteBudget, upsertBudget } from "@/prisma/budgets";
 import {
   createFixedExpense,
   deleteFixedExpense,
@@ -123,8 +130,32 @@ export async function updateSubcategoryAction(input: {
   refresh();
 }
 
+export async function deleteCategoryAction(id: string) {
+  const user = await requireUser();
+  await deleteCategory(user.id, id);
+  refresh();
+}
+
+export async function deleteSubcategoryAction(id: string) {
+  const user = await requireUser();
+  await deleteSubcategory(user.id, id);
+  refresh();
+}
+
 export async function updateMonthStartDayAction(day: number) {
   const user = await requireUser();
   await setMonthStartDay(user.id, day);
+  refresh();
+}
+
+export async function setBudgetAction(input: { subcategoryId: string; monthlyAmount: number }) {
+  const user = await requireUser();
+  await upsertBudget(user.id, input.subcategoryId, input.monthlyAmount);
+  refresh();
+}
+
+export async function deleteBudgetAction(subcategoryId: string) {
+  const user = await requireUser();
+  await deleteBudget(user.id, subcategoryId);
   refresh();
 }

@@ -5,6 +5,7 @@ import {
   listTransactionsForPeriod,
   type Transaction,
 } from "@/prisma/transactions";
+import { listBudgets, type Budget } from "@/prisma/budgets";
 import { computeStatus, formatBRL, type TxStatus } from "./finance";
 
 export type EnrichedTransaction = Transaction & {
@@ -122,15 +123,65 @@ export function computeMonthSummary(txs: EnrichedTransaction[]): MonthSummary {
 
 export { formatBRL };
 
+export type BudgetProgress = {
+  subcategoryId: string;
+  subcategoryName: string;
+  subcategoryIcon: string;
+  categoryColor: string;
+  monthlyAmount: number;
+  spent: number;
+  remaining: number;
+  pct: number;
+};
+
+/**
+ * Reserved-amount tracking ("abatimento"): each budgeted subcategory has a fixed
+ * monthly target that gets drawn down as expenses land in it during the period,
+ * so the user sees what's left of e.g. a R$1300 grocery reserve instead of just
+ * a running total.
+ */
+export function computeBudgetProgress(
+  budgets: Budget[],
+  subcategories: Subcategory[],
+  categories: Category[],
+  transactions: EnrichedTransaction[],
+): BudgetProgress[] {
+  const subById = new Map(subcategories.map((s) => [s.id, s]));
+  const catById = new Map(categories.map((c) => [c.id, c]));
+
+  return budgets
+    .map((b) => {
+      const sub = subById.get(b.subcategoryId);
+      const cat = sub ? catById.get(sub.categoryId) : undefined;
+      const spent = transactions
+        .filter((t) => t.subcategoryId === b.subcategoryId && t.type === "expense")
+        .reduce((sum, t) => sum + t.displayAmount, 0);
+      const monthlyAmount = Number(b.monthlyAmount);
+      return {
+        subcategoryId: b.subcategoryId,
+        subcategoryName: sub?.name ?? "—",
+        subcategoryIcon: sub?.icon ?? "folder",
+        categoryColor: cat?.color ?? "#64748B",
+        monthlyAmount,
+        spent,
+        remaining: monthlyAmount - spent,
+        pct: monthlyAmount > 0 ? Math.min(100, Math.round((spent / monthlyAmount) * 100)) : 0,
+      };
+    })
+    .sort((a, b) => a.subcategoryName.localeCompare(b.subcategoryName, "pt-BR"));
+}
+
 /** Loads and enriches a single period's transactions plus the user's category/subcategory lookups. */
 export async function loadMonthData(userId: string, periodMonth: string, monthStartDay: number = 1) {
   await ensureFixedExpensesGeneratedForPeriod(userId, periodMonth, monthStartDay);
-  const [transactions, categories, subcategories] = await Promise.all([
+  const [transactions, categories, subcategories, budgets] = await Promise.all([
     listTransactionsForPeriod(userId, periodMonth),
     listCategories(userId),
     listSubcategories(userId),
+    listBudgets(userId),
   ]);
   const enriched = enrichTransactions(transactions, subcategories, categories);
   const summary = computeMonthSummary(enriched);
-  return { transactions: enriched, categories, subcategories, summary };
+  const budgetProgress = computeBudgetProgress(budgets, subcategories, categories, enriched);
+  return { transactions: enriched, categories, subcategories, summary, budgetProgress };
 }

@@ -1,0 +1,80 @@
+[
+  {
+    "id": "table.Budget",
+    "label": "Create table \"Budget\"",
+    "summary": "Creates table \"Budget\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Budget"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Budget\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Budget\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Budget\"",
+        "sql": "CREATE TABLE \"public\".\"Budget\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" character(36) NOT NULL,\n  \"monthlyAmount\" numeric NOT NULL,\n  \"subcategoryId\" character(36) NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"userId\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Budget\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Budget\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rowLevelSecurity.public.Budget",
+    "label": "Enable row-level security on \"Budget\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "Budget"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"Budget\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "Budget"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"Budget\"",
+        "sql": "ALTER TABLE \"public\".\"Budget\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"Budget\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "Budget"
+        ]
+      }
+    ]
+  }
+]

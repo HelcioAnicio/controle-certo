@@ -55,6 +55,27 @@ export async function updateSubcategory(
   await db.orm.public.Subcategory.where({ id, userId }).update(input);
 }
 
+/** Refuses to delete while subcategories still reference this category, since there's no DB-level FK to catch it. */
+export async function deleteCategory(userId: string, id: string): Promise<void> {
+  const remaining = await db.orm.public.Subcategory.where({ categoryId: id, userId }).take(1).all();
+  if (remaining.length > 0) {
+    throw new Error("Exclua as subcategorias desta categoria antes de removê-la.");
+  }
+  await db.orm.public.Category.where({ id, userId }).delete();
+}
+
+/** Refuses to delete while transactions or fixed expenses still reference this subcategory, since there's no DB-level FK to catch it. */
+export async function deleteSubcategory(userId: string, id: string): Promise<void> {
+  const [transactions, fixedExpenses] = await Promise.all([
+    db.orm.public.Transaction.where({ subcategoryId: id, userId }).take(1).all(),
+    db.orm.public.FixedExpense.where({ subcategoryId: id, userId }).take(1).all(),
+  ]);
+  if (transactions.length > 0 || fixedExpenses.length > 0) {
+    throw new Error("Esta subcategoria tem lançamentos ou gastos fixos vinculados e não pode ser excluída.");
+  }
+  await db.orm.public.Subcategory.where({ id, userId }).delete();
+}
+
 /** Seeds the starter category/subcategory set for a brand-new user. No-op if they already have categories. */
 export async function ensureDefaultCategories(userId: string): Promise<void> {
   const existing = await db.orm.public.Category.where({ userId }).take(1).all();
