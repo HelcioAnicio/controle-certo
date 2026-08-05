@@ -13,14 +13,19 @@ export default async function RelatoriosPage({
   const { monthStartDay } = await getUserSettings(user.id);
   const period = month || periodForDate(new Date(), monthStartDay);
 
-  const periods = [addMonths(period, -3), addMonths(period, -2), addMonths(period, -1), period];
+  // A brand-new account has no history before signup, so comparing against
+  // months that predate it would just be empty data pretending to be a trend.
+  const accountPeriod = periodForDate(new Date(user.created_at), monthStartDay);
+  const periods = [addMonths(period, -3), addMonths(period, -2), addMonths(period, -1), period].filter(
+    (p) => p >= accountPeriod,
+  );
   const monthData = await Promise.all(periods.map((p) => loadMonthData(user.id, p, monthStartDay)));
   const current = monthData[monthData.length - 1];
-  const previous = monthData[monthData.length - 2];
+  const previous = monthData.length > 1 ? monthData[monthData.length - 2] : undefined;
 
   const topCat = current.summary.pieSlices[0];
   const changePct =
-    previous.summary.previstoTotal > 0
+    previous && previous.summary.previstoTotal > 0
       ? Math.round(
           ((current.summary.previstoTotal - previous.summary.previstoTotal) / previous.summary.previstoTotal) * 100,
         )
@@ -45,17 +50,28 @@ export default async function RelatoriosPage({
         </div>
         <div style={cardStyle}>
           <div style={labelStyle}>Vs. mês anterior</div>
-          <div style={{ fontSize: 17, fontWeight: 700, marginTop: 4, color: changePct > 0 ? "var(--color-danger)" : "var(--color-success)" }}>
-            {changePct > 0 ? "↑" : changePct < 0 ? "↓" : "–"} {Math.abs(changePct)}%
-          </div>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
-            {changePct > 0 ? "gastou mais" : changePct < 0 ? "gastou menos" : "igual"} que o mês passado
-          </div>
+          {previous ? (
+            <>
+              <div style={{ fontSize: 17, fontWeight: 700, marginTop: 4, color: changePct > 0 ? "var(--color-danger)" : "var(--color-success)" }}>
+                {changePct > 0 ? "↑" : changePct < 0 ? "↓" : "–"} {Math.abs(changePct)}%
+              </div>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
+                {changePct > 0 ? "gastou mais" : changePct < 0 ? "gastou menos" : "igual"} que o mês passado
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={{ fontSize: 17, fontWeight: 700, marginTop: 4 }}>—</div>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>sem mês anterior ainda</div>
+            </>
+          )}
         </div>
         <div style={cardStyle}>
           <div style={labelStyle}>Média mensal</div>
           <div style={{ fontSize: 17, fontWeight: 700, marginTop: 4 }}>{formatBRL(average)}</div>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>últimos 4 meses</div>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
+            {periods.length > 1 ? `últimos ${periods.length} meses` : "este mês"}
+          </div>
         </div>
       </div>
 
@@ -81,7 +97,9 @@ export default async function RelatoriosPage({
         </div>
 
         <div style={{ background: "var(--surface)", borderRadius: 16, padding: 20, border: "1px solid var(--border)" }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 18 }}>Últimos 4 meses</div>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 18 }}>
+            {periods.length > 1 ? `Últimos ${periods.length} meses` : "Este mês"}
+          </div>
           <div style={{ display: "flex", alignItems: "flex-end", gap: 18, height: 140 }}>
             {periods.map((p, i) => {
               const total = monthData[i].summary.previstoTotal;
