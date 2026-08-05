@@ -61,18 +61,6 @@ export default async function PainelPage({
         />
       </div>
 
-      <div style={{ background: "var(--surface)", borderRadius: 16, padding: "18px 20px", border: "1px solid var(--border)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "#334155", fontWeight: 600, marginBottom: 10 }}>
-          <span>
-            Pago {formatBRL(summary.paidExpenseTotal)} de {formatBRL(summary.previstoTotal)} previsto
-          </span>
-          <span>{summary.progressPct}%</span>
-        </div>
-        <div style={{ height: 8, borderRadius: 99, background: "var(--border-soft)", overflow: "hidden" }}>
-          <div style={{ height: "100%", borderRadius: 99, background: "var(--color-success)", width: `${summary.progressPct}%` }} />
-        </div>
-      </div>
-
       {budgetProgress.length > 0 && (
         <div style={{ background: "var(--surface)", borderRadius: 16, padding: "18px 20px", border: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 14 }}>
           <div style={{ fontSize: 14, fontWeight: 600 }}>Orçamentos do mês</div>
@@ -110,7 +98,12 @@ export default async function PainelPage({
       <div className="app-metrics-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
         <MetricCard label="Receitas do mês" value={summary.incomeTotal} color="var(--color-success)" />
         <MetricCard label="Total previsto" value={summary.previstoTotal} color="var(--color-primary)" />
-        <MetricCard label="Já pago" value={summary.paidExpenseTotal} color="var(--color-success)" />
+        <MetricCard
+          label="Já pago"
+          value={summary.paidExpenseTotal}
+          color="var(--color-success)"
+          badge={`${summary.progressPct}%`}
+        />
         <MetricCard label="A pagar" value={summary.pendingTotal} color="var(--color-warning)" />
       </div>
 
@@ -224,10 +217,36 @@ function BalanceCard({
   );
 }
 
-function MetricCard({ label, value, color }: { label: string; value: number; color: string }) {
+function MetricCard({
+  label,
+  value,
+  color,
+  badge,
+}: {
+  label: string;
+  value: number;
+  color: string;
+  badge?: string;
+}) {
   return (
     <div style={{ background: "var(--surface)", borderRadius: 14, padding: "14px 16px", border: "1px solid var(--border)" }}>
-      <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{label}</div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{label}</div>
+        {badge && (
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              color: "var(--color-success)",
+              background: "var(--color-success-tint)",
+              padding: "2px 7px",
+              borderRadius: 99,
+            }}
+          >
+            {badge}
+          </span>
+        )}
+      </div>
       <div style={{ fontSize: 19, fontWeight: 700, color, marginTop: 4 }}>{formatBRL(value)}</div>
     </div>
   );
