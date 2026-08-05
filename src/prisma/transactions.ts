@@ -98,6 +98,19 @@ export async function createTransaction(
   return row as Transaction;
 }
 
+/** Edits a single occurrence only — for a fixed-expense-generated row, this never touches the recurring template or other months. */
+export async function updateTransaction(
+  userId: string,
+  id: string,
+  input: { subcategoryId: string; description?: string; amount: number },
+): Promise<void> {
+  await db.orm.public.Transaction.where({ id, userId }).update({
+    subcategoryId: input.subcategoryId,
+    description: input.description || null,
+    amount: input.amount,
+  });
+}
+
 export async function payTransaction(
   userId: string,
   id: string,

@@ -6,15 +6,17 @@ import CategoryIcon from "@/components/CategoryIcon";
 import StatusBadge from "@/components/StatusBadge";
 import PayButton from "@/components/PayButton";
 import DeleteButton from "@/components/DeleteButton";
+import EditTransactionButton from "@/components/EditTransactionButton";
 import FilterChips from "@/components/FilterChips";
+import SearchInput from "@/components/SearchInput";
 import EmptyState from "@/components/EmptyState";
 
 export default async function LancamentosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ month?: string; status?: string }>;
+  searchParams: Promise<{ month?: string; status?: string; q?: string }>;
 }) {
-  const { month, status } = await searchParams;
+  const { month, status, q } = await searchParams;
   const user = await requireUser();
   const { monthStartDay } = await getUserSettings(user.id);
   const period = month || periodForDate(new Date(), monthStartDay);
@@ -30,11 +32,23 @@ export default async function LancamentosPage({
   }
 
   const filter = status || "todos";
-  const filtered = transactions.filter((t) => {
-    if (filter === "todos") return true;
-    if (filter === "pending") return t.status === "pending" || t.status === "scheduled";
-    return t.status === filter;
-  });
+  const query = (q || "").trim().toLowerCase();
+  const filtered = transactions
+    .filter((t) => {
+      if (filter === "todos") return true;
+      if (filter === "pending") return t.status === "pending" || t.status === "scheduled";
+      return t.status === filter;
+    })
+    .filter((t) => {
+      if (!query) return true;
+      const haystack = `${t.description ?? ""} ${t.subcategoryName}`.toLowerCase();
+      return haystack.includes(query);
+    })
+    .sort((a, b) => {
+      const aTime = a.dueDate ? a.dueDate.getTime() : Infinity;
+      const bTime = b.dueDate ? b.dueDate.getTime() : Infinity;
+      return aTime - bTime;
+    });
 
   const filteredTotal = filtered
     .filter((t) => t.type === "expense")
@@ -42,6 +56,7 @@ export default async function LancamentosPage({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <SearchInput placeholder="Buscar por descrição ou subcategoria..." />
       <FilterChips />
 
       <div style={{ background: "var(--surface)", borderRadius: 16, border: "1px solid var(--border)", overflow: "hidden" }}>
@@ -77,6 +92,7 @@ export default async function LancamentosPage({
                 {formatBRL(t.displayAmount)}
               </div>
               <PayButton tx={t} variant="row" />
+              <EditTransactionButton tx={t} />
               <DeleteButton id={t.id} desc={t.description || t.subcategoryName} />
             </div>
           ))

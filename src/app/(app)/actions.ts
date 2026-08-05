@@ -16,7 +16,7 @@ import {
   setFixedExpenseActive,
   updateFixedExpense,
 } from "@/prisma/fixedExpenses";
-import { createTransaction, deleteTransaction, payTransaction } from "@/prisma/transactions";
+import { createTransaction, deleteTransaction, payTransaction, updateTransaction } from "@/prisma/transactions";
 import { setMonthStartDay } from "@/prisma/settings";
 import type { TxType } from "@/lib/finance";
 
@@ -56,6 +56,18 @@ export async function payTransactionAction(input: {
     paidAmount: input.paidAmount,
     paidDate: new Date(input.paidDate),
   });
+  refresh();
+}
+
+export async function updateTransactionAction(input: {
+  id: string;
+  subcategoryId: string;
+  description?: string;
+  amount: number;
+}) {
+  const user = await requireUser();
+  const { id, ...rest } = input;
+  await updateTransaction(user.id, id, rest);
   refresh();
 }
 

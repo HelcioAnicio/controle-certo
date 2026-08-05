@@ -7,6 +7,7 @@ import ConfirmarPagamentoModal, { type PagamentoCtx } from "../modals/ConfirmarP
 import NovaCategoriaModal, { type NovaCategoriaCtx } from "../modals/NovaCategoriaModal";
 import ConfirmarExclusaoModal, { type ExclusaoCtx } from "../modals/ConfirmarExclusaoModal";
 import DefinirOrcamentoModal, { type OrcamentoCtx } from "../modals/DefinirOrcamentoModal";
+import EditarLancamentoModal, { type EditarLancamentoCtx } from "../modals/EditarLancamentoModal";
 
 export type ModalName =
   | "novoLancamento"
@@ -14,7 +15,8 @@ export type ModalName =
   | "confirmarPagamento"
   | "novaCategoria"
   | "confirmarExclusao"
-  | "definirOrcamento";
+  | "definirOrcamento"
+  | "editarLancamento";
 
 export type ModalCtxMap = {
   novoLancamento: undefined;
@@ -23,6 +25,7 @@ export type ModalCtxMap = {
   novaCategoria: NovaCategoriaCtx;
   confirmarExclusao: ExclusaoCtx;
   definirOrcamento: OrcamentoCtx;
+  editarLancamento: EditarLancamentoCtx;
 };
 
 type ModalContextValue = {
@@ -59,6 +62,9 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
             )}
             {active.name === "definirOrcamento" && (
               <DefinirOrcamentoModal ctx={active.ctx as OrcamentoCtx} />
+            )}
+            {active.name === "editarLancamento" && (
+              <EditarLancamentoModal ctx={active.ctx as EditarLancamentoCtx} />
             )}
           </div>
         </div>
