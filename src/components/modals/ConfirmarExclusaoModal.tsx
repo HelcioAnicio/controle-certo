@@ -20,7 +20,7 @@ export type ExclusaoCtx = {
 const DESCRIPTIONS: Record<NonNullable<ExclusaoCtx["kind"]>, string> = {
   transaction: "Esta ação não pode ser desfeita. O lançamento será removido permanentemente da sua lista deste mês.",
   fixedExpense:
-    "Esta ação não pode ser desfeita. O gasto fixo deixará de ser gerado nos próximos meses; lançamentos já feitos com ele permanecem no seu histórico.",
+    "Esta ação não pode ser desfeita. Este fixo deixará de ser gerado nos próximos meses; lançamentos já feitos com ele permanecem no seu histórico.",
   category: "Esta ação não pode ser desfeita. Só é possível excluir categorias sem subcategorias.",
   subcategory:
     "Esta ação não pode ser desfeita. Só é possível excluir subcategorias sem lançamentos ou gastos fixos vinculados.",

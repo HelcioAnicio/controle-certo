@@ -2,6 +2,7 @@ import "server-only";
 import { db } from "./db";
 import { dueDateForPeriod, type TxType } from "@/lib/finance";
 import { listActiveFixedExpenses } from "./fixedExpenses";
+import { listSubcategories } from "./categories";
 
 export type Transaction = {
   id: string;
@@ -39,22 +40,25 @@ export async function ensureFixedExpensesGeneratedForPeriod(
   periodMonth: string,
   monthStartDay: number = 1,
 ): Promise<void> {
-  const [fixedExpenses, existing] = await Promise.all([
+  const [fixedExpenses, existing, subcategories] = await Promise.all([
     listActiveFixedExpenses(userId),
     db.orm.public.Transaction
       .where({ userId, periodMonth, isFixed: true })
       .select("fixedExpenseId")
       .all(),
+    listSubcategories(userId),
   ]);
 
   const generatedIds = new Set(existing.map((t) => t.fixedExpenseId).filter(Boolean));
   const missing = fixedExpenses.filter((f) => !generatedIds.has(f.id));
   if (missing.length === 0) return;
 
+  const subTypeById = new Map(subcategories.map((s) => [s.id, s.type]));
+
   await db.orm.public.Transaction.createAll(
     missing.map((f) => ({
       userId,
-      type: "expense" as const,
+      type: subTypeById.get(f.subcategoryId) ?? ("expense" as const),
       subcategoryId: f.subcategoryId,
       fixedExpenseId: f.id,
       description: f.name,

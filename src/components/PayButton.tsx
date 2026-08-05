@@ -11,8 +11,20 @@ export default function PayButton({
   variant?: "compact" | "row";
 }) {
   const { openModal } = useModal();
+  const isIncome = tx.type === "income";
   const payable = tx.status !== "paid" && tx.status !== "scheduled";
-  const label = tx.status === "paid" ? "Pago" : payable ? "Pagar" : tx.status === "scheduled" ? "Bloqueado" : "Indisponível";
+  const label =
+    tx.status === "paid"
+      ? isIncome
+        ? "Recebido"
+        : "Pago"
+      : payable
+        ? isIncome
+          ? "Receber"
+          : "Pagar"
+        : tx.status === "scheduled"
+          ? "Bloqueado"
+          : "Indisponível";
   const locked = !payable;
 
   const baseStyle: React.CSSProperties = {
@@ -39,6 +51,7 @@ export default function PayButton({
           id: tx.id,
           desc: tx.description || tx.subcategoryName,
           amount: Number(tx.amount),
+          type: tx.type,
           locked,
           lockDateLabel: tx.dueDate ? tx.dueDate.toLocaleDateString("pt-BR") : undefined,
         })

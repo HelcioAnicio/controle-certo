@@ -173,7 +173,7 @@ export default function NovoLancamentoModal() {
           )}
         </div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 2px" }}>
-          <span style={{ fontSize: 14, fontWeight: 500 }}>Já foi pago?</span>
+          <span style={{ fontSize: 14, fontWeight: 500 }}>{type === "income" ? "Já foi recebido?" : "Já foi pago?"}</span>
           <Switch checked={paid} onChange={setPaid} />
         </div>
         {error && <div style={{ fontSize: 13, color: "var(--color-danger)" }}>{error}</div>}

@@ -76,7 +76,7 @@ export default async function LancamentosPage({
                 {t.type === "income" ? "+ " : "- "}
                 {formatBRL(t.displayAmount)}
               </div>
-              {t.type === "expense" ? <PayButton tx={t} variant="row" /> : <span style={{ width: 30 }} />}
+              <PayButton tx={t} variant="row" />
               <DeleteButton id={t.id} desc={t.description || t.subcategoryName} />
             </div>
           ))

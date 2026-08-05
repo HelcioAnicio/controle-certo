@@ -5,7 +5,7 @@ import { useCategories } from "../providers/CategoriesProvider";
 import { useModal } from "../providers/ModalProvider";
 import { useToast } from "../providers/ToastProvider";
 import { createFixedExpenseAction, updateFixedExpenseAction } from "@/app/(app)/actions";
-import { buildSubcategoryOptions } from "@/lib/finance";
+import { buildSubcategoryOptions, type TxType } from "@/lib/finance";
 import {
   closeBtn,
   fieldLabel,
@@ -30,8 +30,11 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
   const { categories, subcategories } = useCategories();
   const { closeModal } = useModal();
   const { showToast } = useToast();
-  const options = buildSubcategoryOptions(categories, subcategories, (s) => s.type === "expense");
   const isEdit = !!ctx;
+  const editingSub = isEdit ? subcategories.find((s) => s.id === ctx.subcategoryId) : undefined;
+
+  const [type, setType] = useState<TxType>(editingSub?.type ?? "expense");
+  const options = buildSubcategoryOptions(categories, subcategories, (s) => s.type === type);
 
   const [name, setName] = useState(ctx?.name ?? "");
   const [subcategoryId, setSubcategoryId] = useState(ctx?.subcategoryId ?? "");
@@ -68,16 +71,57 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
         });
       }
       closeModal();
-      showToast(isEdit ? "Gasto fixo atualizado ✓" : "Gasto fixo salvo ✓");
+      showToast(isEdit ? "Fixo atualizado ✓" : "Fixo salvo ✓");
     });
   }
 
   return (
     <form onSubmit={handleSubmit}>
       <div style={modalHeader}>
-        <div style={modalTitle}>{isEdit ? "Editar gasto fixo" : "Novo gasto fixo"}</div>
+        <div style={modalTitle}>{isEdit ? "Editar fixo" : "Novo fixo"}</div>
         <button type="button" onClick={closeModal} style={closeBtn}>
           ×
+        </button>
+      </div>
+
+      <div style={{ display: "flex", gap: 8, marginBottom: 18, background: "var(--border-soft)", padding: 4, borderRadius: "var(--radius-md)" }}>
+        <button
+          type="button"
+          onClick={() => {
+            setType("expense");
+            setSubcategoryId("");
+          }}
+          style={{
+            flex: 1,
+            padding: 10,
+            border: "none",
+            borderRadius: 9,
+            fontSize: 14,
+            fontWeight: 600,
+            background: type === "expense" ? "var(--surface)" : "transparent",
+            color: type === "expense" ? "var(--color-danger)" : "var(--text-secondary)",
+          }}
+        >
+          Despesa
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setType("income");
+            setSubcategoryId("");
+          }}
+          style={{
+            flex: 1,
+            padding: 10,
+            border: "none",
+            borderRadius: 9,
+            fontSize: 14,
+            fontWeight: 600,
+            background: type === "income" ? "var(--surface)" : "transparent",
+            color: type === "income" ? "var(--color-success)" : "var(--text-secondary)",
+          }}
+        >
+          Receita
         </button>
       </div>
 
@@ -86,7 +130,7 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
           <div style={fieldLabel}>Nome</div>
           <input
             type="text"
-            placeholder="Ex.: Conta de Luz"
+            placeholder={type === "income" ? "Ex.: Salário" : "Ex.: Conta de Luz"}
             value={name}
             onChange={(e) => setName(e.target.value)}
             style={inputStyle}
@@ -106,7 +150,7 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
         </div>
         <div style={{ display: "flex", gap: 12 }}>
           <div style={{ flex: 1 }}>
-            <div style={fieldLabel}>Valor estimado</div>
+            <div style={fieldLabel}>{type === "income" ? "Valor médio recebido" : "Valor estimado"}</div>
             <input
               type="number"
               step="0.01"
@@ -118,7 +162,7 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
             />
           </div>
           <div style={{ flex: 1 }}>
-            <div style={fieldLabel}>Dia de vencimento</div>
+            <div style={fieldLabel}>{type === "income" ? "Dia do recebimento" : "Dia de vencimento"}</div>
             <input
               type="number"
               min="1"
@@ -140,8 +184,9 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
             lineHeight: 1.5,
           }}
         >
-          O valor estimado é usado só para a previsão. Todo mês este gasto aparecerá como pendente;
-          na hora de pagar você confirma o valor real.
+          {type === "income"
+            ? "O valor é usado só para a previsão. Todo mês esta receita aparecerá como pendente; na hora de confirmar o recebimento você informa o valor real."
+            : "O valor estimado é usado só para a previsão. Todo mês este gasto aparecerá como pendente; na hora de pagar você confirma o valor real."}
         </div>
         {error && <div style={{ fontSize: 13, color: "var(--color-danger)" }}>{error}</div>}
       </div>

@@ -45,17 +45,17 @@ export default async function GastosFixosPage({
           lineHeight: 1.5,
         }}
       >
-        Cadastre aqui as contas que se repetem todo mês. O valor estimado serve para a previsão; na hora
-        de pagar você informa o valor real.
+        Cadastre aqui as contas e receitas que se repetem todo mês, como aluguel, salário ou
+        assinaturas. O valor serve para a previsão; na hora de confirmar você informa o valor real.
       </div>
 
-      <ModalTriggerButton modal="novoFixo">+ Novo gasto fixo</ModalTriggerButton>
+      <ModalTriggerButton modal="novoFixo">+ Novo fixo</ModalTriggerButton>
 
       {fixedExpenses.length === 0 ? (
         <EmptyState
-          title="Você ainda não tem gastos fixos"
-          description="Cadastre água, luz, aluguel e outras contas que se repetem todo mês."
-          actionLabel="Novo gasto fixo"
+          title="Você ainda não tem fixos"
+          description="Cadastre água, luz, aluguel, salário e outras contas ou receitas que se repetem todo mês."
+          actionLabel="Novo fixo"
         />
       ) : (
         <div style={{ background: "var(--surface)", borderRadius: 16, border: "1px solid var(--border)", overflow: "hidden" }}>
@@ -85,7 +85,16 @@ export default async function GastosFixosPage({
                   </div>
                 </div>
                 <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: 14, fontWeight: 700 }}>{formatBRL(Number(f.estimatedAmount))}</div>
+                  <div
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 700,
+                      color: sub?.type === "income" ? "var(--color-success)" : "var(--text)",
+                    }}
+                  >
+                    {sub?.type === "income" ? "+ " : "- "}
+                    {formatBRL(Number(f.estimatedAmount))}
+                  </div>
                   <div style={{ fontSize: 11, color: "var(--text-disabled)" }}>{statusText}</div>
                 </div>
                 <EditFixedExpenseButton fixedExpense={f} />

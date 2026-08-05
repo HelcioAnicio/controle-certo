@@ -5,12 +5,14 @@ import { useModal } from "../providers/ModalProvider";
 import { useToast } from "../providers/ToastProvider";
 import { payTransactionAction } from "@/app/(app)/actions";
 import { formatBRL } from "@/lib/finance";
+import type { TxType } from "@/lib/finance";
 import { closeBtn, fieldLabel, inputStyle, modalHeader, modalTitle, secondaryBtn, successBtn } from "./styles";
 
 export type PagamentoCtx = {
   id: string;
   desc: string;
   amount: number;
+  type: TxType;
   locked: boolean;
   lockDateLabel?: string;
 };
@@ -26,6 +28,7 @@ export default function ConfirmarPagamentoModal({ ctx }: { ctx: PagamentoCtx }) 
   const [amount, setAmount] = useState(String(ctx.amount));
   const [date, setDate] = useState(todayInputValue());
   const [pending, startTransition] = useTransition();
+  const isIncome = ctx.type === "income";
 
   function confirm() {
     const amountNum = Number(amount.replace(",", "."));
@@ -33,14 +36,14 @@ export default function ConfirmarPagamentoModal({ ctx }: { ctx: PagamentoCtx }) 
     startTransition(async () => {
       await payTransactionAction({ id: ctx.id, paidAmount: amountNum, paidDate: date });
       closeModal();
-      showToast("Pagamento registrado ✓");
+      showToast(isIncome ? "Recebimento registrado ✓" : "Pagamento registrado ✓");
     });
   }
 
   return (
     <div>
       <div style={modalHeader}>
-        <div style={modalTitle}>Confirmar pagamento</div>
+        <div style={modalTitle}>{isIncome ? "Confirmar recebimento" : "Confirmar pagamento"}</div>
         <button type="button" onClick={closeModal} style={closeBtn}>
           ×
         </button>
@@ -67,7 +70,7 @@ export default function ConfirmarPagamentoModal({ ctx }: { ctx: PagamentoCtx }) 
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div>
-              <div style={fieldLabel}>Valor pago</div>
+              <div style={fieldLabel}>{isIncome ? "Valor recebido" : "Valor pago"}</div>
               <input
                 type="number"
                 step="0.01"
@@ -78,7 +81,7 @@ export default function ConfirmarPagamentoModal({ ctx }: { ctx: PagamentoCtx }) 
               />
             </div>
             <div>
-              <div style={fieldLabel}>Data do pagamento</div>
+              <div style={fieldLabel}>{isIncome ? "Data do recebimento" : "Data do pagamento"}</div>
               <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={inputStyle} />
             </div>
           </div>
@@ -92,7 +95,7 @@ export default function ConfirmarPagamentoModal({ ctx }: { ctx: PagamentoCtx }) 
               disabled={pending}
               style={{ ...successBtn, opacity: pending ? 0.7 : 1 }}
             >
-              {pending ? "Confirmando…" : "Confirmar pagamento"}
+              {pending ? "Confirmando…" : isIncome ? "Confirmar recebimento" : "Confirmar pagamento"}
             </button>
           </div>
         </>
