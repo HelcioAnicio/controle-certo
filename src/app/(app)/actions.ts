@@ -18,7 +18,7 @@ import {
 } from "@/prisma/fixedExpenses";
 import { createTransaction, deleteTransaction, payTransaction, updateTransaction } from "@/prisma/transactions";
 import { setMonthStartDay, setTrackingStartPeriod } from "@/prisma/settings";
-import type { TxType } from "@/lib/finance";
+import { parseLocalDate, type TxType } from "@/lib/finance";
 
 function refresh() {
   revalidatePath("/", "layout");
@@ -40,7 +40,7 @@ export async function createTransactionAction(input: {
     description: input.description,
     amount: input.amount,
     periodMonth: input.periodMonth,
-    dueDate: input.dueDate ? new Date(input.dueDate) : null,
+    dueDate: input.dueDate ? parseLocalDate(input.dueDate) : null,
     paid: input.paid,
   });
   refresh();
@@ -54,7 +54,7 @@ export async function payTransactionAction(input: {
   const user = await requireUser();
   await payTransaction(user.id, input.id, {
     paidAmount: input.paidAmount,
-    paidDate: new Date(input.paidDate),
+    paidDate: parseLocalDate(input.paidDate),
   });
   refresh();
 }

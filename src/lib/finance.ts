@@ -22,6 +22,18 @@ export function dateOnly(d: Date): number {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 }
 
+/**
+ * Parses a `<input type="date">` value ("YYYY-MM-DD") as local midnight.
+ * `new Date("YYYY-MM-DD")` parses it as UTC midnight instead, which shifts a
+ * day earlier in any timezone behind UTC (e.g. Brazil) once local getters
+ * like `.getDate()` are used on it — silently filing things under the wrong
+ * day/period.
+ */
+export function parseLocalDate(value: string): Date {
+  const [y, m, d] = value.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
 export function computeStatus(
   tx: { paidDate: Date | null; dueDate: Date | null },
   today: Date = new Date(),

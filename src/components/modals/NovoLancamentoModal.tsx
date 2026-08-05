@@ -7,7 +7,7 @@ import { useModal } from "../providers/ModalProvider";
 import { useToast } from "../providers/ToastProvider";
 import { useSettings } from "../providers/SettingsProvider";
 import { createTransactionAction } from "@/app/(app)/actions";
-import { buildSubcategoryOptions, periodForDate, type TxType } from "@/lib/finance";
+import { buildSubcategoryOptions, parseLocalDate, periodForDate, type TxType } from "@/lib/finance";
 import {
   closeBtn,
   fieldLabel,
@@ -58,7 +58,7 @@ export default function NovoLancamentoModal() {
         subcategoryId: sub,
         description,
         amount: amountNum,
-        periodMonth: date ? periodForDate(new Date(date), monthStartDay) : currentPeriod,
+        periodMonth: date ? periodForDate(parseLocalDate(date), monthStartDay) : currentPeriod,
         dueDate: date || null,
         paid,
       });
@@ -165,10 +165,10 @@ export default function NovoLancamentoModal() {
             onChange={(e) => setDate(e.target.value)}
             style={inputStyle}
           />
-          {date && new Date(date) > new Date(new Date().toDateString()) && (
+          {date && parseLocalDate(date) > new Date(new Date().toDateString()) && (
             <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 6 }}>
               Este gasto ficará agendado e só entrará no seu saldo em{" "}
-              {new Date(date).toLocaleDateString("pt-BR")}.
+              {parseLocalDate(date).toLocaleDateString("pt-BR")}.
             </div>
           )}
         </div>
