@@ -47,6 +47,7 @@ export function enrichTransactions(
 
 export type MonthSummary = {
   incomeTotal: number;
+  incomeForecastTotal: number;
   paidExpenseTotal: number;
   previstoTotal: number;
   pendingTotal: number;
@@ -57,7 +58,16 @@ export type MonthSummary = {
   pieGradient: string;
 };
 
-export function computeMonthSummary(txs: EnrichedTransaction[]): MonthSummary {
+/**
+ * `budgetProgress` folds in the unspent portion of each monthly budget (see
+ * `computeBudgetProgress`) as anticipated spend: a R$1300 grocery reserve with
+ * nothing logged yet should still show up in the month's forecast, not just
+ * once actual transactions exist for it.
+ */
+export function computeMonthSummary(
+  txs: EnrichedTransaction[],
+  budgetProgress: BudgetProgress[] = [],
+): MonthSummary {
   const expenses = txs.filter((t) => t.type === "expense");
   const incomes = txs.filter((t) => t.type === "income");
 
@@ -65,16 +75,25 @@ export function computeMonthSummary(txs: EnrichedTransaction[]): MonthSummary {
     (sum, t) => sum + (t.status === "paid" ? Number(t.paidAmount) : 0),
     0,
   );
-  const paidExpenseTotal = expenses
-    .filter((t) => t.status === "paid")
-    .reduce((sum, t) => sum + Number(t.paidAmount), 0);
-  const previstoTotal = expenses.reduce(
+  const incomeForecastTotal = incomes.reduce(
     (sum, t) => sum + (t.status === "paid" ? Number(t.paidAmount) : Number(t.amount)),
     0,
   );
+  const paidExpenseTotal = expenses
+    .filter((t) => t.status === "paid")
+    .reduce((sum, t) => sum + Number(t.paidAmount), 0);
+  const budgetReserve = budgetProgress.reduce(
+    (sum, b) => sum + Math.max(b.monthlyAmount - b.spent, 0),
+    0,
+  );
+  const previstoTotal =
+    expenses.reduce(
+      (sum, t) => sum + (t.status === "paid" ? Number(t.paidAmount) : Number(t.amount)),
+      0,
+    ) + budgetReserve;
   const pendingTotal = previstoTotal - paidExpenseTotal;
   const saldoAtual = incomeTotal - paidExpenseTotal;
-  const saldoPrevisto = incomeTotal - previstoTotal;
+  const saldoPrevisto = incomeForecastTotal - previstoTotal;
   const progressPct = previstoTotal > 0 ? Math.round((paidExpenseTotal / previstoTotal) * 100) : 0;
 
   const catTotals = new Map<string, { name: string; color: string; value: number }>();
@@ -110,6 +129,7 @@ export function computeMonthSummary(txs: EnrichedTransaction[]): MonthSummary {
 
   return {
     incomeTotal,
+    incomeForecastTotal,
     paidExpenseTotal,
     previstoTotal,
     pendingTotal,
@@ -181,7 +201,7 @@ export async function loadMonthData(userId: string, periodMonth: string, monthSt
     listBudgets(userId),
   ]);
   const enriched = enrichTransactions(transactions, subcategories, categories);
-  const summary = computeMonthSummary(enriched);
   const budgetProgress = computeBudgetProgress(budgets, subcategories, categories, enriched);
+  const summary = computeMonthSummary(enriched, budgetProgress);
   return { transactions: enriched, categories, subcategories, summary, budgetProgress };
 }

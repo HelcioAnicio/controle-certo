@@ -45,14 +45,19 @@ export default async function PainelPage({
           value={summary.saldoAtual}
           color={summary.saldoAtual >= 0 ? "var(--color-success)" : "var(--color-danger)"}
           hint="o que você tem hoje"
-          footer={`Entradas ${formatBRL(summary.incomeTotal)} · Já pago ${formatBRL(summary.paidExpenseTotal)}`}
+          footer={
+            <>
+              <div>Entradas {formatBRL(summary.incomeTotal)} · Já pago {formatBRL(summary.paidExpenseTotal)}</div>
+              <div style={{ marginTop: 4 }}>Previsão de receitas {formatBRL(summary.incomeForecastTotal)}</div>
+            </>
+          }
         />
         <BalanceCard
           label="Saldo Previsto (fim do mês)"
           value={summary.saldoPrevisto}
           color="var(--color-primary)"
           hint="depois de pagar tudo"
-          footer={`Total previsto ${formatBRL(summary.previstoTotal)}`}
+          footer={`Despesas previstas ${formatBRL(summary.previstoTotal)}`}
         />
       </div>
 
@@ -205,7 +210,7 @@ function BalanceCard({
   value: number;
   color: string;
   hint: string;
-  footer: string;
+  footer: React.ReactNode;
 }) {
   return (
     <div style={{ background: "var(--surface)", borderRadius: 18, padding: "22px 20px", boxShadow: "var(--shadow-card)", border: "1px solid var(--border)" }}>
