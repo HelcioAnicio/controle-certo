@@ -1,5 +1,7 @@
 import "server-only";
 import { db } from "./db";
+import { getUserSettings } from "./settings";
+import { periodForDate } from "@/lib/finance";
 
 export type FixedExpense = {
   id: string;
@@ -33,12 +35,32 @@ export async function createFixedExpense(
   return row as FixedExpense;
 }
 
+/**
+ * Wipes not-yet-paid occurrences of this fixed expense from the current period
+ * onward. Pausing or deleting a recurring item shouldn't leave stale pending
+ * placeholders the user has to hunt down and delete month by month — but
+ * already-paid transactions are real history and must never be touched.
+ */
+async function purgeUnpaidUpcomingTransactions(userId: string, fixedExpenseId: string): Promise<void> {
+  const { monthStartDay } = await getUserSettings(userId);
+  const currentPeriod = periodForDate(new Date(), monthStartDay);
+  const rows = await db.orm.public.Transaction.where({ userId, fixedExpenseId }).all();
+  const idsToDelete = rows
+    .filter((t) => !t.paidDate && t.periodMonth >= currentPeriod)
+    .map((t) => t.id);
+  if (idsToDelete.length === 0) return;
+  await db.orm.public.Transaction.where({ userId }).where((t) => t.id.in(idsToDelete)).delete();
+}
+
 export async function setFixedExpenseActive(
   userId: string,
   id: string,
   active: boolean,
 ): Promise<void> {
   await db.orm.public.FixedExpense.where({ id, userId }).update({ active });
+  if (!active) {
+    await purgeUnpaidUpcomingTransactions(userId, id);
+  }
 }
 
 export async function updateFixedExpense(
@@ -50,5 +72,6 @@ export async function updateFixedExpense(
 }
 
 export async function deleteFixedExpense(userId: string, id: string): Promise<void> {
+  await purgeUnpaidUpcomingTransactions(userId, id);
   await db.orm.public.FixedExpense.where({ id, userId }).delete();
 }

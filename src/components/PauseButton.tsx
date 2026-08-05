@@ -11,7 +11,7 @@ export default function PauseButton({ id, active }: { id: string; active: boolea
       type="button"
       disabled={pending}
       onClick={() => startTransition(() => setFixedExpenseActiveAction(id, !active))}
-      title={active ? "Pausar" : "Retomar"}
+      title={active ? "Pausar (remove os lançamentos pendentes deste mês em diante)" : "Retomar"}
       style={{
         width: 30,
         height: 30,
