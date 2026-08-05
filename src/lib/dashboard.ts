@@ -107,6 +107,20 @@ export function computeMonthSummary(
       catTotals.set(key, { name: t.categoryName, color: t.categoryColor, value: amount });
     }
   }
+  // Unspent budget reserve counts toward its category here too, mirroring how
+  // it's folded into previstoTotal above — otherwise a fully-unspent budget
+  // is invisible in the breakdown even though it's part of the forecast.
+  for (const b of budgetProgress) {
+    const reserve = Math.max(b.monthlyAmount - b.spent, 0);
+    if (reserve <= 0) continue;
+    const key = b.categoryId || b.categoryName;
+    const existing = catTotals.get(key);
+    if (existing) {
+      existing.value += reserve;
+    } else {
+      catTotals.set(key, { name: b.categoryName, color: b.categoryColor, value: reserve });
+    }
+  }
   const pieSlices = [...catTotals.entries()]
     .map(([id, v]) => ({
       id,
@@ -147,6 +161,8 @@ export type BudgetProgress = {
   subcategoryId: string;
   subcategoryName: string;
   subcategoryIcon: string;
+  categoryId: string;
+  categoryName: string;
   categoryColor: string;
   monthlyAmount: number;
   spent: number;
@@ -181,6 +197,8 @@ export function computeBudgetProgress(
         subcategoryId: b.subcategoryId,
         subcategoryName: sub?.name ?? "—",
         subcategoryIcon: sub?.icon ?? "folder",
+        categoryId: cat?.id ?? "",
+        categoryName: cat?.name ?? "Geral",
         categoryColor: cat?.color ?? "#64748B",
         monthlyAmount,
         spent,
