@@ -17,7 +17,7 @@ import {
   updateFixedExpense,
 } from "@/prisma/fixedExpenses";
 import { createTransaction, deleteTransaction, payTransaction, updateTransaction } from "@/prisma/transactions";
-import { setMonthStartDay } from "@/prisma/settings";
+import { setMonthStartDay, setTrackingStartPeriod } from "@/prisma/settings";
 import type { TxType } from "@/lib/finance";
 
 function refresh() {
@@ -157,6 +157,12 @@ export async function deleteSubcategoryAction(id: string) {
 export async function updateMonthStartDayAction(day: number) {
   const user = await requireUser();
   await setMonthStartDay(user.id, day);
+  refresh();
+}
+
+export async function setTrackingStartPeriodAction(period: string | null) {
+  const user = await requireUser();
+  await setTrackingStartPeriod(user.id, period);
   refresh();
 }
 

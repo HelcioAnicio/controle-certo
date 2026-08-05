@@ -9,8 +9,9 @@ export default function MonthSwitcher() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { monthStartDay } = useSettings();
+  const { monthStartDay, trackingStartPeriod } = useSettings();
   const current = searchParams.get("month") || periodForDate(new Date(), monthStartDay);
+  const atFloor = !!trackingStartPeriod && current <= trackingStartPeriod;
 
   function goTo(period: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -22,7 +23,12 @@ export default function MonthSwitcher() {
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <button onClick={() => goTo(addMonths(current, -1))} style={navBtnStyle}>
+      <button
+        onClick={() => goTo(addMonths(current, -1))}
+        disabled={atFloor}
+        title={atFloor ? "Você definiu este como o mês de início" : undefined}
+        style={{ ...navBtnStyle, opacity: atFloor ? 0.4 : 1, cursor: atFloor ? "not-allowed" : "pointer" }}
+      >
         <TbChevronLeft size={16} />
       </button>
       <div style={{ textAlign: "center", minWidth: 140 }}>

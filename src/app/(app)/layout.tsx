@@ -22,7 +22,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <CategoriesProvider categories={categories} subcategories={subcategories}>
-      <SettingsProvider monthStartDay={settings.monthStartDay}>
+      <SettingsProvider monthStartDay={settings.monthStartDay} trackingStartPeriod={settings.trackingStartPeriod}>
         <ToastProvider>
           <ModalProvider>
             <Suspense fallback={null}>

@@ -39,7 +39,10 @@ export async function ensureFixedExpensesGeneratedForPeriod(
   userId: string,
   periodMonth: string,
   monthStartDay: number = 1,
+  trackingStartPeriod: string | null = null,
 ): Promise<void> {
+  if (trackingStartPeriod && periodMonth < trackingStartPeriod) return;
+
   const [fixedExpenses, existing, subcategories] = await Promise.all([
     listActiveFixedExpenses(userId),
     db.orm.public.Transaction

@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { loadMonthData } from "@/lib/dashboard";
 import { getUserSettings } from "@/prisma/settings";
@@ -18,9 +19,16 @@ export default async function LancamentosPage({
 }) {
   const { month, status, q } = await searchParams;
   const user = await requireUser();
-  const { monthStartDay } = await getUserSettings(user.id);
+  const { monthStartDay, trackingStartPeriod } = await getUserSettings(user.id);
   const period = month || periodForDate(new Date(), monthStartDay);
-  const { transactions } = await loadMonthData(user.id, period, monthStartDay);
+  if (trackingStartPeriod && period < trackingStartPeriod) {
+    const params = new URLSearchParams();
+    params.set("month", trackingStartPeriod);
+    if (status) params.set("status", status);
+    if (q) params.set("q", q);
+    redirect(`/lancamentos?${params.toString()}`);
+  }
+  const { transactions } = await loadMonthData(user.id, period, monthStartDay, trackingStartPeriod);
 
   if (transactions.length === 0) {
     return (

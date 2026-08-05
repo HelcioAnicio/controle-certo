@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { listFixedExpenses } from "@/prisma/fixedExpenses";
 import { listCategories, listSubcategories } from "@/prisma/categories";
@@ -18,10 +19,13 @@ export default async function GastosFixosPage({
 }) {
   const { month } = await searchParams;
   const user = await requireUser();
-  const { monthStartDay } = await getUserSettings(user.id);
+  const { monthStartDay, trackingStartPeriod } = await getUserSettings(user.id);
   const period = month || periodForDate(new Date(), monthStartDay);
+  if (trackingStartPeriod && period < trackingStartPeriod) {
+    redirect(`/gastos-fixos?month=${trackingStartPeriod}`);
+  }
 
-  await ensureFixedExpensesGeneratedForPeriod(user.id, period, monthStartDay);
+  await ensureFixedExpensesGeneratedForPeriod(user.id, period, monthStartDay, trackingStartPeriod);
   const [fixedExpenses, categories, subcategories, transactions] = await Promise.all([
     listFixedExpenses(user.id),
     listCategories(user.id),

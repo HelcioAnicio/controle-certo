@@ -30,7 +30,7 @@ import type {
 } from '@prisma-next/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'sha256:cd32b62e81f474f2ca874a764afa4a96c80a95451d00fce2fe275f1f99723ae9'>;
+  StorageHashBase<'sha256:195e873e4c8a5677407c1a8efa2ab8646813be7d94ffdbb20501a3464d90a9f9'>;
 export type ExecutionHash =
   ExecutionHashBase<'sha256:1f1e7f82ee856ce1bf3c2e3780948382c962c682cd7298764050ec473cb2bf71'>;
 export type ProfileHash =
@@ -103,7 +103,6 @@ export type FieldOutputTypes = {
       readonly id: Char<36>;
       readonly userId: CodecTypes['pg/text@1']['output'];
       readonly monthStartDay: CodecTypes['pg/int4@1']['output'];
-      readonly trackingStartPeriod: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz@1']['output'];
     };
@@ -169,7 +168,6 @@ export type FieldInputTypes = {
       readonly id: CodecTypes['sql/char@1']['input'];
       readonly userId: CodecTypes['pg/text@1']['input'];
       readonly monthStartDay: CodecTypes['pg/int4@1']['input'];
-      readonly trackingStartPeriod: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz@1']['input'];
     };
@@ -235,7 +233,6 @@ export type StorageColumnTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz@1']['output'];
       readonly id: Char<36>;
       readonly monthStartDay: CodecTypes['pg/int4@1']['output'];
-      readonly trackingStartPeriod: CodecTypes['pg/text@1']['output'] | null;
       readonly updatedAt: CodecTypes['pg/timestamptz@1']['output'];
       readonly userId: CodecTypes['pg/text@1']['output'];
     };
@@ -301,7 +298,6 @@ export type StorageColumnInputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz@1']['input'];
       readonly id: CodecTypes['sql/char@1']['input'];
       readonly monthStartDay: CodecTypes['pg/int4@1']['input'];
-      readonly trackingStartPeriod: CodecTypes['pg/text@1']['input'] | null;
       readonly updatedAt: CodecTypes['pg/timestamptz@1']['input'];
       readonly userId: CodecTypes['pg/text@1']['input'];
     };
@@ -646,11 +642,6 @@ type ContractBase = Omit<
                     readonly kind: 'literal';
                     readonly value: DefaultLiteralValue<'pg/int4@1', 1>;
                   };
-                };
-                readonly trackingStartPeriod: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
                 };
                 readonly createdAt: {
                   readonly nativeType: 'timestamptz';
@@ -1140,10 +1131,6 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
               };
-              readonly trackingStartPeriod: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
               readonly createdAt: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/timestamptz@1' };
@@ -1161,7 +1148,6 @@ type ContractBase = Omit<
                 readonly id: { readonly column: 'id' };
                 readonly userId: { readonly column: 'userId' };
                 readonly monthStartDay: { readonly column: 'monthStartDay' };
-                readonly trackingStartPeriod: { readonly column: 'trackingStartPeriod' };
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
               };

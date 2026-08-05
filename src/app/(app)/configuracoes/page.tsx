@@ -3,10 +3,11 @@ import { requireUser } from "@/lib/auth";
 import { signOut } from "@/app/(auth)/actions";
 import { getUserSettings } from "@/prisma/settings";
 import MonthStartDaySelect from "@/components/MonthStartDaySelect";
+import TrackingStartMonthInput from "@/components/TrackingStartMonthInput";
 
 export default async function ConfiguracoesPage() {
   const user = await requireUser();
-  const { monthStartDay } = await getUserSettings(user.id);
+  const { monthStartDay, trackingStartPeriod } = await getUserSettings(user.id);
   const name = (user.user_metadata?.name as string | undefined)?.trim() || user.email || "Você";
   const email = user.email ?? "";
   const initials = name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
@@ -47,13 +48,20 @@ export default async function ConfiguracoesPage() {
         <Row label="Moeda">
           <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>R$ (Real)</span>
         </Row>
-        <Row label="Dia de início do mês" last>
+        <Row label="Dia de início do mês">
           <MonthStartDaySelect initialDay={monthStartDay} />
+        </Row>
+        <Row label="Mês de início" last>
+          <TrackingStartMonthInput initialPeriod={trackingStartPeriod} />
         </Row>
       </div>
       <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: -8, lineHeight: 1.5 }}>
         Se você recebe salário depois do dia 1, defina o dia aqui — os primeiros dias do mês
         continuam contando como parte do período anterior, junto com o que você já recebeu.
+      </div>
+      <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: -8, lineHeight: 1.5 }}>
+        O mês de início marca a partir de quando você quer acompanhar. Meses anteriores a ele não
+        geram gastos fixos nem aparecem no painel, lançamentos ou relatórios.
       </div>
 
       <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)", marginTop: 6 }}>Em breve</div>

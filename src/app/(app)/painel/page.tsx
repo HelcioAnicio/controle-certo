@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { loadMonthData } from "@/lib/dashboard";
 import { getUserSettings } from "@/prisma/settings";
@@ -15,9 +16,17 @@ export default async function PainelPage({
 }) {
   const { month } = await searchParams;
   const user = await requireUser();
-  const { monthStartDay } = await getUserSettings(user.id);
+  const { monthStartDay, trackingStartPeriod } = await getUserSettings(user.id);
   const period = month || periodForDate(new Date(), monthStartDay);
-  const { transactions, summary, budgetProgress } = await loadMonthData(user.id, period, monthStartDay);
+  if (trackingStartPeriod && period < trackingStartPeriod) {
+    redirect(`/painel?month=${trackingStartPeriod}`);
+  }
+  const { transactions, summary, budgetProgress } = await loadMonthData(
+    user.id,
+    period,
+    monthStartDay,
+    trackingStartPeriod,
+  );
 
   if (transactions.length === 0) {
     return (

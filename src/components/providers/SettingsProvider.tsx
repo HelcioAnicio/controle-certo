@@ -4,16 +4,20 @@ import { createContext, useContext } from "react";
 
 type SettingsContextValue = {
   monthStartDay: number;
+  trackingStartPeriod: string | null;
 };
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
 
 export function SettingsProvider({
   monthStartDay,
+  trackingStartPeriod,
   children,
 }: SettingsContextValue & { children: React.ReactNode }) {
   return (
-    <SettingsContext.Provider value={{ monthStartDay }}>{children}</SettingsContext.Provider>
+    <SettingsContext.Provider value={{ monthStartDay, trackingStartPeriod }}>
+      {children}
+    </SettingsContext.Provider>
   );
 }
 

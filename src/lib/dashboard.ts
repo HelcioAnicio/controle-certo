@@ -210,8 +210,13 @@ export function computeBudgetProgress(
 }
 
 /** Loads and enriches a single period's transactions plus the user's category/subcategory lookups. */
-export async function loadMonthData(userId: string, periodMonth: string, monthStartDay: number = 1) {
-  await ensureFixedExpensesGeneratedForPeriod(userId, periodMonth, monthStartDay);
+export async function loadMonthData(
+  userId: string,
+  periodMonth: string,
+  monthStartDay: number = 1,
+  trackingStartPeriod: string | null = null,
+) {
+  await ensureFixedExpensesGeneratedForPeriod(userId, periodMonth, monthStartDay, trackingStartPeriod);
   const [transactions, categories, subcategories, budgets] = await Promise.all([
     listTransactionsForPeriod(userId, periodMonth),
     listCategories(userId),

@@ -102,6 +102,7 @@ export const contract = defineContract(
         id: field.id.uuidv7String(),
         userId: field.text().unique(),
         monthStartDay: field.int().default(1),
+        trackingStartPeriod: field.text().optional(),
         createdAt: field.temporal.createdAt(),
         updatedAt: field.temporal.updatedAt(),
       },

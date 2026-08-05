@@ -1,0 +1,44 @@
+[
+  {
+    "id": "column.public.UserSettings.trackingStartPeriod",
+    "label": "Add column \"trackingStartPeriod\" to \"UserSettings\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "trackingStartPeriod",
+        "table": "UserSettings"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"trackingStartPeriod\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "UserSettings",
+          "trackingStartPeriod"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"trackingStartPeriod\"",
+        "sql": "ALTER TABLE \"public\".\"UserSettings\" ADD COLUMN \"trackingStartPeriod\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"trackingStartPeriod\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "UserSettings",
+          "trackingStartPeriod"
+        ]
+      }
+    ]
+  }
+]

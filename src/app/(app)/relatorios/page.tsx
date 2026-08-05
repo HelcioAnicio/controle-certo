@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { loadMonthData } from "@/lib/dashboard";
 import { getUserSettings } from "@/prisma/settings";
@@ -10,16 +11,24 @@ export default async function RelatoriosPage({
 }) {
   const { month } = await searchParams;
   const user = await requireUser();
-  const { monthStartDay } = await getUserSettings(user.id);
+  const { monthStartDay, trackingStartPeriod } = await getUserSettings(user.id);
   const period = month || periodForDate(new Date(), monthStartDay);
 
-  // A brand-new account has no history before signup, so comparing against
-  // months that predate it would just be empty data pretending to be a trend.
+  // A brand-new account has no history before signup, and the user may also
+  // set a later "tracking start month" explicitly (e.g. to skip backfilling
+  // a month already underway) — whichever floor is more restrictive wins.
   const accountPeriod = periodForDate(new Date(user.created_at), monthStartDay);
+  const floorPeriod =
+    trackingStartPeriod && trackingStartPeriod > accountPeriod ? trackingStartPeriod : accountPeriod;
+  if (period < floorPeriod) {
+    redirect(`/relatorios?month=${floorPeriod}`);
+  }
   const periods = [addMonths(period, -3), addMonths(period, -2), addMonths(period, -1), period].filter(
-    (p) => p >= accountPeriod,
+    (p) => p >= floorPeriod,
   );
-  const monthData = await Promise.all(periods.map((p) => loadMonthData(user.id, p, monthStartDay)));
+  const monthData = await Promise.all(
+    periods.map((p) => loadMonthData(user.id, p, monthStartDay, trackingStartPeriod)),
+  );
   const current = monthData[monthData.length - 1];
   const previous = monthData.length > 1 ? monthData[monthData.length - 2] : undefined;
 
