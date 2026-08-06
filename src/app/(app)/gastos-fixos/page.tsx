@@ -62,7 +62,7 @@ export default async function GastosFixosPage({
           actionLabel="Novo fixo"
         />
       ) : (
-        <div style={{ background: "var(--surface)", borderRadius: 16, border: "1px solid var(--border)", overflow: "hidden" }}>
+        <div style={{ background: "var(--surface)", borderRadius: 16, border: "1px solid var(--border)", overflow: "hidden", maxWidth: "600px" }}>
           {fixedExpenses.map((f) => {
             const sub = subById.get(f.subcategoryId);
             const cat = sub ? catById.get(sub.categoryId) : undefined;
@@ -73,7 +73,7 @@ export default async function GastosFixosPage({
                 key={f.id}
                 style={{
                   display: "flex",
-                  alignItems: "center",
+                  flexDirection: "column",
                   gap: 12,
                   padding: "14px 16px",
                   borderBottom: "1px solid var(--border-soft)",
@@ -81,16 +81,29 @@ export default async function GastosFixosPage({
                   flexWrap: "wrap",
                 }}
               >
-                <CategoryIcon icon={sub?.icon ?? "folder"} color={cat?.color ?? "#64748B"} size={34} />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600 }}>{f.name}</div>
+                <div style={{ flex: 1, display: "flex", minWidth: 0, alignItems: "center", gap: 10 }}>
+                  <CategoryIcon icon={sub?.icon ?? "folder"} color={cat?.color ?? "#64748B"} size={32} />
+                  <div style={{ fontSize: 16, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {f.name}
+                  </div>
                   <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                     {sub?.name ?? "—"} · vence dia {f.dueDay}
                   </div>
                 </div>
-                <div style={{ textAlign: "right" }}>
+                <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                   <div
                     style={{
+                      flex: 1,
+                      fontSize: 11,
+                      color: "var(--text-disabled)",
+                    }}
+                  >
+                    {statusText}
+                  </div>
+                  <div
+                    style={{
+                      width: 110,
+                      textAlign: "right",
                       fontSize: 14,
                       fontWeight: 700,
                       color: sub?.type === "income" ? "var(--color-success)" : "var(--text)",
@@ -99,11 +112,10 @@ export default async function GastosFixosPage({
                     {sub?.type === "income" ? "+ " : "- "}
                     {formatBRL(Number(f.estimatedAmount))}
                   </div>
-                  <div style={{ fontSize: 11, color: "var(--text-disabled)" }}>{statusText}</div>
+                  <EditFixedExpenseButton fixedExpense={f} />
+                  <PauseButton id={f.id} active={f.active} />
+                  <DeleteButton id={f.id} desc={f.name} kind="fixedExpense" />
                 </div>
-                <EditFixedExpenseButton fixedExpense={f} />
-                <PauseButton id={f.id} active={f.active} />
-                <DeleteButton id={f.id} desc={f.name} kind="fixedExpense" />
               </div>
             );
           })}

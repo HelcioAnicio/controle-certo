@@ -143,20 +143,22 @@ export default async function PainelPage({
             {upcoming.length === 0 ? (
               <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>Tudo pago por aqui ✓</div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {upcoming.map((t) => (
-                  <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                    <CategoryIcon icon={t.subcategoryIcon} color={t.categoryColor} size={32} />
-                    <div style={{ flex: 1, minWidth: 80 }}>
+                  <div key={t.id} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                      <CategoryIcon icon={t.subcategoryIcon} color={t.categoryColor} size={32} />
                       <div style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {t.description || t.subcategoryName}
                       </div>
-                      <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                      <div style={{ fontSize: 12, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
                         {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR") : "—"} · {formatBRL(Number(t.amount))}
                       </div>
                     </div>
-                    <StatusBadge status={t.status} />
-                    <PayButton tx={t} />
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 42 }}>
+                      <StatusBadge status={t.status} />
+                      <PayButton tx={t} />
+                    </div>
                   </div>
                 ))}
               </div>

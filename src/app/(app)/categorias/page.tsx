@@ -19,7 +19,7 @@ export default async function CategoriasPage() {
         + Nova categoria
       </ModalTriggerButton>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: "600px" }}>
         {categories.map((cat) => (
           <CategoryCard
             key={cat.id}
