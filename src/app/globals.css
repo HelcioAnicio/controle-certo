@@ -1,3 +1,43 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Brand */
+  --color-primary: var(--color-primary);
+  --color-primary-light: var(--color-primary-light);
+  --color-primary-tint: var(--color-primary-tint);
+  --color-primary-dark: var(--color-primary-dark);
+  --color-primary-hover: var(--color-primary-hover);
+
+  --color-success: var(--color-success);
+  --color-success-tint: var(--color-success-tint);
+  --color-warning: var(--color-warning);
+  --color-warning-strong: var(--color-warning-strong);
+  --color-warning-tint: var(--color-warning-tint);
+  --color-danger: var(--color-danger);
+  --color-danger-tint: var(--color-danger-tint);
+  --color-info: var(--color-info);
+
+  /* Neutrals — aliased with a color- prefix so Tailwind generates the
+     matching utilities; the source variables in :root are untouched. */
+  --color-canvas: var(--bg);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-border-soft: var(--border-soft);
+  --color-text: var(--text);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-disabled: var(--text-disabled);
+
+  /* Radii — intentionally overrides Tailwind's stock scale for these keys */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  /* Shadows */
+  --shadow-card: var(--shadow-card);
+  --shadow-modal: var(--shadow-modal);
+}
+
 :root {
   color-scheme: light;
 
@@ -161,6 +201,22 @@ a {
     grid-template-areas:
       "pie pie"
       "vencimentos lancamentos";
+  }
+}
+
+/* Used by relatorios/page.tsx for its two-column summary row — kept separate
+   from .app-pie-lists-grid because Tailwind utility classes (added on the
+   element itself) live in a layer that unlayered rules like this one always
+   win against, so reusing that class with a utility override would silently
+   do nothing. */
+.report-summary-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr 1fr;
+}
+@media (max-width: 879px) {
+  .report-summary-grid {
+    grid-template-columns: 1fr !important;
   }
 }
 
