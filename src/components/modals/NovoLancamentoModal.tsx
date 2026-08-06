@@ -8,6 +8,7 @@ import { useToast } from "../providers/ToastProvider";
 import { useSettings } from "../providers/SettingsProvider";
 import { createTransactionAction } from "@/app/(app)/actions";
 import { buildSubcategoryOptions, parseLocalDate, periodForDate, type TxType } from "@/lib/finance";
+import { cn } from "@/lib/cn";
 import {
   closeBtn,
   fieldLabel,
@@ -69,30 +70,21 @@ export default function NovoLancamentoModal() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div style={modalHeader}>
-        <div style={modalTitle}>Novo lançamento</div>
-        <button type="button" onClick={closeModal} style={closeBtn}>
+      <div className={modalHeader}>
+        <div className={modalTitle}>Novo lançamento</div>
+        <button type="button" onClick={closeModal} className={closeBtn}>
           ×
         </button>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          gap: 8,
-          marginBottom: 18,
-          background: "var(--border-soft)",
-          padding: 4,
-          borderRadius: "var(--radius-md)",
-        }}
-      >
+      <div className="mb-[18px] flex gap-2 rounded-md bg-border-soft p-1">
         <button
           type="button"
           onClick={() => {
             setType("expense");
             setSubcategoryId("");
           }}
-          style={typeTabStyle(type === "expense", "var(--color-danger)")}
+          className={typeTabClass(type === "expense", "text-danger")}
         >
           Despesa
         </button>
@@ -102,13 +94,13 @@ export default function NovoLancamentoModal() {
             setType("income");
             setSubcategoryId("");
           }}
-          style={typeTabStyle(type === "income", "var(--color-success)")}
+          className={typeTabClass(type === "income", "text-success")}
         >
           Receita
         </button>
       </div>
 
-      <div style={{ marginBottom: 18 }}>
+      <div className="mb-[18px]">
         <input
           type="number"
           step="0.01"
@@ -118,27 +110,14 @@ export default function NovoLancamentoModal() {
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           autoFocus
-          style={{
-            width: "100%",
-            textAlign: "center",
-            fontSize: 36,
-            fontWeight: 800,
-            color: "var(--text)",
-            border: "none",
-            outline: "none",
-            background: "transparent",
-          }}
+          className="w-full border-none bg-transparent text-center text-4xl font-extrabold text-text outline-none"
         />
       </div>
 
-      <div style={formGap}>
+      <div className={formGap}>
         <div>
-          <div style={fieldLabel}>Subcategoria</div>
-          <select
-            value={subcategoryId}
-            onChange={(e) => setSubcategoryId(e.target.value)}
-            style={inputStyle}
-          >
+          <div className={fieldLabel}>Subcategoria</div>
+          <select value={subcategoryId} onChange={(e) => setSubcategoryId(e.target.value)} className={inputStyle}>
             <option value="">Selecione…</option>
             {options.map((o) => (
               <option key={o.id} value={o.id}>
@@ -148,42 +127,37 @@ export default function NovoLancamentoModal() {
           </select>
         </div>
         <div>
-          <div style={fieldLabel}>Descrição (opcional)</div>
+          <div className={fieldLabel}>Descrição (opcional)</div>
           <input
             type="text"
             placeholder="Ex.: Jantar de aniversário"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            style={inputStyle}
+            className={inputStyle}
           />
         </div>
         <div>
-          <div style={fieldLabel}>Data (opcional)</div>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            style={inputStyle}
-          />
+          <div className={fieldLabel}>Data (opcional)</div>
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputStyle} />
           {date && parseLocalDate(date) > new Date(new Date().toDateString()) && (
-            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 6 }}>
+            <div className="mt-1.5 text-xs text-text-secondary">
               Este gasto ficará agendado e só entrará no seu saldo em{" "}
               {parseLocalDate(date).toLocaleDateString("pt-BR")}.
             </div>
           )}
         </div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 2px" }}>
-          <span style={{ fontSize: 14, fontWeight: 500 }}>{type === "income" ? "Já foi recebido?" : "Já foi pago?"}</span>
+        <div className="flex items-center justify-between px-0.5 py-2.5">
+          <span className="text-sm font-medium">{type === "income" ? "Já foi recebido?" : "Já foi pago?"}</span>
           <Switch checked={paid} onChange={setPaid} />
         </div>
-        {error && <div style={{ fontSize: 13, color: "var(--color-danger)" }}>{error}</div>}
+        {error && <div className="text-[13px] text-danger">{error}</div>}
       </div>
 
-      <div style={footerRow}>
-        <button type="button" onClick={closeModal} style={secondaryBtn}>
+      <div className={footerRow}>
+        <button type="button" onClick={closeModal} className={secondaryBtn}>
           Cancelar
         </button>
-        <button type="submit" disabled={pending} style={{ ...primaryBtn, opacity: pending ? 0.7 : 1 }}>
+        <button type="submit" disabled={pending} className={cn(primaryBtn, pending && "opacity-70")}>
           {pending ? "Salvando…" : "Salvar"}
         </button>
       </div>
@@ -191,18 +165,11 @@ export default function NovoLancamentoModal() {
   );
 }
 
-function typeTabStyle(active: boolean, activeColor: string): React.CSSProperties {
-  return {
-    flex: 1,
-    padding: 10,
-    border: "none",
-    borderRadius: 9,
-    fontSize: 14,
-    fontWeight: 600,
-    background: active ? "var(--surface)" : "transparent",
-    color: active ? activeColor : "var(--text-secondary)",
-    boxShadow: active ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
-  };
+function typeTabClass(active: boolean, activeTextClass: string): string {
+  return cn(
+    "flex-1 rounded-[9px] border-none p-2.5 text-sm font-semibold",
+    active ? `bg-surface shadow-[0_1px_3px_rgba(0,0,0,0.08)] ${activeTextClass}` : "bg-transparent text-text-secondary",
+  );
 }
 
 export function Switch({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
@@ -210,27 +177,13 @@ export function Switch({ checked, onChange }: { checked: boolean; onChange: (v: 
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      style={{
-        width: 42,
-        height: 24,
-        borderRadius: 99,
-        background: checked ? "var(--color-primary)" : "var(--border)",
-        position: "relative",
-        border: "none",
-        flexShrink: 0,
-      }}
+      className={cn("relative h-6 w-[42px] shrink-0 rounded-full border-none", checked ? "bg-primary" : "bg-border")}
     >
       <div
-        style={{
-          width: 18,
-          height: 18,
-          borderRadius: "50%",
-          background: "#fff",
-          position: "absolute",
-          top: 3,
-          left: checked ? 21 : 3,
-          transition: "left 0.15s ease",
-        }}
+        className={cn(
+          "absolute top-[3px] h-[18px] w-[18px] rounded-full bg-white transition-[left] duration-150 [transition-timing-function:ease]",
+          checked ? "left-[21px]" : "left-[3px]",
+        )}
       />
     </button>
   );

@@ -6,6 +6,7 @@ import { useToast } from "../providers/ToastProvider";
 import { payTransactionAction } from "@/app/(app)/actions";
 import { formatBRL } from "@/lib/finance";
 import type { TxType } from "@/lib/finance";
+import { cn } from "@/lib/cn";
 import { closeBtn, fieldLabel, inputStyle, modalHeader, modalTitle, secondaryBtn, successBtn } from "./styles";
 
 export type PagamentoCtx = {
@@ -42,58 +43,56 @@ export default function ConfirmarPagamentoModal({ ctx }: { ctx: PagamentoCtx }) 
 
   return (
     <div>
-      <div style={modalHeader}>
-        <div style={modalTitle}>{isIncome ? "Confirmar recebimento" : "Confirmar pagamento"}</div>
-        <button type="button" onClick={closeModal} style={closeBtn}>
+      <div className={modalHeader}>
+        <div className={modalTitle}>{isIncome ? "Confirmar recebimento" : "Confirmar pagamento"}</div>
+        <button type="button" onClick={closeModal} className={closeBtn}>
           ×
         </button>
       </div>
 
       {ctx.locked ? (
         <>
-          <div style={{ textAlign: "center", padding: "30px 10px", color: "var(--text-secondary)", fontSize: 14 }}>
+          <div className="px-2.5 py-[30px] text-center text-sm text-text-secondary">
             Disponível a partir de {ctx.lockDateLabel}.
           </div>
           <button
             type="button"
             onClick={closeModal}
-            style={{ width: "100%", padding: 13, borderRadius: "var(--radius-md)", border: "none", background: "var(--border-soft)", color: "#334155", fontSize: 14, fontWeight: 600 }}
+            className="w-full rounded-md border-none bg-border-soft p-[13px] text-sm font-semibold text-[#334155]"
           >
             Entendi
           </button>
         </>
       ) : (
         <>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>{ctx.desc}</div>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 18 }}>
-            Valor planejado: {formatBRL(ctx.amount)}
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div className="mb-0.5 text-sm font-semibold">{ctx.desc}</div>
+          <div className="mb-[18px] text-xs text-text-secondary">Valor planejado: {formatBRL(ctx.amount)}</div>
+          <div className="flex flex-col gap-3.5">
             <div>
-              <div style={fieldLabel}>{isIncome ? "Valor recebido" : "Valor pago"}</div>
+              <div className={fieldLabel}>{isIncome ? "Valor recebido" : "Valor pago"}</div>
               <input
                 type="number"
                 step="0.01"
                 min="0"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                style={{ ...inputStyle, fontSize: 16, fontWeight: 700 }}
+                className={cn(inputStyle, "text-base font-bold")}
               />
             </div>
             <div>
-              <div style={fieldLabel}>{isIncome ? "Data do recebimento" : "Data do pagamento"}</div>
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={inputStyle} />
+              <div className={fieldLabel}>{isIncome ? "Data do recebimento" : "Data do pagamento"}</div>
+              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputStyle} />
             </div>
           </div>
-          <div style={{ display: "flex", gap: 10, marginTop: 22 }}>
-            <button type="button" onClick={closeModal} style={secondaryBtn}>
+          <div className="mt-[22px] flex gap-2.5">
+            <button type="button" onClick={closeModal} className={secondaryBtn}>
               Cancelar
             </button>
             <button
               type="button"
               onClick={confirm}
               disabled={pending}
-              style={{ ...successBtn, opacity: pending ? 0.7 : 1 }}
+              className={cn(successBtn, pending && "opacity-70")}
             >
               {pending ? "Confirmando…" : isIncome ? "Confirmar recebimento" : "Confirmar pagamento"}
             </button>

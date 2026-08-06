@@ -1,78 +1,23 @@
-import type { CSSProperties } from "react";
+export const modalHeader = "flex items-center justify-between mb-[18px]";
 
-export const modalHeader: CSSProperties = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: 18,
-};
+export const modalTitle = "text-[17px] font-bold";
 
-export const modalTitle: CSSProperties = { fontSize: 17, fontWeight: 700 };
+export const closeBtn =
+  "flex h-[30px] w-[30px] items-center justify-center rounded-sm border-none bg-border-soft text-sm text-text-secondary";
 
-export const closeBtn: CSSProperties = {
-  width: 30,
-  height: 30,
-  borderRadius: "var(--radius-sm)",
-  border: "none",
-  background: "var(--border-soft)",
-  color: "var(--text-secondary)",
-  fontSize: 14,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
+export const fieldLabel = "mb-1.5 text-[13px] font-semibold text-[#334155]";
 
-export const fieldLabel: CSSProperties = {
-  fontSize: 13,
-  fontWeight: 600,
-  color: "#334155",
-  marginBottom: 6,
-};
+export const inputStyle = "w-full rounded-md border border-border bg-canvas px-3.5 py-3 text-sm text-text";
 
-export const inputStyle: CSSProperties = {
-  width: "100%",
-  padding: "12px 14px",
-  borderRadius: "var(--radius-md)",
-  border: "1px solid var(--border)",
-  fontSize: 14,
-  background: "var(--bg)",
-  color: "var(--text)",
-};
+export const formGap = "flex flex-col gap-3.5";
 
-export const formGap: CSSProperties = { display: "flex", flexDirection: "column", gap: 14 };
+export const footerRow = "mt-[22px] flex gap-2.5";
 
-export const footerRow: CSSProperties = { display: "flex", gap: 10, marginTop: 22 };
+export const secondaryBtn =
+  "flex-1 rounded-md border border-border bg-surface p-[13px] text-sm font-semibold text-[#334155]";
 
-export const secondaryBtn: CSSProperties = {
-  flex: 1,
-  padding: 13,
-  borderRadius: "var(--radius-md)",
-  border: "1px solid var(--border)",
-  background: "var(--surface)",
-  color: "#334155",
-  fontSize: 14,
-  fontWeight: 600,
-};
+export const primaryBtn = "flex-1 rounded-md border-none bg-primary p-[13px] text-sm font-semibold text-white";
 
-export const primaryBtn: CSSProperties = {
-  flex: 1,
-  padding: 13,
-  borderRadius: "var(--radius-md)",
-  border: "none",
-  background: "var(--color-primary)",
-  color: "#fff",
-  fontSize: 14,
-  fontWeight: 600,
-};
+export const successBtn = "flex-1 rounded-md border-none bg-success p-[13px] text-sm font-bold text-white";
 
-export const successBtn: CSSProperties = {
-  ...primaryBtn,
-  background: "var(--color-success)",
-  fontWeight: 700,
-};
-
-export const dangerBtn: CSSProperties = {
-  ...primaryBtn,
-  background: "var(--color-danger)",
-  fontWeight: 700,
-};
+export const dangerBtn = "flex-1 rounded-md border-none bg-danger p-[13px] text-sm font-bold text-white";

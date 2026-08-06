@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useModal } from "../providers/ModalProvider";
 import { useToast } from "../providers/ToastProvider";
 import { deleteBudgetAction, setBudgetAction } from "@/app/(app)/actions";
+import { cn } from "@/lib/cn";
 import { closeBtn, fieldLabel, footerRow, formGap, inputStyle, modalHeader, modalTitle, primaryBtn, secondaryBtn } from "./styles";
 
 export type OrcamentoCtx = {
@@ -41,31 +42,22 @@ export default function DefinirOrcamentoModal({ ctx }: { ctx: OrcamentoCtx }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div style={modalHeader}>
-        <div style={modalTitle}>Orçamento mensal</div>
-        <button type="button" onClick={closeModal} style={closeBtn}>
+      <div className={modalHeader}>
+        <div className={modalTitle}>Orçamento mensal</div>
+        <button type="button" onClick={closeModal} className={closeBtn}>
           ×
         </button>
       </div>
 
-      <div style={formGap}>
+      <div className={formGap}>
         <div>
-          <div style={fieldLabel}>Categoria</div>
-          <div
-            style={{
-              padding: "12px 14px",
-              borderRadius: "var(--radius-md)",
-              background: "var(--color-primary-tint)",
-              color: "var(--color-primary-dark)",
-              fontSize: 14,
-              fontWeight: 600,
-            }}
-          >
+          <div className={fieldLabel}>Categoria</div>
+          <div className="rounded-md bg-primary-tint px-3.5 py-3 text-sm font-semibold text-primary-dark">
             {ctx.subcategoryName}
           </div>
         </div>
         <div>
-          <div style={fieldLabel}>Valor reservado por mês</div>
+          <div className={fieldLabel}>Valor reservado por mês</div>
           <input
             type="number"
             step="0.01"
@@ -73,31 +65,22 @@ export default function DefinirOrcamentoModal({ ctx }: { ctx: OrcamentoCtx }) {
             placeholder="R$ 0,00"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            style={inputStyle}
+            className={inputStyle}
             autoFocus
           />
         </div>
-        <div
-          style={{
-            fontSize: 12,
-            color: "var(--text-secondary)",
-            background: "var(--bg)",
-            padding: "12px 14px",
-            borderRadius: 10,
-            lineHeight: 1.5,
-          }}
-        >
+        <div className="rounded-[10px] bg-canvas px-3.5 py-3 text-xs leading-normal text-text-secondary">
           Esse valor se repete todo mês. Conforme você lança despesas nesta subcategoria, o
           restante do orçamento é abatido automaticamente.
         </div>
-        {error && <div style={{ fontSize: 13, color: "var(--color-danger)" }}>{error}</div>}
+        {error && <div className="text-[13px] text-danger">{error}</div>}
       </div>
 
-      <div style={footerRow}>
-        <button type="button" onClick={closeModal} style={secondaryBtn}>
+      <div className={footerRow}>
+        <button type="button" onClick={closeModal} className={secondaryBtn}>
           Cancelar
         </button>
-        <button type="submit" disabled={pending} style={{ ...primaryBtn, opacity: pending ? 0.7 : 1 }}>
+        <button type="submit" disabled={pending} className={cn(primaryBtn, pending && "opacity-70")}>
           {pending ? "Salvando…" : "Salvar"}
         </button>
       </div>
@@ -106,16 +89,7 @@ export default function DefinirOrcamentoModal({ ctx }: { ctx: OrcamentoCtx }) {
           type="button"
           onClick={handleRemove}
           disabled={pending}
-          style={{
-            width: "100%",
-            marginTop: 10,
-            padding: 10,
-            border: "none",
-            background: "none",
-            color: "var(--color-danger)",
-            fontSize: 12,
-            fontWeight: 600,
-          }}
+          className="mt-2.5 w-full border-none bg-transparent p-2.5 text-xs font-semibold text-danger"
         >
           Remover orçamento
         </button>

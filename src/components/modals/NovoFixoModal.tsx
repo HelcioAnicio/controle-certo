@@ -6,6 +6,7 @@ import { useModal } from "../providers/ModalProvider";
 import { useToast } from "../providers/ToastProvider";
 import { createFixedExpenseAction, updateFixedExpenseAction } from "@/app/(app)/actions";
 import { buildSubcategoryOptions, type TxType } from "@/lib/finance";
+import { cn } from "@/lib/cn";
 import {
   closeBtn,
   fieldLabel,
@@ -77,30 +78,24 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div style={modalHeader}>
-        <div style={modalTitle}>{isEdit ? "Editar fixo" : "Novo fixo"}</div>
-        <button type="button" onClick={closeModal} style={closeBtn}>
+      <div className={modalHeader}>
+        <div className={modalTitle}>{isEdit ? "Editar fixo" : "Novo fixo"}</div>
+        <button type="button" onClick={closeModal} className={closeBtn}>
           ×
         </button>
       </div>
 
-      <div style={{ display: "flex", gap: 8, marginBottom: 18, background: "var(--border-soft)", padding: 4, borderRadius: "var(--radius-md)" }}>
+      <div className="mb-[18px] flex gap-2 rounded-md bg-border-soft p-1">
         <button
           type="button"
           onClick={() => {
             setType("expense");
             setSubcategoryId("");
           }}
-          style={{
-            flex: 1,
-            padding: 10,
-            border: "none",
-            borderRadius: 9,
-            fontSize: 14,
-            fontWeight: 600,
-            background: type === "expense" ? "var(--surface)" : "transparent",
-            color: type === "expense" ? "var(--color-danger)" : "var(--text-secondary)",
-          }}
+          className={cn(
+            "flex-1 rounded-[9px] border-none p-2.5 text-sm font-semibold",
+            type === "expense" ? "bg-surface text-danger" : "bg-transparent text-text-secondary",
+          )}
         >
           Despesa
         </button>
@@ -110,36 +105,30 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
             setType("income");
             setSubcategoryId("");
           }}
-          style={{
-            flex: 1,
-            padding: 10,
-            border: "none",
-            borderRadius: 9,
-            fontSize: 14,
-            fontWeight: 600,
-            background: type === "income" ? "var(--surface)" : "transparent",
-            color: type === "income" ? "var(--color-success)" : "var(--text-secondary)",
-          }}
+          className={cn(
+            "flex-1 rounded-[9px] border-none p-2.5 text-sm font-semibold",
+            type === "income" ? "bg-surface text-success" : "bg-transparent text-text-secondary",
+          )}
         >
           Receita
         </button>
       </div>
 
-      <div style={formGap}>
+      <div className={formGap}>
         <div>
-          <div style={fieldLabel}>Nome</div>
+          <div className={fieldLabel}>Nome</div>
           <input
             type="text"
             placeholder={type === "income" ? "Ex.: Salário" : "Ex.: Conta de Luz"}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            style={inputStyle}
+            className={inputStyle}
             autoFocus
           />
         </div>
         <div>
-          <div style={fieldLabel}>Subcategoria</div>
-          <select value={subcategoryId} onChange={(e) => setSubcategoryId(e.target.value)} style={inputStyle}>
+          <div className={fieldLabel}>Subcategoria</div>
+          <select value={subcategoryId} onChange={(e) => setSubcategoryId(e.target.value)} className={inputStyle}>
             <option value="">Selecione…</option>
             {options.map((o) => (
               <option key={o.id} value={o.id}>
@@ -148,9 +137,9 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
             ))}
           </select>
         </div>
-        <div style={{ display: "flex", gap: 12 }}>
-          <div style={{ flex: 1 }}>
-            <div style={fieldLabel}>{type === "income" ? "Valor médio recebido" : "Valor estimado"}</div>
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <div className={fieldLabel}>{type === "income" ? "Valor médio recebido" : "Valor estimado"}</div>
             <input
               type="number"
               step="0.01"
@@ -158,11 +147,11 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
               placeholder="R$ 0,00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              style={inputStyle}
+              className={inputStyle}
             />
           </div>
-          <div style={{ flex: 1 }}>
-            <div style={fieldLabel}>{type === "income" ? "Dia do recebimento" : "Dia de vencimento"}</div>
+          <div className="flex-1">
+            <div className={fieldLabel}>{type === "income" ? "Dia do recebimento" : "Dia de vencimento"}</div>
             <input
               type="number"
               min="1"
@@ -170,32 +159,23 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
               placeholder="Ex.: 10"
               value={dueDay}
               onChange={(e) => setDueDay(e.target.value)}
-              style={inputStyle}
+              className={inputStyle}
             />
           </div>
         </div>
-        <div
-          style={{
-            fontSize: 12,
-            color: "var(--text-secondary)",
-            background: "var(--bg)",
-            padding: "12px 14px",
-            borderRadius: 10,
-            lineHeight: 1.5,
-          }}
-        >
+        <div className="rounded-[10px] bg-canvas px-3.5 py-3 text-xs leading-normal text-text-secondary">
           {type === "income"
             ? "O valor é usado só para a previsão. Todo mês esta receita aparecerá como pendente; na hora de confirmar o recebimento você informa o valor real."
             : "O valor estimado é usado só para a previsão. Todo mês este gasto aparecerá como pendente; na hora de pagar você confirma o valor real."}
         </div>
-        {error && <div style={{ fontSize: 13, color: "var(--color-danger)" }}>{error}</div>}
+        {error && <div className="text-[13px] text-danger">{error}</div>}
       </div>
 
-      <div style={footerRow}>
-        <button type="button" onClick={closeModal} style={secondaryBtn}>
+      <div className={footerRow}>
+        <button type="button" onClick={closeModal} className={secondaryBtn}>
           Cancelar
         </button>
-        <button type="submit" disabled={pending} style={{ ...primaryBtn, opacity: pending ? 0.7 : 1 }}>
+        <button type="submit" disabled={pending} className={cn(primaryBtn, pending && "opacity-70")}>
           {pending ? "Salvando…" : "Salvar"}
         </button>
       </div>

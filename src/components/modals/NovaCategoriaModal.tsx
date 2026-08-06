@@ -6,6 +6,7 @@ import { useToast } from "../providers/ToastProvider";
 import { createCategoryAction, createSubcategoryAction, updateSubcategoryAction } from "@/app/(app)/actions";
 import { COLOR_SWATCHES, ICON_SWATCHES, type TxType } from "@/lib/finance";
 import { iconFor } from "@/lib/icons";
+import { cn } from "@/lib/cn";
 import { closeBtn, fieldLabel, footerRow, formGap, inputStyle, modalHeader, modalTitle, primaryBtn, secondaryBtn } from "./styles";
 
 export type NovaCategoriaCtx =
@@ -61,57 +62,54 @@ export default function NovaCategoriaModal({ ctx }: { ctx: NovaCategoriaCtx }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div style={modalHeader}>
-        <div style={modalTitle}>
+      <div className={modalHeader}>
+        <div className={modalTitle}>
           {isEdit ? "Editar subcategoria" : isSub ? "Nova subcategoria" : "Nova categoria"}
         </div>
-        <button type="button" onClick={closeModal} style={closeBtn}>
+        <button type="button" onClick={closeModal} className={closeBtn}>
           ×
         </button>
       </div>
 
-      <div style={formGap}>
+      <div className={formGap}>
         {ctx.kind !== "categoria" && (
           <div>
-            <div style={fieldLabel}>Categoria</div>
-            <div
-              style={{
-                padding: "12px 14px",
-                borderRadius: "var(--radius-md)",
-                background: "var(--color-primary-tint)",
-                color: "var(--color-primary-dark)",
-                fontSize: 14,
-                fontWeight: 600,
-              }}
-            >
+            <div className={fieldLabel}>Categoria</div>
+            <div className="rounded-md bg-primary-tint px-3.5 py-3 text-sm font-semibold text-primary-dark">
               {ctx.categoryName}
             </div>
           </div>
         )}
         <div>
-          <div style={fieldLabel}>Nome</div>
+          <div className={fieldLabel}>Nome</div>
           <input
             type="text"
             placeholder="Ex.: Farmácia"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            style={inputStyle}
+            className={inputStyle}
             autoFocus
           />
         </div>
         {isSub && (
-          <div style={{ display: "flex", gap: 8, background: "var(--border-soft)", padding: 4, borderRadius: "var(--radius-md)" }}>
+          <div className="flex gap-2 rounded-md bg-border-soft p-1">
             <button
               type="button"
               onClick={() => setType("expense")}
-              style={{ flex: 1, padding: 10, border: "none", borderRadius: 9, fontSize: 13, fontWeight: 600, background: type === "expense" ? "var(--surface)" : "transparent", color: type === "expense" ? "var(--color-danger)" : "var(--text-secondary)" }}
+              className={cn(
+                "flex-1 rounded-[9px] border-none p-2.5 text-[13px] font-semibold",
+                type === "expense" ? "bg-surface text-danger" : "bg-transparent text-text-secondary",
+              )}
             >
               Despesa
             </button>
             <button
               type="button"
               onClick={() => setType("income")}
-              style={{ flex: 1, padding: 10, border: "none", borderRadius: 9, fontSize: 13, fontWeight: 600, background: type === "income" ? "var(--surface)" : "transparent", color: type === "income" ? "var(--color-success)" : "var(--text-secondary)" }}
+              className={cn(
+                "flex-1 rounded-[9px] border-none p-2.5 text-[13px] font-semibold",
+                type === "income" ? "bg-surface text-success" : "bg-transparent text-text-secondary",
+              )}
             >
               Receita
             </button>
@@ -119,29 +117,28 @@ export default function NovaCategoriaModal({ ctx }: { ctx: NovaCategoriaCtx }) {
         )}
         {!isSub && (
           <div>
-            <div style={fieldLabel}>Cor</div>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <div className={fieldLabel}>Cor</div>
+            <div className="flex flex-wrap gap-2.5">
               {COLOR_SWATCHES.map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  style={{
-                    width: 30,
-                    height: 30,
-                    borderRadius: "50%",
-                    background: c,
-                    border: color === c ? "2px solid #fff" : "2px solid transparent",
-                    boxShadow: color === c ? "0 0 0 2px var(--text)" : "0 0 0 1px var(--border)",
-                  }}
+                  className={cn(
+                    "h-[30px] w-[30px] rounded-full border-2",
+                    color === c
+                      ? "border-white shadow-[0_0_0_2px_var(--text)]"
+                      : "border-transparent shadow-[0_0_0_1px_var(--border)]",
+                  )}
+                  style={{ background: c }}
                 />
               ))}
             </div>
           </div>
         )}
         <div>
-          <div style={fieldLabel}>Ícone</div>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <div className={fieldLabel}>Ícone</div>
+          <div className="flex flex-wrap gap-2.5">
             {ICON_SWATCHES.map((key) => {
               const Icon = iconFor(key);
               const selected = icon === key;
@@ -150,17 +147,10 @@ export default function NovaCategoriaModal({ ctx }: { ctx: NovaCategoriaCtx }) {
                   key={key}
                   type="button"
                   onClick={() => setIcon(key)}
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: "50%",
-                    background: selected ? "var(--color-primary-tint)" : "var(--border-soft)",
-                    color: selected ? "var(--color-primary)" : "var(--text-secondary)",
-                    border: "none",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
+                  className={cn(
+                    "flex h-9 w-9 items-center justify-center rounded-full border-none",
+                    selected ? "bg-primary-tint text-primary" : "bg-border-soft text-text-secondary",
+                  )}
                 >
                   <Icon size={17} />
                 </button>
@@ -168,14 +158,14 @@ export default function NovaCategoriaModal({ ctx }: { ctx: NovaCategoriaCtx }) {
             })}
           </div>
         </div>
-        {error && <div style={{ fontSize: 13, color: "var(--color-danger)" }}>{error}</div>}
+        {error && <div className="text-[13px] text-danger">{error}</div>}
       </div>
 
-      <div style={footerRow}>
-        <button type="button" onClick={closeModal} style={secondaryBtn}>
+      <div className={footerRow}>
+        <button type="button" onClick={closeModal} className={secondaryBtn}>
           Cancelar
         </button>
-        <button type="submit" disabled={pending} style={{ ...primaryBtn, opacity: pending ? 0.7 : 1 }}>
+        <button type="submit" disabled={pending} className={cn(primaryBtn, pending && "opacity-70")}>
           {pending ? "Salvando…" : "Salvar"}
         </button>
       </div>

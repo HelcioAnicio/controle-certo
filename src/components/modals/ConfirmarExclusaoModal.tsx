@@ -9,6 +9,7 @@ import {
   deleteSubcategoryAction,
   deleteTransactionAction,
 } from "@/app/(app)/actions";
+import { cn } from "@/lib/cn";
 import { dangerBtn, secondaryBtn } from "./styles";
 
 export type ExclusaoCtx = {
@@ -56,32 +57,22 @@ export default function ConfirmarExclusaoModal({ ctx }: { ctx: ExclusaoCtx }) {
 
   return (
     <div>
-      <div
-        style={{
-          width: 44,
-          height: 44,
-          borderRadius: "var(--radius-md)",
-          background: "var(--color-danger-tint)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          marginBottom: 14,
-        }}
-      >
-        <div style={{ width: 18, height: 18, background: "var(--color-danger)", borderRadius: 4 }} />
+      <div className="mb-3.5 flex h-11 w-11 items-center justify-center rounded-md bg-danger-tint">
+        <div className="h-[18px] w-[18px] rounded bg-danger" />
       </div>
-      <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Excluir &quot;{ctx.desc}&quot;?</div>
-      <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5, marginBottom: 14 }}>
-        {DESCRIPTIONS[kind]}
-      </div>
-      {error && (
-        <div style={{ fontSize: 13, color: "var(--color-danger)", marginBottom: 14 }}>{error}</div>
-      )}
-      <div style={{ display: "flex", gap: 10 }}>
-        <button type="button" onClick={closeModal} style={secondaryBtn}>
+      <div className="mb-2 text-base font-bold">Excluir &quot;{ctx.desc}&quot;?</div>
+      <div className="mb-3.5 text-[13px] leading-normal text-text-secondary">{DESCRIPTIONS[kind]}</div>
+      {error && <div className="mb-3.5 text-[13px] text-danger">{error}</div>}
+      <div className="flex gap-2.5">
+        <button type="button" onClick={closeModal} className={secondaryBtn}>
           Cancelar
         </button>
-        <button type="button" onClick={confirm} disabled={pending} style={{ ...dangerBtn, opacity: pending ? 0.7 : 1 }}>
+        <button
+          type="button"
+          onClick={confirm}
+          disabled={pending}
+          className={cn(dangerBtn, pending && "opacity-70")}
+        >
           {pending ? "Excluindo…" : "Excluir"}
         </button>
       </div>
