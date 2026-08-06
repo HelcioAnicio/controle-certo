@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Category } from "@/prisma/categories";
+import { cn } from "@/lib/cn";
 
 const RANGE_OPTIONS = [
   { value: "1", label: "Este mês" },
@@ -10,15 +11,7 @@ const RANGE_OPTIONS = [
   { value: "12", label: "Último ano" },
 ];
 
-const selectStyle: React.CSSProperties = {
-  fontSize: 13,
-  fontWeight: 500,
-  color: "var(--text)",
-  background: "var(--surface)",
-  border: "1px solid var(--border)",
-  borderRadius: "var(--radius-md)",
-  padding: "8px 12px",
-};
+const selectStyle = "rounded-md px-3 py-2 text-[13px] font-medium";
 
 export default function ReportFilters({ categories }: { categories: Category[] }) {
   const router = useRouter();
@@ -36,15 +29,23 @@ export default function ReportFilters({ categories }: { categories: Category[] }
   }
 
   return (
-    <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-      <select value={range} onChange={(e) => updateParam("range", e.target.value)} style={selectStyle}>
+    <div className="flex flex-wrap items-center gap-2.5">
+      <select
+        value={range}
+        onChange={(e) => updateParam("range", e.target.value)}
+        className={cn(selectStyle, "border border-border bg-surface text-text")}
+      >
         {RANGE_OPTIONS.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}
           </option>
         ))}
       </select>
-      <select value={category} onChange={(e) => updateParam("category", e.target.value)} style={selectStyle}>
+      <select
+        value={category}
+        onChange={(e) => updateParam("category", e.target.value)}
+        className={cn(selectStyle, "border border-border bg-surface text-text")}
+      >
         <option value="">Todas categorias</option>
         {categories.map((c) => (
           <option key={c.id} value={c.id}>
@@ -56,37 +57,18 @@ export default function ReportFilters({ categories }: { categories: Category[] }
         type="button"
         onClick={() => updateParam("orcamento", considerBudget ? "0" : "1")}
         title="Incluir o orçamento não gasto como estimativa de gasto, ou considerar só o que já foi lançado"
-        style={{
-          ...selectStyle,
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          background: considerBudget ? "var(--color-primary-tint)" : "var(--surface)",
-          color: considerBudget ? "var(--color-primary-dark)" : "var(--text)",
-          border: `1px solid ${considerBudget ? "var(--color-primary)" : "var(--border)"}`,
-        }}
+        className={cn(
+          selectStyle,
+          "flex items-center gap-2 border",
+          considerBudget ? "border-primary bg-primary-tint text-primary-dark" : "border-border bg-surface text-text",
+        )}
       >
-        <span
-          style={{
-            width: 30,
-            height: 17,
-            borderRadius: 99,
-            background: considerBudget ? "var(--color-primary)" : "var(--border)",
-            position: "relative",
-            flexShrink: 0,
-          }}
-        >
+        <span className={cn("relative h-[17px] w-[30px] shrink-0 rounded-full", considerBudget ? "bg-primary" : "bg-border")}>
           <span
-            style={{
-              width: 13,
-              height: 13,
-              borderRadius: "50%",
-              background: "#fff",
-              position: "absolute",
-              top: 2,
-              left: considerBudget ? 15 : 2,
-              transition: "left 0.15s ease",
-            }}
+            className={cn(
+              "absolute top-0.5 h-[13px] w-[13px] rounded-full bg-white transition-[left] duration-150 [transition-timing-function:ease]",
+              considerBudget ? "left-[15px]" : "left-0.5",
+            )}
           />
         </span>
         Considerar orçamento

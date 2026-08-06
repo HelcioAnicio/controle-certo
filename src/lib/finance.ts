@@ -1,12 +1,12 @@
 export type TxType = "income" | "expense";
 export type TxStatus = "pending" | "scheduled" | "due" | "paid" | "overdue";
 
-export const STATUS_META: Record<TxStatus, { label: string; color: string; bg: string }> = {
-  pending: { label: "Pendente", color: "#F59E0B", bg: "#FEF3C7" },
-  scheduled: { label: "Agendado", color: "#3B82F6", bg: "#DBEAFE" },
-  due: { label: "Vence hoje", color: "#D97706", bg: "#FEF3C7" },
-  paid: { label: "Pago", color: "#10B981", bg: "#D1FAE5" },
-  overdue: { label: "Atrasado", color: "#EF4444", bg: "#FEE2E2" },
+export const STATUS_META: Record<TxStatus, { label: string; textClass: string; bgClass: string }> = {
+  pending: { label: "Pendente", textClass: "text-warning", bgClass: "bg-warning-tint" },
+  scheduled: { label: "Agendado", textClass: "text-info", bgClass: "bg-primary-tint" },
+  due: { label: "Vence hoje", textClass: "text-warning-strong", bgClass: "bg-warning-tint" },
+  paid: { label: "Pago", textClass: "text-success", bgClass: "bg-success-tint" },
+  overdue: { label: "Atrasado", textClass: "text-danger", bgClass: "bg-danger-tint" },
 };
 
 export function formatBRL(value: number): string {

@@ -18,17 +18,7 @@ export default function EditFixedExpenseButton({ fixedExpense }: { fixedExpense:
           dueDay: fixedExpense.dueDay,
         })
       }
-      style={{
-        width: 30,
-        height: 30,
-        borderRadius: 8,
-        border: "1px solid var(--border)",
-        background: "var(--surface)",
-        color: "#334155",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
+      className="flex h-[30px] w-[30px] items-center justify-center rounded-sm border border-border bg-surface text-[#334155]"
     >
       <TbPencil size={13} />
     </button>

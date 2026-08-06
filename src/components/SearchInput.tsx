@@ -23,25 +23,14 @@ export default function SearchInput({ placeholder }: { placeholder: string }) {
   }, [value]);
 
   return (
-    <div style={{ position: "relative" }}>
-      <TbSearch
-        size={16}
-        style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-disabled)" }}
-      />
+    <div className="relative">
+      <TbSearch size={16} className="absolute top-1/2 left-3 -translate-y-1/2 text-text-disabled" />
       <input
         type="text"
         placeholder={placeholder}
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        style={{
-          width: "100%",
-          padding: "10px 14px 10px 36px",
-          borderRadius: "var(--radius-md)",
-          border: "1px solid var(--border)",
-          background: "var(--surface)",
-          color: "var(--text)",
-          fontSize: 14,
-        }}
+        className="w-full rounded-md border border-border bg-surface py-2.5 pr-3.5 pl-9 text-sm text-text"
       />
     </div>
   );

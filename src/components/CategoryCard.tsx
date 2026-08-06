@@ -23,29 +23,17 @@ export default function CategoryCard({
   const { openModal } = useModal();
 
   return (
-    <div style={{ background: "var(--surface)", borderRadius: 16, border: "1px solid var(--border)", overflow: "hidden" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: 16 }}>
+    <div className="overflow-hidden rounded-lg border border-border bg-surface">
+      <div className="flex items-center gap-2 p-4">
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          style={{
-            flex: 1,
-            minWidth: 0,
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            padding: 0,
-            border: "none",
-            background: "none",
-            textAlign: "left",
-          }}
+          className="flex min-w-0 flex-1 items-center gap-3 border-none bg-transparent p-0 text-left"
         >
           <CategoryIcon icon={category.icon} color={category.color} size={40} />
-          <div style={{ flex: 1, fontSize: 16, fontWeight: 600 }}>{category.name}</div>
-          <span style={{ fontSize: 12, color: "var(--text-disabled)" }}>
-            {subcategories.length} subcategorias
-          </span>
-          <span style={{ fontSize: 12, color: "var(--text-disabled)", display: "flex" }}>
+          <div className="flex-1 text-base font-semibold">{category.name}</div>
+          <span className="text-xs text-text-disabled">{subcategories.length} subcategorias</span>
+          <span className="flex text-xs text-text-disabled">
             {expanded ? <TbChevronUp size={14} /> : <TbChevronDown size={14} />}
           </span>
         </button>
@@ -53,34 +41,22 @@ export default function CategoryCard({
       </div>
 
       {expanded && (
-        <div style={{ padding: "0 16px 14px 68px", display: "flex", flexDirection: "column", gap: 8 }}>
+        <div className="flex flex-col gap-2 pt-0 pr-4 pb-3.5 pl-[68px]">
           {subcategories.map((sub) => {
             const budgetAmount = budgetBySubcategoryId.get(sub.id) ?? 0;
             return (
               <div
                 key={sub.id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  fontSize: 13,
-                  color: "var(--text)",
-                  padding: "8px 12px",
-                  background: "var(--bg)",
-                  borderRadius: 10,
-                  gap: 8,
-                }}
+                className="flex items-center justify-between gap-2 rounded-[10px] bg-canvas px-3 py-2 text-[13px] text-text"
               >
-                <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+                <div className="flex min-w-0 flex-col">
                   <span>{sub.name}</span>
                   {budgetAmount > 0 && (
-                    <span style={{ fontSize: 11, color: "var(--color-primary)" }}>
-                      Orçamento: {formatBRL(budgetAmount)}/mês
-                    </span>
+                    <span className="text-[11px] text-primary">Orçamento: {formatBRL(budgetAmount)}/mês</span>
                   )}
                 </div>
-                <span style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
-                  <span style={{ fontSize: 11, color: "var(--text-disabled)" }}>
+                <span className="flex shrink-0 items-center gap-2.5">
+                  <span className="text-[11px] text-text-disabled">
                     {sub.type === "income" ? "Receita" : "Despesa"}
                   </span>
                   {sub.type === "expense" && (
@@ -94,7 +70,7 @@ export default function CategoryCard({
                         })
                       }
                       title="Definir orçamento mensal"
-                      style={{ border: "none", background: "none", color: "var(--text-disabled)", fontSize: 12, display: "flex" }}
+                      className="flex border-none bg-transparent text-xs text-text-disabled"
                     >
                       <TbTarget size={13} />
                     </button>
@@ -108,14 +84,7 @@ export default function CategoryCard({
           <ModalTriggerButton
             modal="novaCategoria"
             ctx={{ kind: "subcategoria", categoryId: category.id, categoryName: category.name }}
-            style={{
-              alignSelf: "flex-start",
-              padding: "6px 0",
-              background: "none",
-              color: "var(--color-primary)",
-              fontSize: 12,
-              fontWeight: 600,
-            }}
+            className="self-start bg-transparent px-0 py-1.5 text-xs font-semibold text-primary"
           >
             + Nova subcategoria
           </ModalTriggerButton>

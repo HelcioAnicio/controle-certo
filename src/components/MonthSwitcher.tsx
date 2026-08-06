@@ -4,6 +4,10 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { addMonths, periodDateRange, periodForDate, periodLabel } from "@/lib/finance";
 import { TbChevronLeft, TbChevronRight } from "react-icons/tb";
 import { useSettings } from "./providers/SettingsProvider";
+import { cn } from "@/lib/cn";
+
+const navBtnStyle =
+  "flex h-8 w-8 items-center justify-center rounded-sm border border-border bg-surface text-[#334155]";
 
 export default function MonthSwitcher() {
   const router = useRouter();
@@ -22,39 +26,27 @@ export default function MonthSwitcher() {
   const range = monthStartDay > 1 ? periodDateRange(current, monthStartDay) : null;
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+    <div className="flex items-center gap-2.5">
       <button
         onClick={() => goTo(addMonths(current, -1))}
         disabled={atFloor}
         title={atFloor ? "Você definiu este como o mês de início" : undefined}
-        style={{ ...navBtnStyle, opacity: atFloor ? 0.4 : 1, cursor: atFloor ? "not-allowed" : "pointer" }}
+        className={cn(navBtnStyle, atFloor && "cursor-not-allowed opacity-40")}
       >
         <TbChevronLeft size={16} />
       </button>
-      <div style={{ textAlign: "center", minWidth: 140 }}>
-        <div style={{ fontSize: 15, fontWeight: 600 }}>{periodLabel(current)}</div>
+      <div className="min-w-[140px] text-center">
+        <div className="text-[15px] font-semibold">{periodLabel(current)}</div>
         {range && (
-          <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>
+          <div className="text-[11px] text-text-secondary">
             {range.start.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} –{" "}
             {range.end.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
           </div>
         )}
       </div>
-      <button onClick={() => goTo(addMonths(current, 1))} style={navBtnStyle}>
+      <button onClick={() => goTo(addMonths(current, 1))} className={navBtnStyle}>
         <TbChevronRight size={16} />
       </button>
     </div>
   );
 }
-
-const navBtnStyle: React.CSSProperties = {
-  width: 32,
-  height: 32,
-  borderRadius: "var(--radius-sm)",
-  border: "1px solid var(--border)",
-  background: "var(--surface)",
-  color: "#334155",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-};

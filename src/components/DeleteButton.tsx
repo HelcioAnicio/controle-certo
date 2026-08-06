@@ -3,25 +3,10 @@
 import { TbX } from "react-icons/tb";
 import { useModal } from "./providers/ModalProvider";
 
-const boxedStyle: React.CSSProperties = {
-  width: 30,
-  height: 30,
-  borderRadius: 8,
-  border: "1px solid var(--border)",
-  background: "var(--surface)",
-  color: "var(--text-disabled)",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
+const boxedStyle =
+  "flex h-[30px] w-[30px] items-center justify-center rounded-sm border border-border bg-surface text-text-disabled";
 
-const compactStyle: React.CSSProperties = {
-  border: "none",
-  background: "none",
-  color: "var(--text)",
-  fontSize: 12,
-  display: "flex",
-};
+const compactStyle = "flex border-none bg-transparent text-xs text-text";
 
 export default function DeleteButton({
   id,
@@ -39,7 +24,7 @@ export default function DeleteButton({
     <button
       type="button"
       onClick={() => openModal("confirmarExclusao", { id, desc, kind })}
-      style={variant === "compact" ? compactStyle : boxedStyle}
+      className={variant === "compact" ? compactStyle : boxedStyle}
     >
       <TbX size={variant === "compact" ? 13 : 14} />
     </button>

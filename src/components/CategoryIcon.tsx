@@ -12,16 +12,8 @@ export default function CategoryIcon({
   const Icon = iconFor(icon);
   return (
     <div
-      style={{
-        flexShrink: 0,
-        width: size,
-        height: size,
-        borderRadius: "50%",
-        background: `${color}22`,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
+      className="flex shrink-0 items-center justify-center rounded-full"
+      style={{ width: size, height: size, background: `${color}22` }}
     >
       {/* eslint-disable-next-line react-hooks/static-components -- Icon is a lookup from a fixed component map, not created during render */}
       <Icon size={Math.round(size * 0.5)} color={color} />

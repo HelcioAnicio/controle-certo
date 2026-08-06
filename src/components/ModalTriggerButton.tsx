@@ -1,20 +1,21 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import { useModal, type ModalName } from "./providers/ModalProvider";
+
+const defaultClassName = "self-start rounded-md border-none bg-primary px-[18px] py-[11px] text-sm font-semibold text-white";
 
 export default function ModalTriggerButton<N extends ModalName>({
   modal,
   ctx,
   children,
-  style,
+  className,
 }: {
   modal: N;
   ctx?: N extends "novaCategoria"
     ? { kind: "categoria" } | { kind: "subcategoria"; categoryId: string; categoryName: string }
     : never;
   children: React.ReactNode;
-  style?: CSSProperties;
+  className?: string;
 }) {
   const { openModal } = useModal();
   return (
@@ -22,17 +23,11 @@ export default function ModalTriggerButton<N extends ModalName>({
       type="button"
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onClick={() => openModal(modal, ctx as any)}
-      style={{
-        alignSelf: "flex-start",
-        padding: "11px 18px",
-        border: "none",
-        borderRadius: "var(--radius-md)",
-        background: "var(--color-primary)",
-        color: "#fff",
-        fontSize: 14,
-        fontWeight: 600,
-        ...style,
-      }}
+      // A caller-supplied className fully replaces the default look rather than
+      // merging with it — several utilities here (bg/text/padding/font-size)
+      // would otherwise collide with an override on the same CSS property,
+      // and which one wins isn't determined by class string order in Tailwind.
+      className={className ?? defaultClassName}
     >
       {children}
     </button>

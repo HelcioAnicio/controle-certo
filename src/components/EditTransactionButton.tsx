@@ -18,17 +18,7 @@ export default function EditTransactionButton({ tx }: { tx: EnrichedTransaction 
           amount: Number(tx.amount),
         })
       }
-      style={{
-        width: 30,
-        height: 30,
-        borderRadius: 8,
-        border: "1px solid var(--border)",
-        background: "var(--surface)",
-        color: "var(--text-disabled)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
+      className="flex h-[30px] w-[30px] items-center justify-center rounded-sm border border-border bg-surface text-text-disabled"
     >
       <TbPencil size={13} />
     </button>
