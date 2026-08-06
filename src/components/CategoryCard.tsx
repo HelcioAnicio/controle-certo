@@ -41,7 +41,7 @@ export default function CategoryCard({
           }}
         >
           <CategoryIcon icon={category.icon} color={category.color} size={40} />
-          <div style={{ flex: 1, fontSize: 15, fontWeight: 600 }}>{category.name}</div>
+          <div style={{ flex: 1, fontSize: 16, fontWeight: 600 }}>{category.name}</div>
           <span style={{ fontSize: 12, color: "var(--text-disabled)" }}>
             {subcategories.length} subcategorias
           </span>
@@ -64,7 +64,7 @@ export default function CategoryCard({
                   alignItems: "center",
                   justifyContent: "space-between",
                   fontSize: 13,
-                  color: "#334155",
+                  color: "var(--text)",
                   padding: "8px 12px",
                   background: "var(--bg)",
                   borderRadius: 10,

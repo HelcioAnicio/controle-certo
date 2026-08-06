@@ -18,7 +18,7 @@ const boxedStyle: React.CSSProperties = {
 const compactStyle: React.CSSProperties = {
   border: "none",
   background: "none",
-  color: "var(--text-disabled)",
+  color: "var(--text)",
   fontSize: 12,
   display: "flex",
 };

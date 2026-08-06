@@ -26,7 +26,7 @@ export default function EditSubcategoryButton({
           icon: subcategory.icon,
         })
       }
-      style={{ border: "none", background: "none", color: "var(--text-disabled)", fontSize: 12, display: "flex" }}
+      style={{ border: "none", background: "none", color: "var(--text)", fontSize: 12, display: "flex" }}
     >
       <TbPencil size={13} />
     </button>
