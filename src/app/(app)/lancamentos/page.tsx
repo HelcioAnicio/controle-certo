@@ -11,6 +11,7 @@ import FilterChips from "@/components/FilterChips";
 import SearchInput from "@/components/SearchInput";
 import HelpButton from "@/components/HelpButton";
 import EmptyState from "@/components/EmptyState";
+import { cn } from "@/lib/cn";
 
 export default async function LancamentosPage({
   searchParams,
@@ -61,9 +62,9 @@ export default async function LancamentosPage({
   const { days, undated } = buildDailyLedger(transactions, filtered);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="flex flex-col gap-4">
       <SearchInput placeholder="Buscar por descrição ou subcategoria..." />
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <div className="flex items-center gap-2.5">
         <FilterChips />
         <HelpButton title="Como ler os lançamentos">
           <LancamentosHelpContent />
@@ -71,53 +72,31 @@ export default async function LancamentosPage({
       </div>
 
       {filtered.length === 0 ? (
-        <div
-          style={{
-            background: "var(--surface)",
-            borderRadius: 16,
-            border: "1px solid var(--border)",
-            padding: "40px 20px",
-            textAlign: "center",
-            color: "var(--text-secondary)",
-            fontSize: 14,
-            maxWidth: "600px",
-          }}
-        >
+        <div className="max-w-[600px] rounded-lg border border-border bg-surface px-5 py-10 text-center text-sm text-text-secondary">
           Nenhum lançamento neste filtro.
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 18, maxWidth: "600px" }}>
+        <div className="flex max-w-[600px] flex-col gap-[18px]">
           {days.map((day) => (
             <div key={day.dateKey}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "baseline",
-                  flexWrap: "wrap",
-                  gap: "4px 12px",
-                  padding: "0 4px 8px",
-                }}
-              >
-                <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)" }}>
-                  {formatDayHeader(day.date)}
-                </div>
-                <div style={{ display: "flex", gap: 12, fontSize: 11, color: "var(--text-secondary)" }}>
+              <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 px-1 pt-0 pb-2">
+                <div className="text-[13px] font-bold text-text">{formatDayHeader(day.date)}</div>
+                <div className="flex gap-3 text-[11px] text-text-secondary">
                   <span>
                     Saldo{" "}
-                    <b style={{ color: day.actualBalance >= 0 ? "var(--color-success)" : "var(--color-danger)" }}>
+                    <b className={day.actualBalance >= 0 ? "text-success" : "text-danger"}>
                       {formatBRL(day.actualBalance)}
                     </b>
                   </span>
                   <span>
                     Previsto{" "}
-                    <b style={{ color: day.projectedBalance >= 0 ? "var(--color-primary)" : "var(--color-danger)" }}>
+                    <b className={day.projectedBalance >= 0 ? "text-primary" : "text-danger"}>
                       {formatBRL(day.projectedBalance)}
                     </b>
                   </span>
                 </div>
               </div>
-              <div style={{ background: "var(--surface)", borderRadius: 16, border: "1px solid var(--border)", overflow: "hidden" }}>
+              <div className="overflow-hidden rounded-lg border border-border bg-surface">
                 {day.transactions.map((t, i) => (
                   <TxRow key={t.id} t={t} last={i === day.transactions.length - 1} />
                 ))}
@@ -127,10 +106,8 @@ export default async function LancamentosPage({
 
           {undated.length > 0 && (
             <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", padding: "0 4px 8px" }}>
-                Sem data definida
-              </div>
-              <div style={{ background: "var(--surface)", borderRadius: 16, border: "1px solid var(--border)", overflow: "hidden" }}>
+              <div className="px-1 pt-0 pb-2 text-[13px] font-bold text-text">Sem data definida</div>
+              <div className="overflow-hidden rounded-lg border border-border bg-surface">
                 {undated.map((t, i) => (
                   <TxRow key={t.id} t={t} last={i === undated.length - 1} />
                 ))}
@@ -140,20 +117,8 @@ export default async function LancamentosPage({
         </div>
       )}
 
-      <div
-        style={{
-          background: "var(--surface)",
-          borderRadius: 14,
-          padding: "14px 18px",
-          border: "1px solid var(--border)",
-          display: "flex",
-          justifyContent: "space-between",
-          fontSize: 14,
-          fontWeight: 600,
-          maxWidth: "600px",
-        }}
-      >
-        <span style={{ color: "var(--text-secondary)", fontWeight: 500 }}>Total filtrado</span>
+      <div className="flex max-w-[600px] justify-between rounded-[14px] border border-border bg-surface px-[18px] py-3.5 text-sm font-semibold">
+        <span className="font-medium text-text-secondary">Total filtrado</span>
         <span>{formatBRL(filteredTotal)}</span>
       </div>
     </div>
@@ -164,27 +129,27 @@ function LancamentosHelpContent() {
   return (
     <>
       <div>
-        <b style={{ color: "var(--text)" }}>Saldo do dia</b>: o quanto entrou/saiu de fato até
+        <b className="text-text">Saldo do dia</b>: o quanto entrou/saiu de fato até
         aquele dia (só conta o que já foi pago ou recebido).
       </div>
       <div>
-        <b style={{ color: "var(--text)" }}>Previsto</b>: o mesmo saldo, mas já considerando
+        <b className="text-text">Previsto</b>: o mesmo saldo, mas já considerando
         contas com data de vencimento futura — mostra pra onde seu saldo vai, mesmo antes de
         você confirmar o pagamento/recebimento.
       </div>
       <div>
-        <b style={{ color: "var(--text)" }}>Ordem</b>: os lançamentos são agrupados por dia
+        <b className="text-text">Ordem</b>: os lançamentos são agrupados por dia
         (data de pagamento se já foi pago, senão a data de vencimento) e ordenados do mais
         antigo pro mais recente. Sem nenhuma data, o lançamento aparece em &quot;Sem data
         definida&quot;.
       </div>
       <div>
-        <b style={{ color: "var(--text)" }}>Botão de ação</b>: já indica o status — para
+        <b className="text-text">Botão de ação</b>: já indica o status — para
         despesas, alterna entre Agendado, Pagar e Pago; para receitas, entre Agendado, Receber
         e Recebido. &quot;Agendado&quot; fica bloqueado até a data chegar.
       </div>
       <div>
-        <b style={{ color: "var(--text)" }}>Filtros e busca</b>: os chips filtram por status
+        <b className="text-text">Filtros e busca</b>: os chips filtram por status
         (Pendentes, Pagos, A vencer, Atrasados) e o campo de busca filtra por descrição ou
         subcategoria — os dois podem ser usados juntos.
       </div>
@@ -199,35 +164,29 @@ function formatDayHeader(date: Date): string {
 
 function TxRow({ t, last }: { t: EnrichedTransaction; last: boolean }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        gap: 12,
-        padding: "14px 16px",
-        borderBottom: last ? "none" : "1px solid var(--border-soft)",
-        flexWrap: "wrap",
-        flexDirection: "column",
-      }}
-    >
-      <div style={{ flex: 1, display: "flex", minWidth: 0, alignItems: "center", gap: 10 }}>
+    <div className={cn("flex flex-col flex-wrap gap-3 px-4 py-3.5", !last && "border-b border-border-soft")}>
+      <div className="flex min-w-0 flex-1 items-center gap-2.5">
         <CategoryIcon icon={t.subcategoryIcon} color={t.categoryColor} size={32} />
-        <div style={{ fontSize: 16, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <div className="overflow-hidden text-base font-semibold text-ellipsis whitespace-nowrap">
           {t.description || t.subcategoryName}
         </div>
-        <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-          {t.subcategoryName} · {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR") : "—"}
+        <div className="text-xs text-text-secondary">
+          {t.subcategoryName} ·{" "}
+          {(() => {
+            const effective = t.status === "paid" ? t.paidDate : t.dueDate;
+            if (!effective) return "—";
+            const label = effective.toLocaleDateString("pt-BR");
+            return t.status === "paid" ? `pago em ${label}` : label;
+          })()}
         </div>
       </div>
-      <div style={{ display: "flex", gap: 12, alignItems: "center", justifyContent: "flex-end" }}>
+      <div className="flex items-center justify-end gap-3">
         <PayButton tx={t} variant="row" />
         <div
-          style={{
-            width: 110,
-            textAlign: "right",
-            fontSize: 14,
-            fontWeight: 700,
-            color: t.status === "paid" ? (t.type === "income" ? "var(--color-success)" : "var(--text)") : "var(--text-disabled)",
-          }}
+          className={cn(
+            "w-[110px] text-right text-sm font-bold",
+            t.status === "paid" ? (t.type === "income" ? "text-success" : "text-text") : "text-text-disabled",
+          )}
         >
           {t.type === "income" ? "+ " : "- "}
           {formatBRL(t.displayAmount)}

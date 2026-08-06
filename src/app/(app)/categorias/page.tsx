@@ -14,12 +14,12 @@ export default async function CategoriasPage() {
   const budgetBySubcategoryId = new Map(budgets.map((b) => [b.subcategoryId, Number(b.monthlyAmount)]));
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="flex flex-col gap-4">
       <ModalTriggerButton modal="novaCategoria" ctx={{ kind: "categoria" }}>
         + Nova categoria
       </ModalTriggerButton>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: "600px" }}>
+      <div className="flex max-w-[600px] flex-col gap-3">
         {categories.map((cat) => (
           <CategoryCard
             key={cat.id}

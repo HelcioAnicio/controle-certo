@@ -4,6 +4,7 @@ import { useActionState, useEffect, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { signIn, signUp, type AuthActionState } from "../actions";
 import { createClient } from "@/lib/supabase/client";
+import { cn } from "@/lib/cn";
 
 const initialState: AuthActionState = {};
 
@@ -44,65 +45,16 @@ export default function LoginPage() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "linear-gradient(160deg, #EFF6FF 0%, #F8FAFC 55%)",
-        padding: 24,
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: 380,
-          background: "var(--surface)",
-          borderRadius: "var(--radius-xl)",
-          padding: "36px 28px",
-          boxShadow: "var(--shadow-modal)",
-        }}
-      >
-        <div
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: 14,
-            background: "var(--color-primary)",
-            margin: "0 auto 18px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <div style={{ width: 20, height: 20, borderRadius: 6, background: "#fff" }} />
+    <div className="flex min-h-screen items-center justify-center bg-[linear-gradient(160deg,#EFF6FF_0%,#F8FAFC_55%)] p-6">
+      <div className="w-full max-w-[380px] rounded-xl bg-surface px-7 py-9 shadow-modal">
+        <div className="mx-auto mb-[18px] flex h-12 w-12 items-center justify-center rounded-[14px] bg-primary">
+          <div className="h-5 w-5 rounded-[6px] bg-white" />
         </div>
-        <div style={{ textAlign: "center", fontSize: 20, fontWeight: 700, marginBottom: 4 }}>
-          Casa em Dia
-        </div>
-        <div
-          style={{
-            textAlign: "center",
-            fontSize: 13,
-            color: "var(--text-secondary)",
-            marginBottom: 28,
-          }}
-        >
-          Controle financeiro doméstico
-        </div>
+        <div className="mb-1 text-center text-xl font-bold">Casa em Dia</div>
+        <div className="mb-7 text-center text-[13px] text-text-secondary">Controle financeiro doméstico</div>
 
         {oauthError && (
-          <div
-            style={{
-              fontSize: 13,
-              color: "var(--color-danger)",
-              background: "var(--color-danger-tint)",
-              borderRadius: "var(--radius-md)",
-              padding: "10px 12px",
-              marginBottom: 14,
-            }}
-          >
+          <div className="mb-3.5 rounded-md bg-danger-tint px-3 py-2.5 text-[13px] text-danger">
             Não foi possível entrar com o Google. Tente novamente.
           </div>
         )}
@@ -111,44 +63,29 @@ export default function LoginPage() {
           type="button"
           onClick={handleGoogleSignIn}
           disabled={googlePending}
-          style={{
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 10,
-            padding: 13,
-            border: "1px solid var(--border)",
-            borderRadius: "var(--radius-md)",
-            background: "var(--surface)",
-            color: "var(--text)",
-            fontSize: 14,
-            fontWeight: 600,
-            opacity: googlePending ? 0.7 : 1,
-          }}
+          className={cn(
+            "flex w-full items-center justify-center gap-2.5 rounded-md border border-border bg-surface p-[13px] text-sm font-semibold text-text",
+            googlePending && "opacity-70",
+          )}
         >
           <FcGoogle size={18} />
           {googlePending ? "Redirecionando…" : "Continuar com Google"}
         </button>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "18px 0" }}>
-          <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
-          <span style={{ fontSize: 12, color: "var(--text-disabled)" }}>ou</span>
-          <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+        <div className="my-[18px] flex items-center gap-2.5">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs text-text-disabled">ou</span>
+          <div className="h-px flex-1 bg-border" />
         </div>
 
-        <form
-          key={mode}
-          action={isLogin ? loginAction : signupAction}
-          style={{ display: "flex", flexDirection: "column", gap: 14 }}
-        >
+        <form key={mode} action={isLogin ? loginAction : signupAction} className="flex flex-col gap-3.5">
           {!isLogin && (
             <Field label="Nome">
-              <input name="name" type="text" placeholder="Seu nome" required style={inputStyle} />
+              <input name="name" type="text" placeholder="Seu nome" required className={inputStyle} />
             </Field>
           )}
           <Field label="E-mail">
-            <input name="email" type="email" placeholder="voce@email.com" required style={inputStyle} />
+            <input name="email" type="email" placeholder="voce@email.com" required className={inputStyle} />
           </Field>
           <Field label="Senha">
             <input
@@ -157,47 +94,33 @@ export default function LoginPage() {
               placeholder="••••••••"
               required
               minLength={6}
-              style={inputStyle}
+              className={inputStyle}
             />
           </Field>
 
-          {state?.error && (
-            <div style={{ fontSize: 13, color: "var(--color-danger)" }}>{state.error}</div>
-          )}
-          {state?.info && (
-            <div style={{ fontSize: 13, color: "var(--color-success)" }}>{state.info}</div>
-          )}
+          {state?.error && <div className="text-[13px] text-danger">{state.error}</div>}
+          {state?.info && <div className="text-[13px] text-success">{state.info}</div>}
 
           <button
             type="submit"
             disabled={pending}
-            style={{
-              marginTop: 6,
-              width: "100%",
-              padding: 14,
-              border: "none",
-              borderRadius: "var(--radius-md)",
-              background: "var(--color-primary)",
-              color: "#fff",
-              fontSize: 15,
-              fontWeight: 600,
-              opacity: pending ? 0.7 : 1,
-            }}
+            className={cn(
+              "mt-1.5 w-full rounded-md border-none bg-primary p-3.5 text-[15px] font-semibold text-white",
+              pending && "opacity-70",
+            )}
           >
             {pending ? "Aguarde…" : isLogin ? "Entrar" : "Criar conta"}
           </button>
 
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginTop: 4 }}>
+          <div className="mt-1 flex justify-between text-[13px]">
             <button
               type="button"
               onClick={() => setMode(isLogin ? "signup" : "login")}
-              style={{ border: "none", background: "none", color: "var(--color-primary)", padding: 0 }}
+              className="border-none bg-transparent p-0 text-primary"
             >
               {isLogin ? "Criar conta" : "Já tenho conta"}
             </button>
-            {isLogin && (
-              <span style={{ color: "var(--text-disabled)" }}>Esqueci a senha</span>
-            )}
+            {isLogin && <span className="text-text-disabled">Esqueci a senha</span>}
           </div>
         </form>
       </div>
@@ -208,18 +131,10 @@ export default function LoginPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div style={{ fontSize: 13, fontWeight: 600, color: "#334155", marginBottom: 6 }}>{label}</div>
+      <div className="mb-1.5 text-[13px] font-semibold text-[#334155]">{label}</div>
       {children}
     </div>
   );
 }
 
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "12px 14px",
-  borderRadius: "var(--radius-md)",
-  border: "1px solid var(--border)",
-  fontSize: 15,
-  background: "var(--bg)",
-  outline: "none",
-};
+const inputStyle = "w-full rounded-md border border-border bg-canvas px-3.5 py-3 text-[15px] outline-none";

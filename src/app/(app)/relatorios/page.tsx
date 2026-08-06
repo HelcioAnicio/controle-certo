@@ -6,6 +6,7 @@ import { addMonths, formatBRL, periodForDate } from "@/lib/finance";
 import CategoryIcon from "@/components/CategoryIcon";
 import ReportFilters from "@/components/ReportFilters";
 import { TbMinus, TbTrendingDown, TbTrendingUp } from "react-icons/tb";
+import { cn } from "@/lib/cn";
 
 const RANGE_VALUES = new Set(["1", "3", "6", "12"]);
 
@@ -92,87 +93,72 @@ export default async function RelatoriosPage({
   const itemLabel = breakdown.mode === "category" ? "Categoria" : "Subcategoria";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div>
-        <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>
-          Analise seus gastos e acompanhe sua evolução financeira.
-        </div>
-      </div>
+    <div className="flex flex-col gap-4">
+      <div className="text-[13px] text-text-secondary">Analise seus gastos e acompanhe sua evolução financeira.</div>
 
       <ReportFilters categories={current.categories} />
 
-      <div className="app-metrics-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
-        <div style={cardStyle}>
-          <div style={labelStyle}>
+      <div className="app-metrics-grid grid grid-cols-3 gap-4">
+        <div className={cn(cardStyle, "border border-border bg-surface")}>
+          <div className={labelStyle}>
             {filteredCategory ? `${itemLabel} com maior gasto em ${filteredCategory.name}` : `${itemLabel} com maior gasto`}
           </div>
-          <div style={{ fontSize: 17, fontWeight: 700, marginTop: 4 }}>{topRow?.name ?? "—"}</div>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
+          <div className="mt-1 text-[17px] font-bold">{topRow?.name ?? "—"}</div>
+          <div className="mt-0.5 text-xs text-text-secondary">
             {breakdown.total > 0 && topRow ? Math.round((topRow.total / breakdown.total) * 100) : 0}% do total
           </div>
         </div>
-        <div style={cardStyle}>
-          <div style={labelStyle}>Comparação c/ mês anterior</div>
+        <div className={cn(cardStyle, "border border-border bg-surface")}>
+          <div className={labelStyle}>Comparação c/ mês anterior</div>
           {changePct !== null ? (
             <>
-              <div style={{ fontSize: 17, fontWeight: 700, marginTop: 4, color: changePct > 0 ? "var(--color-danger)" : "var(--color-success)" }}>
+              <div className={cn("mt-1 text-[17px] font-bold", changePct > 0 ? "text-danger" : "text-success")}>
                 {changePct > 0 ? "↑" : changePct < 0 ? "↓" : "–"} {Math.abs(changePct)}%
               </div>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
+              <div className="mt-0.5 text-xs text-text-secondary">
                 {changePct > 0 ? "gastou mais" : changePct < 0 ? "gastou menos" : "igual"} que o mês passado
               </div>
             </>
           ) : (
             <>
-              <div style={{ fontSize: 17, fontWeight: 700, marginTop: 4 }}>—</div>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>sem mês anterior ainda</div>
+              <div className="mt-1 text-[17px] font-bold">—</div>
+              <div className="mt-0.5 text-xs text-text-secondary">sem mês anterior ainda</div>
             </>
           )}
         </div>
-        <div style={{ ...cardStyle, background: "var(--color-primary)", border: "none" }}>
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)" }}>Média mensal de gastos</div>
-          <div style={{ fontSize: 20, fontWeight: 800, marginTop: 4, color: "#fff" }}>{formatBRL(average)}</div>
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", marginTop: 2 }}>
+        <div className={cn(cardStyle, "border-none bg-primary")}>
+          <div className="text-xs text-[rgba(255,255,255,0.8)]">Média mensal de gastos</div>
+          <div className="mt-1 text-xl font-extrabold text-white">{formatBRL(average)}</div>
+          <div className="mt-0.5 text-xs text-[rgba(255,255,255,0.8)]">
             {barPeriods.length > 1 ? `últimos ${barPeriods.length} meses` : "este mês"}
           </div>
         </div>
       </div>
 
-      <div className="app-pie-lists-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-        <div style={{ background: "var(--surface)", borderRadius: 16, padding: 20, border: "1px solid var(--border)" }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>
+      <div className="report-summary-grid">
+        <div className="rounded-lg border border-border bg-surface p-5">
+          <div className="mb-4 text-sm font-semibold">
             {filteredCategory ? `Gastos por subcategoria em ${filteredCategory.name}` : "Gastos por categoria"}
           </div>
           {breakdown.rows.length === 0 ? (
-            <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>Sem despesas neste mês.</div>
+            <div className="text-[13px] text-text-secondary">Sem despesas neste mês.</div>
           ) : (
-            <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
-              <div style={{ position: "relative", width: 120, height: 120, flexShrink: 0 }}>
-                <div style={{ width: 120, height: 120, borderRadius: "50%", background: breakdown.pieGradient }} />
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: 22,
-                    borderRadius: "50%",
-                    background: "var(--surface)",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <div style={{ fontSize: 10, color: "var(--text-secondary)" }}>Total</div>
-                  <div style={{ fontSize: 13, fontWeight: 800, textAlign: "center" }}>{formatBRL(breakdown.total)}</div>
+            <div className="flex flex-wrap items-center gap-5">
+              <div className="relative h-[120px] w-[120px] shrink-0">
+                <div className="h-[120px] w-[120px] rounded-full" style={{ background: breakdown.pieGradient }} />
+                <div className="absolute inset-[22px] flex flex-col items-center justify-center rounded-full bg-surface">
+                  <div className="text-[10px] text-text-secondary">Total</div>
+                  <div className="text-center text-[13px] font-extrabold">{formatBRL(breakdown.total)}</div>
                 </div>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1, minWidth: 140 }}>
+              <div className="flex min-w-[140px] flex-1 flex-col gap-2">
                 {breakdown.rows.map((r) => (
-                  <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
-                    <div style={{ width: 10, height: 10, borderRadius: "50%", background: r.color, flexShrink: 0 }} />
-                    <span style={{ flex: 1, color: "#334155", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <div key={r.id} className="flex items-center gap-2 text-[13px]">
+                    <div className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: r.color }} />
+                    <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-[#334155]">
                       {r.name}
                     </span>
-                    <span style={{ color: "var(--text-secondary)" }}>
+                    <span className="text-text-secondary">
                       {breakdown.total > 0 ? Math.round((r.total / breakdown.total) * 100) : 0}%
                     </span>
                   </div>
@@ -182,19 +168,25 @@ export default async function RelatoriosPage({
           )}
         </div>
 
-        <div style={{ background: "var(--surface)", borderRadius: 16, padding: 20, border: "1px solid var(--border)" }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 18 }}>
+        <div className="rounded-lg border border-border bg-surface p-5">
+          <div className="mb-[18px] text-sm font-semibold">
             {barPeriods.length > 1 ? `Evolução — últimos ${barPeriods.length} meses` : "Evolução"}
           </div>
-          <div style={{ display: "flex", alignItems: "flex-end", gap: 14, height: 140 }}>
+          <div className="flex h-[140px] items-end gap-3.5">
             {barPeriods.map((p, i) => {
               const total = evolutionValues[i];
               const pct = Math.round((total / maxVal) * 100);
               return (
-                <div key={p} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, height: "100%", justifyContent: "flex-end" }}>
-                  <div style={{ fontSize: 10, color: "var(--text-secondary)" }}>{formatBRL(total)}</div>
-                  <div style={{ width: "100%", maxWidth: 44, borderRadius: "8px 8px 0 0", background: p === period ? "var(--color-primary)" : "var(--color-primary-light)", height: `${Math.max(pct, 2)}%` }} />
-                  <div style={{ fontSize: 12, color: "#334155", fontWeight: 600 }}>{monthShortLabel(p)}</div>
+                <div key={p} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
+                  <div className="text-[10px] text-text-secondary">{formatBRL(total)}</div>
+                  <div
+                    className={cn(
+                      "w-full max-w-[44px] rounded-t-sm",
+                      p === period ? "bg-primary" : "bg-primary-light",
+                    )}
+                    style={{ height: `${Math.max(pct, 2)}%` }}
+                  />
+                  <div className="text-xs font-semibold text-[#334155]">{monthShortLabel(p)}</div>
                 </div>
               );
             })}
@@ -202,55 +194,51 @@ export default async function RelatoriosPage({
         </div>
       </div>
 
-      <div style={{ background: "var(--surface)", borderRadius: 16, border: "1px solid var(--border)", overflow: "hidden" }}>
-        <div style={{ padding: "18px 20px 4px" }}>
-          <div style={{ fontSize: 14, fontWeight: 600 }}>
+      <div className="overflow-hidden rounded-lg border border-border bg-surface">
+        <div className="px-5 pt-[18px] pb-1">
+          <div className="text-sm font-semibold">
             {filteredCategory ? `Detalhamento por subcategoria` : "Detalhamento por categoria"}
           </div>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
-            Totais consolidados para o período selecionado.
-          </div>
+          <div className="mt-0.5 text-xs text-text-secondary">Totais consolidados para o período selecionado.</div>
         </div>
         {breakdown.rows.length === 0 ? (
-          <div style={{ padding: "24px 20px", textAlign: "center", color: "var(--text-secondary)", fontSize: 13 }}>
-            Sem despesas neste período.
-          </div>
+          <div className="px-5 py-6 text-center text-[13px] text-text-secondary">Sem despesas neste período.</div>
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 480 }}>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[480px] border-collapse">
               <thead>
                 <tr>
-                  <th style={theadCellStyle}>{itemLabel.toUpperCase()}</th>
-                  <th style={{ ...theadCellStyle, textAlign: "right" }}>TRANSAÇÕES</th>
-                  <th style={{ ...theadCellStyle, textAlign: "right" }}>VALOR TOTAL</th>
-                  <th style={{ ...theadCellStyle, textAlign: "right" }}>TENDÊNCIA</th>
+                  <th className={cn(theadCellStyle, "text-left")}>{itemLabel.toUpperCase()}</th>
+                  <th className={cn(theadCellStyle, "text-right")}>TRANSAÇÕES</th>
+                  <th className={cn(theadCellStyle, "text-right")}>VALOR TOTAL</th>
+                  <th className={cn(theadCellStyle, "text-right")}>TENDÊNCIA</th>
                 </tr>
               </thead>
               <tbody>
                 {breakdown.rows.map((r) => (
-                  <tr key={r.id} style={{ borderTop: "1px solid var(--border-soft)" }}>
-                    <td style={tdCellStyle}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <tr key={r.id} className="border-t border-border-soft">
+                    <td className={tdCellStyle}>
+                      <div className="flex items-center gap-2.5">
                         <CategoryIcon icon={r.icon} color={r.color} size={28} />
-                        <span style={{ fontSize: 13, fontWeight: 600 }}>{r.name}</span>
+                        <span className="text-[13px] font-semibold">{r.name}</span>
                       </div>
                     </td>
-                    <td style={{ ...tdCellStyle, textAlign: "right", color: "var(--text-secondary)" }}>{r.count}</td>
-                    <td style={{ ...tdCellStyle, textAlign: "right", fontWeight: 700 }}>{formatBRL(r.total)}</td>
-                    <td style={{ ...tdCellStyle, textAlign: "right" }}>
+                    <td className={cn(tdCellStyle, "text-right text-text-secondary")}>{r.count}</td>
+                    <td className={cn(tdCellStyle, "text-right font-bold")}>{formatBRL(r.total)}</td>
+                    <td className={cn(tdCellStyle, "text-right")}>
                       <TrendBadge pct={r.trendPct} />
                     </td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
-                <tr style={{ borderTop: "2px solid var(--border)" }}>
-                  <td style={{ ...tdCellStyle, fontWeight: 700 }}>Total Geral</td>
-                  <td style={{ ...tdCellStyle, textAlign: "right", color: "var(--text-secondary)" }}>
+                <tr className="border-t-2 border-border">
+                  <td className={cn(tdCellStyle, "font-bold")}>Total Geral</td>
+                  <td className={cn(tdCellStyle, "text-right text-text-secondary")}>
                     {breakdown.rows.reduce((s, r) => s + r.count, 0)}
                   </td>
-                  <td style={{ ...tdCellStyle, textAlign: "right", fontWeight: 700 }}>{formatBRL(breakdown.total)}</td>
-                  <td style={tdCellStyle} />
+                  <td className={cn(tdCellStyle, "text-right font-bold")}>{formatBRL(breakdown.total)}</td>
+                  <td className={tdCellStyle} />
                 </tr>
               </tfoot>
             </table>
@@ -264,26 +252,17 @@ export default async function RelatoriosPage({
 /** For an expense category, spending less than before is the good outcome — green on the way down, red on the way up. */
 function TrendBadge({ pct }: { pct: number | null }) {
   if (pct === null) {
-    return <span style={{ fontSize: 12, color: "var(--text-disabled)" }}>—</span>;
+    return <span className="text-xs text-text-disabled">—</span>;
   }
   const flat = Math.abs(pct) < 3;
-  const color = flat ? "var(--text-secondary)" : pct > 0 ? "var(--color-danger)" : "var(--color-success)";
-  const bg = flat ? "var(--border-soft)" : pct > 0 ? "var(--color-danger-tint)" : "var(--color-success-tint)";
+  const colorClasses = flat
+    ? "bg-border-soft text-text-secondary"
+    : pct > 0
+      ? "bg-danger-tint text-danger"
+      : "bg-success-tint text-success";
   const Icon = flat ? TbMinus : pct > 0 ? TbTrendingUp : TbTrendingDown;
   return (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 4,
-        fontSize: 12,
-        fontWeight: 700,
-        color,
-        background: bg,
-        padding: "3px 8px",
-        borderRadius: 99,
-      }}
-    >
+    <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-[3px] text-xs font-bold", colorClasses)}>
       <Icon size={12} />
       {flat ? "0%" : `${pct > 0 ? "+" : ""}${pct}%`}
     </span>
@@ -296,25 +275,10 @@ function monthShortLabel(period: string): string {
   return label.replace(".", "").replace(/^./, (c) => c.toUpperCase());
 }
 
-const cardStyle: React.CSSProperties = {
-  background: "var(--surface)",
-  borderRadius: 14,
-  padding: "14px 16px",
-  border: "1px solid var(--border)",
-};
+const cardStyle = "rounded-[14px] px-4 py-3.5";
 
-const labelStyle: React.CSSProperties = { fontSize: 12, color: "var(--text-secondary)" };
+const labelStyle = "text-xs text-text-secondary";
 
-const theadCellStyle: React.CSSProperties = {
-  textAlign: "left",
-  fontSize: 11,
-  fontWeight: 700,
-  color: "var(--text-disabled)",
-  padding: "10px 20px",
-  letterSpacing: 0.4,
-};
+const theadCellStyle = "px-5 py-2.5 text-[11px] font-bold tracking-[0.4px] text-text-disabled";
 
-const tdCellStyle: React.CSSProperties = {
-  padding: "12px 20px",
-  fontSize: 13,
-};
+const tdCellStyle = "px-5 py-3 text-[13px]";

@@ -8,6 +8,7 @@ import CategoryIcon from "@/components/CategoryIcon";
 import StatusBadge from "@/components/StatusBadge";
 import PayButton from "@/components/PayButton";
 import EmptyState from "@/components/EmptyState";
+import { cn } from "@/lib/cn";
 
 export default async function PainelPage({
   searchParams,
@@ -47,54 +48,52 @@ export default async function PainelPage({
     .slice(0, 4);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div className="app-balances-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 20 }}>
+    <div className="flex flex-col gap-5">
+      <div className="app-balances-grid grid grid-cols-2 gap-5">
         <BalanceCard
           label="Saldo Atual"
           value={summary.saldoAtual}
-          color={summary.saldoAtual >= 0 ? "var(--color-success)" : "var(--color-danger)"}
+          colorClass={summary.saldoAtual >= 0 ? "text-success" : "text-danger"}
           hint="o que você tem hoje"
           footer={
             <>
-              <div>Entradas {formatBRL(summary.incomeTotal)} · Já pago {formatBRL(summary.paidExpenseTotal)}</div>
-              <div style={{ marginTop: 4 }}>Previsão de receitas {formatBRL(summary.incomeForecastTotal)}</div>
+              <div>
+                Entradas {formatBRL(summary.incomeTotal)} · Já pago {formatBRL(summary.paidExpenseTotal)}
+              </div>
+              <div className="mt-1">Previsão de receitas {formatBRL(summary.incomeForecastTotal)}</div>
             </>
           }
         />
         <BalanceCard
           label="Saldo Previsto (fim do mês)"
           value={summary.saldoPrevisto}
-          color="var(--color-primary)"
+          colorClass="text-primary"
           hint="depois de pagar tudo"
           footer={`Despesas previstas ${formatBRL(summary.previstoTotal)}`}
         />
       </div>
 
       {budgetProgress.length > 0 && (
-        <div style={{ background: "var(--surface)", borderRadius: 16, padding: "18px 20px", border: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 14 }}>
-          <div style={{ fontSize: 14, fontWeight: 600 }}>Orçamentos do mês</div>
+        <div className="flex flex-col gap-3.5 rounded-lg border border-border bg-surface px-5 py-[18px]">
+          <div className="text-sm font-semibold">Orçamentos do mês</div>
           {budgetProgress.map((b) => (
             <div key={b.subcategoryId}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "#334155", marginBottom: 6 }}>
-                <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div className="mb-1.5 flex justify-between text-[13px] text-[#334155]">
+                <span className="flex items-center gap-2">
                   <CategoryIcon icon={b.subcategoryIcon} color={b.categoryColor} size={24} />
                   {b.subcategoryName}
                 </span>
-                <span style={{ fontWeight: 600, color: b.remaining < 0 ? "var(--color-danger)" : "var(--text)" }}>
+                <span className={cn("font-semibold", b.remaining < 0 ? "text-danger" : "text-text")}>
                   {formatBRL(b.spent)} de {formatBRL(b.monthlyAmount)}
                 </span>
               </div>
-              <div style={{ height: 8, borderRadius: 99, background: "var(--border-soft)", overflow: "hidden" }}>
+              <div className="h-2 overflow-hidden rounded-full bg-border-soft">
                 <div
-                  style={{
-                    height: "100%",
-                    borderRadius: 99,
-                    width: `${b.pct}%`,
-                    background: b.remaining < 0 ? "var(--color-danger)" : "var(--color-primary)",
-                  }}
+                  className={cn("h-full rounded-full", b.remaining < 0 ? "bg-danger" : "bg-primary")}
+                  style={{ width: `${b.pct}%` }}
                 />
               </div>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
+              <div className="mt-1 text-xs text-text-secondary">
                 {b.remaining >= 0
                   ? `${formatBRL(b.remaining)} restantes`
                   : `${formatBRL(-b.remaining)} acima do orçamento`}
@@ -104,33 +103,36 @@ export default async function PainelPage({
         </div>
       )}
 
-      <div className="app-metrics-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
-        <MetricCard label="Receitas do mês" value={summary.incomeTotal} color="var(--color-success)" />
-        <MetricCard label="Total previsto" value={summary.previstoTotal} color="var(--color-primary)" />
+      <div className="app-metrics-grid grid grid-cols-4 gap-4">
+        <MetricCard label="Receitas do mês" value={summary.incomeTotal} colorClass="text-success" />
+        <MetricCard label="Total previsto" value={summary.previstoTotal} colorClass="text-primary" />
         <MetricCard
           label="Já pago"
           value={summary.paidExpenseTotal}
-          color="var(--color-success)"
+          colorClass="text-success"
           badge={`${summary.progressPct}%`}
         />
-        <MetricCard label="A pagar" value={summary.pendingTotal} color="var(--color-warning)" />
+        <MetricCard label="A pagar" value={summary.pendingTotal} colorClass="text-warning" />
       </div>
 
       <div className="app-pie-lists-grid">
-        <div style={{ gridArea: "pie", background: "var(--surface)", borderRadius: 16, padding: 20, border: "1px solid var(--border)" }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>Gastos por categoria</div>
+        <div className="[grid-area:pie] rounded-lg border border-border bg-surface p-5">
+          <div className="mb-4 text-sm font-semibold">Gastos por categoria</div>
           {summary.pieSlices.length === 0 ? (
-            <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>Sem despesas neste mês.</div>
+            <div className="text-[13px] text-text-secondary">Sem despesas neste mês.</div>
           ) : (
-            <div style={{ display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
-              <div style={{ width: 120, height: 120, borderRadius: "50%", background: summary.pieGradient, flexShrink: 0 }} />
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1, minWidth: 220 }}>
+            <div className="flex flex-wrap items-center gap-6">
+              <div
+                className="h-[120px] w-[120px] shrink-0 rounded-full"
+                style={{ background: summary.pieGradient }}
+              />
+              <div className="flex min-w-[220px] flex-1 flex-col gap-2">
                 {summary.pieSlices.map((s) => (
-                  <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
-                    <div style={{ width: 10, height: 10, borderRadius: "50%", background: s.color, flexShrink: 0 }} />
-                    <span style={{ flex: 1, color: "#334155" }}>{s.name}</span>
-                    <span style={{ color: "var(--text-secondary)" }}>{formatBRL(s.value)}</span>
-                    <span style={{ width: 40, textAlign: "right", fontWeight: 600 }}>{s.pct}%</span>
+                  <div key={s.id} className="flex items-center gap-2 text-[13px]">
+                    <div className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: s.color }} />
+                    <span className="flex-1 text-[#334155]">{s.name}</span>
+                    <span className="text-text-secondary">{formatBRL(s.value)}</span>
+                    <span className="w-10 text-right font-semibold">{s.pct}%</span>
                   </div>
                 ))}
               </div>
@@ -138,24 +140,24 @@ export default async function PainelPage({
           )}
         </div>
 
-        <div style={{ gridArea: "vencimentos", background: "var(--surface)", borderRadius: 16, padding: "18px 20px", border: "1px solid var(--border)", minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Próximos vencimentos</div>
+        <div className="[grid-area:vencimentos] min-w-0 rounded-lg border border-border bg-surface px-5 py-[18px]">
+          <div className="mb-3 text-sm font-semibold">Próximos vencimentos</div>
           {upcoming.length === 0 ? (
-            <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>Tudo pago por aqui ✓</div>
+            <div className="text-[13px] text-text-secondary">Tudo pago por aqui ✓</div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div className="flex flex-col gap-3">
               {upcoming.map((t) => (
-                <div key={t.id} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                <div key={t.id} className="flex flex-col gap-2">
+                  <div className="flex min-w-0 items-center gap-2.5">
                     <CategoryIcon icon={t.subcategoryIcon} color={t.categoryColor} size={32} />
-                    <div style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <div className="overflow-hidden text-[13px] font-semibold text-ellipsis whitespace-nowrap">
                       {t.description || t.subcategoryName}
                     </div>
-                    <div style={{ fontSize: 12, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
+                    <div className="text-xs whitespace-nowrap text-text-secondary">
                       {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR") : "—"} · {formatBRL(Number(t.amount))}
                     </div>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 42 }}>
+                  <div className="flex items-center gap-2 pl-[42px]">
                     <StatusBadge status={t.status} />
                     <PayButton tx={t} />
                   </div>
@@ -165,26 +167,31 @@ export default async function PainelPage({
           )}
         </div>
 
-        <div style={{ gridArea: "lancamentos", background: "var(--surface)", borderRadius: 16, padding: "18px 20px", border: "1px solid var(--border)", minWidth: 0 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <div style={{ fontSize: 14, fontWeight: 600 }}>Últimos lançamentos</div>
-            <Link href="/lancamentos" style={{ border: "none", background: "none", color: "var(--color-primary)", fontSize: 12, fontWeight: 600, textDecoration: "none" }}>
+        <div className="[grid-area:lancamentos] min-w-0 rounded-lg border border-border bg-surface px-5 py-[18px]">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="text-sm font-semibold">Últimos lançamentos</div>
+            <Link href="/lancamentos" className="border-none bg-transparent text-xs font-semibold text-primary no-underline">
               ver todos →
             </Link>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div className="flex flex-col gap-2.5">
             {recent.map((t) => (
-              <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div key={t.id} className="flex items-center gap-2.5">
                 <CategoryIcon icon={t.subcategoryIcon} color={t.categoryColor} size={32} />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <div className="min-w-0 flex-1">
+                  <div className="overflow-hidden text-[13px] font-semibold text-ellipsis whitespace-nowrap">
                     {t.description || t.subcategoryName}
                   </div>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                  <div className="text-xs text-text-secondary">
                     {t.subcategoryName} · {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR") : "—"}
                   </div>
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: t.status === "paid" ? (t.type === "income" ? "var(--color-success)" : "var(--text)") : "var(--text-disabled)" }}>
+                <div
+                  className={cn(
+                    "text-[13px] font-bold",
+                    t.status === "paid" ? (t.type === "income" ? "text-success" : "text-text") : "text-text-disabled",
+                  )}
+                >
                   {t.type === "income" ? "+ " : "- "}
                   {formatBRL(t.displayAmount)}
                 </div>
@@ -205,24 +212,22 @@ function statusOrder(status: string) {
 function BalanceCard({
   label,
   value,
-  color,
+  colorClass,
   hint,
   footer,
 }: {
   label: string;
   value: number;
-  color: string;
+  colorClass: string;
   hint: string;
   footer: React.ReactNode;
 }) {
   return (
-    <div style={{ background: "var(--surface)", borderRadius: 18, padding: "22px 20px", boxShadow: "var(--shadow-card)", border: "1px solid var(--border)" }}>
-      <div style={{ fontSize: 13, color: "var(--text-secondary)", fontWeight: 500, marginBottom: 6 }}>{label}</div>
-      <div style={{ fontSize: 32, fontWeight: 800, color, letterSpacing: -0.5 }}>{formatBRL(value)}</div>
-      <div style={{ fontSize: 12, color: "var(--text-disabled)", marginTop: 2 }}>{hint}</div>
-      <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 10, borderTop: "1px solid var(--border-soft)", paddingTop: 10 }}>
-        {footer}
-      </div>
+    <div className="rounded-[18px] border border-border bg-surface px-5 py-[22px] shadow-card">
+      <div className="mb-1.5 text-[13px] font-medium text-text-secondary">{label}</div>
+      <div className={cn("text-[32px] font-extrabold tracking-[-0.5px]", colorClass)}>{formatBRL(value)}</div>
+      <div className="mt-0.5 text-xs text-text-disabled">{hint}</div>
+      <div className="mt-2.5 border-t border-border-soft pt-2.5 text-xs text-text-secondary">{footer}</div>
     </div>
   );
 }
@@ -230,34 +235,25 @@ function BalanceCard({
 function MetricCard({
   label,
   value,
-  color,
+  colorClass,
   badge,
 }: {
   label: string;
   value: number;
-  color: string;
+  colorClass: string;
   badge?: string;
 }) {
   return (
-    <div style={{ background: "var(--surface)", borderRadius: 14, padding: "14px 16px", border: "1px solid var(--border)" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{label}</div>
+    <div className="rounded-[14px] border border-border bg-surface px-4 py-3.5">
+      <div className="flex items-center justify-between">
+        <div className="text-xs text-text-secondary">{label}</div>
         {badge && (
-          <span
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              color: "var(--color-success)",
-              background: "var(--color-success-tint)",
-              padding: "2px 7px",
-              borderRadius: 99,
-            }}
-          >
+          <span className="rounded-full bg-success-tint px-[7px] py-0.5 text-[11px] font-bold text-success">
             {badge}
           </span>
         )}
       </div>
-      <div style={{ fontSize: 19, fontWeight: 700, color, marginTop: 4 }}>{formatBRL(value)}</div>
+      <div className={cn("mt-1 text-[19px] font-bold", colorClass)}>{formatBRL(value)}</div>
     </div>
   );
 }

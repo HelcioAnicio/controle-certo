@@ -11,6 +11,7 @@ import ModalTriggerButton from "@/components/ModalTriggerButton";
 import EmptyState from "@/components/EmptyState";
 import EditFixedExpenseButton from "@/components/EditFixedExpenseButton";
 import DeleteButton from "@/components/DeleteButton";
+import { cn } from "@/lib/cn";
 
 export default async function GastosFixosPage({
   searchParams,
@@ -38,17 +39,8 @@ export default async function GastosFixosPage({
   const generatedIds = new Set(transactions.map((t) => t.fixedExpenseId).filter(Boolean));
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div
-        style={{
-          background: "var(--color-primary-tint)",
-          borderRadius: 14,
-          padding: "14px 18px",
-          fontSize: 13,
-          color: "var(--color-primary-dark)",
-          lineHeight: 1.5,
-        }}
-      >
+    <div className="flex flex-col gap-4">
+      <div className="rounded-[14px] bg-primary-tint px-[18px] py-3.5 text-[13px] leading-normal text-primary-dark">
         Cadastre aqui as contas e receitas que se repetem todo mês, como aluguel, salário ou
         assinaturas. O valor serve para a previsão; na hora de confirmar você informa o valor real.
       </div>
@@ -62,7 +54,7 @@ export default async function GastosFixosPage({
           actionLabel="Novo fixo"
         />
       ) : (
-        <div style={{ background: "var(--surface)", borderRadius: 16, border: "1px solid var(--border)", overflow: "hidden", maxWidth: "600px" }}>
+        <div className="max-w-[600px] overflow-hidden rounded-lg border border-border bg-surface">
           {fixedExpenses.map((f) => {
             const sub = subById.get(f.subcategoryId);
             const cat = sub ? catById.get(sub.categoryId) : undefined;
@@ -71,43 +63,27 @@ export default async function GastosFixosPage({
             return (
               <div
                 key={f.id}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 12,
-                  padding: "14px 16px",
-                  borderBottom: "1px solid var(--border-soft)",
-                  opacity: f.active ? 1 : 0.5,
-                  flexWrap: "wrap",
-                }}
+                className={cn(
+                  "flex flex-wrap flex-col gap-3 border-b border-border-soft px-4 py-3.5",
+                  !f.active && "opacity-50",
+                )}
               >
-                <div style={{ flex: 1, display: "flex", minWidth: 0, alignItems: "center", gap: 10 }}>
+                <div className="flex min-w-0 flex-1 items-center gap-2.5">
                   <CategoryIcon icon={sub?.icon ?? "folder"} color={cat?.color ?? "#64748B"} size={32} />
-                  <div style={{ fontSize: 16, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <div className="overflow-hidden text-base font-semibold text-ellipsis whitespace-nowrap">
                     {f.name}
                   </div>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                  <div className="text-xs text-text-secondary">
                     {sub?.name ?? "—"} · vence dia {f.dueDay}
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 text-[11px] text-text-disabled">{statusText}</div>
                   <div
-                    style={{
-                      flex: 1,
-                      fontSize: 11,
-                      color: "var(--text-disabled)",
-                    }}
-                  >
-                    {statusText}
-                  </div>
-                  <div
-                    style={{
-                      width: 110,
-                      textAlign: "right",
-                      fontSize: 14,
-                      fontWeight: 700,
-                      color: sub?.type === "income" ? "var(--color-success)" : "var(--text)",
-                    }}
+                    className={cn(
+                      "w-[110px] text-right text-sm font-bold",
+                      sub?.type === "income" ? "text-success" : "text-text",
+                    )}
                   >
                     {sub?.type === "income" ? "+ " : "- "}
                     {formatBRL(Number(f.estimatedAmount))}
