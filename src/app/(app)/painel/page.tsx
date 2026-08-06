@@ -116,20 +116,21 @@ export default async function PainelPage({
         <MetricCard label="A pagar" value={summary.pendingTotal} color="var(--color-warning)" />
       </div>
 
-      <div className="app-pie-lists-grid" style={{ display: "grid", gridTemplateColumns: "340px minmax(0,1fr)", gap: 20, alignItems: "start" }}>
-        <div style={{ background: "var(--surface)", borderRadius: 16, padding: 20, border: "1px solid var(--border)" }}>
+      <div className="app-pie-lists-grid">
+        <div style={{ gridArea: "pie", background: "var(--surface)", borderRadius: 16, padding: 20, border: "1px solid var(--border)" }}>
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>Gastos por categoria</div>
           {summary.pieSlices.length === 0 ? (
             <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>Sem despesas neste mês.</div>
           ) : (
-            <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
               <div style={{ width: 120, height: 120, borderRadius: "50%", background: summary.pieGradient, flexShrink: 0 }} />
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1, minWidth: 140 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1, minWidth: 220 }}>
                 {summary.pieSlices.map((s) => (
                   <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
                     <div style={{ width: 10, height: 10, borderRadius: "50%", background: s.color, flexShrink: 0 }} />
                     <span style={{ flex: 1, color: "#334155" }}>{s.name}</span>
-                    <span style={{ color: "var(--text-secondary)" }}>{s.pct}%</span>
+                    <span style={{ color: "var(--text-secondary)" }}>{formatBRL(s.value)}</span>
+                    <span style={{ width: 40, textAlign: "right", fontWeight: 600 }}>{s.pct}%</span>
                   </div>
                 ))}
               </div>
@@ -137,60 +138,58 @@ export default async function PainelPage({
           )}
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
-          <div style={{ background: "var(--surface)", borderRadius: 16, padding: "18px 20px", border: "1px solid var(--border)", minWidth: 0 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Próximos vencimentos</div>
-            {upcoming.length === 0 ? (
-              <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>Tudo pago por aqui ✓</div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {upcoming.map((t) => (
-                  <div key={t.id} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-                      <CategoryIcon icon={t.subcategoryIcon} color={t.categoryColor} size={32} />
-                      <div style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {t.description || t.subcategoryName}
-                      </div>
-                      <div style={{ fontSize: 12, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
-                        {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR") : "—"} · {formatBRL(Number(t.amount))}
-                      </div>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 42 }}>
-                      <StatusBadge status={t.status} />
-                      <PayButton tx={t} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div style={{ background: "var(--surface)", borderRadius: 16, padding: "18px 20px", border: "1px solid var(--border)", minWidth: 0 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <div style={{ fontSize: 14, fontWeight: 600 }}>Últimos lançamentos</div>
-              <Link href="/lancamentos" style={{ border: "none", background: "none", color: "var(--color-primary)", fontSize: 12, fontWeight: 600, textDecoration: "none" }}>
-                ver todos →
-              </Link>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {recent.map((t) => (
-                <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <CategoryIcon icon={t.subcategoryIcon} color={t.categoryColor} size={32} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ gridArea: "vencimentos", background: "var(--surface)", borderRadius: 16, padding: "18px 20px", border: "1px solid var(--border)", minWidth: 0 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Próximos vencimentos</div>
+          {upcoming.length === 0 ? (
+            <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>Tudo pago por aqui ✓</div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {upcoming.map((t) => (
+                <div key={t.id} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                    <CategoryIcon icon={t.subcategoryIcon} color={t.categoryColor} size={32} />
                     <div style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {t.description || t.subcategoryName}
                     </div>
-                    <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                      {t.subcategoryName} · {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR") : "—"}
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
+                      {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR") : "—"} · {formatBRL(Number(t.amount))}
                     </div>
                   </div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: t.status === "paid" ? (t.type === "income" ? "var(--color-success)" : "var(--text)") : "var(--text-disabled)" }}>
-                    {t.type === "income" ? "+ " : "- "}
-                    {formatBRL(t.displayAmount)}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 42 }}>
+                    <StatusBadge status={t.status} />
+                    <PayButton tx={t} />
                   </div>
                 </div>
               ))}
             </div>
+          )}
+        </div>
+
+        <div style={{ gridArea: "lancamentos", background: "var(--surface)", borderRadius: 16, padding: "18px 20px", border: "1px solid var(--border)", minWidth: 0 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <div style={{ fontSize: 14, fontWeight: 600 }}>Últimos lançamentos</div>
+            <Link href="/lancamentos" style={{ border: "none", background: "none", color: "var(--color-primary)", fontSize: 12, fontWeight: 600, textDecoration: "none" }}>
+              ver todos →
+            </Link>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {recent.map((t) => (
+              <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <CategoryIcon icon={t.subcategoryIcon} color={t.categoryColor} size={32} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {t.description || t.subcategoryName}
+                  </div>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                    {t.subcategoryName} · {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR") : "—"}
+                  </div>
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: t.status === "paid" ? (t.type === "income" ? "var(--color-success)" : "var(--text)") : "var(--text-disabled)" }}>
+                  {t.type === "income" ? "+ " : "- "}
+                  {formatBRL(t.displayAmount)}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

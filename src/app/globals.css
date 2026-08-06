@@ -145,6 +145,25 @@ a {
   display: none;
 }
 
+.app-pie-lists-grid {
+  display: grid;
+  gap: 20px;
+  align-items: start;
+  grid-template-columns: 340px minmax(0, 1fr);
+  grid-template-areas:
+    "pie vencimentos"
+    "pie lancamentos";
+}
+
+@media (min-width: 1400px) {
+  .app-pie-lists-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "pie pie"
+      "vencimentos lancamentos";
+  }
+}
+
 @media (max-width: 879px) {
   .app-sidebar {
     display: none;
@@ -176,6 +195,10 @@ a {
   }
   .app-pie-lists-grid {
     grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "pie"
+      "vencimentos"
+      "lancamentos" !important;
   }
 }
 
