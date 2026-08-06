@@ -6,7 +6,7 @@ import {
   type Transaction,
 } from "@/prisma/transactions";
 import { listBudgets, type Budget } from "@/prisma/budgets";
-import { computeStatus, formatBRL, type TxStatus } from "./finance";
+import { COLOR_SWATCHES, computeStatus, formatBRL, type TxStatus } from "./finance";
 
 export type EnrichedTransaction = Transaction & {
   subcategoryName: string;
@@ -14,6 +14,7 @@ export type EnrichedTransaction = Transaction & {
   categoryId: string;
   categoryName: string;
   categoryColor: string;
+  categoryIcon: string;
   status: TxStatus;
   displayAmount: number;
 };
@@ -39,6 +40,7 @@ export function enrichTransactions(
       categoryId: cat?.id ?? "",
       categoryName: cat?.name ?? "Geral",
       categoryColor: cat?.color ?? "#64748B",
+      categoryIcon: cat?.icon ?? "folder",
       status,
       displayAmount,
     };
@@ -207,6 +209,184 @@ export function computeBudgetProgress(
       };
     })
     .sort((a, b) => a.subcategoryName.localeCompare(b.subcategoryName, "pt-BR"));
+}
+
+function dayKey(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+export type LedgerDay = {
+  dateKey: string;
+  date: Date;
+  actualBalance: number;
+  projectedBalance: number;
+  transactions: EnrichedTransaction[];
+};
+
+/**
+ * Groups transactions into a day-by-day statement with a running balance per
+ * day: `actualBalance` only moves on days something was actually paid;
+ * `projectedBalance` moves on a transaction's due date too, so "receive R$500
+ * tomorrow, R$400 bill due the 7th" shows R$100 projected on the 7th even
+ * though neither has happened yet. Both start from 0 at the period's start —
+ * consistent with how the app scopes "saldo" to the current period rather
+ * than an all-time bank balance.
+ *
+ * The running totals are computed from `allTxs` (so a filtered-out
+ * transaction still counts toward the balance), but only days with a
+ * transaction in `visibleTxs` are returned — filtering narrows what's shown,
+ * not the arithmetic. Transactions with neither a due date nor a paid date
+ * (open-ended "pending" items) can't be placed on the timeline and come back
+ * separately as `undated`.
+ */
+export function buildDailyLedger(
+  allTxs: EnrichedTransaction[],
+  visibleTxs: EnrichedTransaction[],
+): { days: LedgerDay[]; undated: EnrichedTransaction[] } {
+  const deltaByDay = new Map<string, { actual: number; projected: number }>();
+  for (const t of allTxs) {
+    const effective = t.status === "paid" ? t.paidDate : t.dueDate;
+    if (!effective) continue;
+    const amount = t.status === "paid" ? Number(t.paidAmount) : Number(t.amount);
+    const signed = t.type === "income" ? amount : -amount;
+    const key = dayKey(effective);
+    const cur = deltaByDay.get(key) ?? { actual: 0, projected: 0 };
+    cur.projected += signed;
+    if (t.status === "paid") cur.actual += signed;
+    deltaByDay.set(key, cur);
+  }
+
+  const cumByDay = new Map<string, { actual: number; projected: number }>();
+  let runActual = 0;
+  let runProjected = 0;
+  for (const key of [...deltaByDay.keys()].sort()) {
+    const d = deltaByDay.get(key)!;
+    runActual += d.actual;
+    runProjected += d.projected;
+    cumByDay.set(key, { actual: runActual, projected: runProjected });
+  }
+
+  const visibleByDay = new Map<string, EnrichedTransaction[]>();
+  const undated: EnrichedTransaction[] = [];
+  for (const t of visibleTxs) {
+    const effective = t.status === "paid" ? t.paidDate : t.dueDate;
+    if (!effective) {
+      undated.push(t);
+      continue;
+    }
+    const key = dayKey(effective);
+    const arr = visibleByDay.get(key) ?? [];
+    arr.push(t);
+    visibleByDay.set(key, arr);
+  }
+
+  const days: LedgerDay[] = [...visibleByDay.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, txs]) => {
+      const cum = cumByDay.get(key)!;
+      const [y, m, d] = key.split("-").map(Number);
+      return {
+        dateKey: key,
+        date: new Date(y, m - 1, d),
+        actualBalance: cum.actual,
+        projectedBalance: cum.projected,
+        transactions: txs,
+      };
+    });
+
+  return { days, undated };
+}
+
+export type BreakdownRow = {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  count: number;
+  total: number;
+  /** % change vs the previous period for the same id; null with nothing to compare against. */
+  trendPct: number | null;
+};
+
+export type CategoryBreakdown = {
+  mode: "category" | "subcategory";
+  rows: BreakdownRow[];
+  total: number;
+  pieGradient: string;
+};
+
+/**
+ * Expense breakdown for the "Detalhamento" report table. With no
+ * `categoryId` filter, rows are per-category (matching the top-level pie).
+ * With one, it drills into that category's subcategories instead — same
+ * shape, so the table and pie can drill down without a separate code path.
+ */
+export function computeCategoryBreakdown(
+  currentExpenses: EnrichedTransaction[],
+  previousExpenses: EnrichedTransaction[],
+  categoryId?: string,
+): CategoryBreakdown {
+  const mode: "category" | "subcategory" = categoryId ? "subcategory" : "category";
+  const scoped = categoryId ? currentExpenses.filter((t) => t.categoryId === categoryId) : currentExpenses;
+  const scopedPrev = categoryId ? previousExpenses.filter((t) => t.categoryId === categoryId) : previousExpenses;
+
+  function groupKey(t: EnrichedTransaction) {
+    return mode === "category" ? t.categoryId || t.categoryName : t.subcategoryId;
+  }
+
+  const groups = new Map<string, { name: string; icon: string; color: string; count: number; total: number }>();
+  for (const t of scoped) {
+    const key = groupKey(t);
+    const existing = groups.get(key);
+    const amount = t.displayAmount;
+    if (existing) {
+      existing.total += amount;
+      existing.count += 1;
+    } else {
+      groups.set(key, {
+        name: mode === "category" ? t.categoryName : t.subcategoryName,
+        icon: mode === "category" ? t.categoryIcon : t.subcategoryIcon,
+        color: t.categoryColor,
+        count: 1,
+        total: amount,
+      });
+    }
+  }
+
+  const prevTotals = new Map<string, number>();
+  for (const t of scopedPrev) {
+    const key = groupKey(t);
+    prevTotals.set(key, (prevTotals.get(key) ?? 0) + t.displayAmount);
+  }
+
+  const total = [...groups.values()].reduce((sum, g) => sum + g.total, 0);
+  const rows: BreakdownRow[] = [...groups.entries()]
+    .map(([id, g], i) => {
+      const prev = prevTotals.get(id);
+      const trendPct = prev ? Math.round(((g.total - prev) / prev) * 100) : null;
+      return {
+        id,
+        name: g.name,
+        icon: g.icon || "folder",
+        color: mode === "category" ? g.color : COLOR_SWATCHES[i % COLOR_SWATCHES.length],
+        count: g.count,
+        total: g.total,
+        trendPct,
+      };
+    })
+    .sort((a, b) => b.total - a.total);
+
+  let acc = 0;
+  const gradientParts = rows.map((r) => {
+    const pct = total > 0 ? (r.total / total) * 100 : 0;
+    const start = acc;
+    acc += pct;
+    return `${r.color} ${start}% ${acc}%`;
+  });
+  if (acc < 100 && gradientParts.length) gradientParts.push(`#E2E8F0 ${acc}% 100%`);
+  const pieGradient = gradientParts.length ? `conic-gradient(${gradientParts.join(",")})` : "#E2E8F0";
+
+  return { mode, rows, total, pieGradient };
 }
 
 /** Loads and enriches a single period's transactions plus the user's category/subcategory lookups. */

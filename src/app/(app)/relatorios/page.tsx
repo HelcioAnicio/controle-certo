@@ -1,15 +1,20 @@
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { loadMonthData } from "@/lib/dashboard";
+import { computeCategoryBreakdown, loadMonthData, type BreakdownRow } from "@/lib/dashboard";
 import { getUserSettings } from "@/prisma/settings";
 import { addMonths, formatBRL, periodForDate } from "@/lib/finance";
+import CategoryIcon from "@/components/CategoryIcon";
+import ReportFilters from "@/components/ReportFilters";
+import { TbMinus, TbTrendingDown, TbTrendingUp } from "react-icons/tb";
+
+const RANGE_VALUES = new Set(["1", "3", "6", "12"]);
 
 export default async function RelatoriosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ month?: string }>;
+  searchParams: Promise<{ month?: string; range?: string; category?: string }>;
 }) {
-  const { month } = await searchParams;
+  const { month, range: rangeParam, category: categoryId } = await searchParams;
   const user = await requireUser();
   const { monthStartDay, trackingStartPeriod } = await getUserSettings(user.id);
   const period = month || periodForDate(new Date(), monthStartDay);
@@ -23,43 +28,75 @@ export default async function RelatoriosPage({
   if (period < floorPeriod) {
     redirect(`/relatorios?month=${floorPeriod}`);
   }
-  const periods = [addMonths(period, -3), addMonths(period, -2), addMonths(period, -1), period].filter(
+
+  const range = RANGE_VALUES.has(rangeParam ?? "") ? Number(rangeParam) : 3;
+  const barPeriods = Array.from({ length: range }, (_, i) => addMonths(period, -(range - 1 - i))).filter(
     (p) => p >= floorPeriod,
   );
-  const monthData = await Promise.all(
-    periods.map((p) => loadMonthData(user.id, p, monthStartDay, trackingStartPeriod)),
-  );
-  const current = monthData[monthData.length - 1];
-  const previous = monthData.length > 1 ? monthData[monthData.length - 2] : undefined;
+  const barData = await Promise.all(barPeriods.map((p) => loadMonthData(user.id, p, monthStartDay, trackingStartPeriod)));
+  const current = barData[barData.length - 1];
 
-  const topCat = current.summary.pieSlices[0];
+  const prevPeriod = addMonths(period, -1);
+  const prevIndex = barPeriods.indexOf(prevPeriod);
+  const previous =
+    prevIndex >= 0
+      ? barData[prevIndex]
+      : prevPeriod >= floorPeriod
+        ? await loadMonthData(user.id, prevPeriod, monthStartDay, trackingStartPeriod)
+        : undefined;
+
+  const currentExpenses = current.transactions.filter((t) => t.type === "expense");
+  const previousExpenses = previous ? previous.transactions.filter((t) => t.type === "expense") : [];
+  const breakdown = computeCategoryBreakdown(currentExpenses, previousExpenses, categoryId || undefined);
+  const filteredCategory = categoryId ? current.categories.find((c) => c.id === categoryId) : undefined;
+
+  const topRow: BreakdownRow | undefined = breakdown.rows[0];
   const changePct =
     previous && previous.summary.previstoTotal > 0
       ? Math.round(
           ((current.summary.previstoTotal - previous.summary.previstoTotal) / previous.summary.previstoTotal) * 100,
         )
-      : 0;
-  const monthsWithData = monthData.filter((m) => m.summary.previstoTotal > 0);
+      : null;
+  const monthsWithData = barData.filter((m) => m.summary.previstoTotal > 0);
   const average =
     monthsWithData.length > 0
       ? monthsWithData.reduce((sum, m) => sum + m.summary.previstoTotal, 0) / monthsWithData.length
       : 0;
 
-  const maxVal = Math.max(1, ...monthData.map((m) => m.summary.previstoTotal));
+  const evolutionValues = barPeriods.map((p, i) =>
+    categoryId
+      ? barData[i].transactions
+          .filter((t) => t.type === "expense" && t.categoryId === categoryId)
+          .reduce((sum, t) => sum + t.displayAmount, 0)
+      : barData[i].summary.previstoTotal,
+  );
+  const maxVal = Math.max(1, ...evolutionValues);
+
+  const itemLabel = breakdown.mode === "category" ? "Categoria" : "Subcategoria";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div className="app-metrics-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+      <div>
+        <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+          Analise seus gastos e acompanhe sua evolução financeira.
+        </div>
+      </div>
+
+      <ReportFilters categories={current.categories} />
+
+      <div className="app-metrics-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
         <div style={cardStyle}>
-          <div style={labelStyle}>Categoria que mais gastou</div>
-          <div style={{ fontSize: 17, fontWeight: 700, marginTop: 4 }}>{topCat?.name ?? "—"}</div>
+          <div style={labelStyle}>
+            {filteredCategory ? `${itemLabel} com maior gasto em ${filteredCategory.name}` : `${itemLabel} com maior gasto`}
+          </div>
+          <div style={{ fontSize: 17, fontWeight: 700, marginTop: 4 }}>{topRow?.name ?? "—"}</div>
           <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
-            {topCat?.pct ?? 0}% do mês
+            {breakdown.total > 0 && topRow ? Math.round((topRow.total / breakdown.total) * 100) : 0}% do total
           </div>
         </div>
         <div style={cardStyle}>
-          <div style={labelStyle}>Vs. mês anterior</div>
-          {previous ? (
+          <div style={labelStyle}>Comparação c/ mês anterior</div>
+          {changePct !== null ? (
             <>
               <div style={{ fontSize: 17, fontWeight: 700, marginTop: 4, color: changePct > 0 ? "var(--color-danger)" : "var(--color-success)" }}>
                 {changePct > 0 ? "↑" : changePct < 0 ? "↓" : "–"} {Math.abs(changePct)}%
@@ -75,29 +112,52 @@ export default async function RelatoriosPage({
             </>
           )}
         </div>
-        <div style={cardStyle}>
-          <div style={labelStyle}>Média mensal</div>
-          <div style={{ fontSize: 17, fontWeight: 700, marginTop: 4 }}>{formatBRL(average)}</div>
-          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
-            {periods.length > 1 ? `últimos ${periods.length} meses` : "este mês"}
+        <div style={{ ...cardStyle, background: "var(--color-primary)", border: "none" }}>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)" }}>Média mensal de gastos</div>
+          <div style={{ fontSize: 20, fontWeight: 800, marginTop: 4, color: "#fff" }}>{formatBRL(average)}</div>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", marginTop: 2 }}>
+            {barPeriods.length > 1 ? `últimos ${barPeriods.length} meses` : "este mês"}
           </div>
         </div>
       </div>
 
       <div className="app-pie-lists-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
         <div style={{ background: "var(--surface)", borderRadius: 16, padding: 20, border: "1px solid var(--border)" }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>Gastos por categoria</div>
-          {current.summary.pieSlices.length === 0 ? (
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>
+            {filteredCategory ? `Gastos por subcategoria em ${filteredCategory.name}` : "Gastos por categoria"}
+          </div>
+          {breakdown.rows.length === 0 ? (
             <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>Sem despesas neste mês.</div>
           ) : (
             <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
-              <div style={{ width: 120, height: 120, borderRadius: "50%", background: current.summary.pieGradient, flexShrink: 0 }} />
+              <div style={{ position: "relative", width: 120, height: 120, flexShrink: 0 }}>
+                <div style={{ width: 120, height: 120, borderRadius: "50%", background: breakdown.pieGradient }} />
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 22,
+                    borderRadius: "50%",
+                    background: "var(--surface)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <div style={{ fontSize: 10, color: "var(--text-secondary)" }}>Total</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, textAlign: "center" }}>{formatBRL(breakdown.total)}</div>
+                </div>
+              </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1, minWidth: 140 }}>
-                {current.summary.pieSlices.map((s) => (
-                  <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
-                    <div style={{ width: 10, height: 10, borderRadius: "50%", background: s.color, flexShrink: 0 }} />
-                    <span style={{ flex: 1, color: "#334155" }}>{s.name}</span>
-                    <span style={{ color: "var(--text-secondary)" }}>{s.pct}%</span>
+                {breakdown.rows.map((r) => (
+                  <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+                    <div style={{ width: 10, height: 10, borderRadius: "50%", background: r.color, flexShrink: 0 }} />
+                    <span style={{ flex: 1, color: "#334155", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {r.name}
+                    </span>
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      {breakdown.total > 0 ? Math.round((r.total / breakdown.total) * 100) : 0}%
+                    </span>
                   </div>
                 ))}
               </div>
@@ -107,15 +167,15 @@ export default async function RelatoriosPage({
 
         <div style={{ background: "var(--surface)", borderRadius: 16, padding: 20, border: "1px solid var(--border)" }}>
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 18 }}>
-            {periods.length > 1 ? `Últimos ${periods.length} meses` : "Este mês"}
+            {barPeriods.length > 1 ? `Evolução — últimos ${barPeriods.length} meses` : "Evolução"}
           </div>
-          <div style={{ display: "flex", alignItems: "flex-end", gap: 18, height: 140 }}>
-            {periods.map((p, i) => {
-              const total = monthData[i].summary.previstoTotal;
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 14, height: 140 }}>
+            {barPeriods.map((p, i) => {
+              const total = evolutionValues[i];
               const pct = Math.round((total / maxVal) * 100);
               return (
                 <div key={p} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, height: "100%", justifyContent: "flex-end" }}>
-                  <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{formatBRL(total)}</div>
+                  <div style={{ fontSize: 10, color: "var(--text-secondary)" }}>{formatBRL(total)}</div>
                   <div style={{ width: "100%", maxWidth: 44, borderRadius: "8px 8px 0 0", background: p === period ? "var(--color-primary)" : "var(--color-primary-light)", height: `${Math.max(pct, 2)}%` }} />
                   <div style={{ fontSize: 12, color: "#334155", fontWeight: 600 }}>{monthShortLabel(p)}</div>
                 </div>
@@ -124,7 +184,92 @@ export default async function RelatoriosPage({
           </div>
         </div>
       </div>
+
+      <div style={{ background: "var(--surface)", borderRadius: 16, border: "1px solid var(--border)", overflow: "hidden" }}>
+        <div style={{ padding: "18px 20px 4px" }}>
+          <div style={{ fontSize: 14, fontWeight: 600 }}>
+            {filteredCategory ? `Detalhamento por subcategoria` : "Detalhamento por categoria"}
+          </div>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
+            Totais consolidados para o período selecionado.
+          </div>
+        </div>
+        {breakdown.rows.length === 0 ? (
+          <div style={{ padding: "24px 20px", textAlign: "center", color: "var(--text-secondary)", fontSize: 13 }}>
+            Sem despesas neste período.
+          </div>
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 480 }}>
+              <thead>
+                <tr>
+                  <th style={theadCellStyle}>{itemLabel.toUpperCase()}</th>
+                  <th style={{ ...theadCellStyle, textAlign: "right" }}>TRANSAÇÕES</th>
+                  <th style={{ ...theadCellStyle, textAlign: "right" }}>VALOR TOTAL</th>
+                  <th style={{ ...theadCellStyle, textAlign: "right" }}>TENDÊNCIA</th>
+                </tr>
+              </thead>
+              <tbody>
+                {breakdown.rows.map((r) => (
+                  <tr key={r.id} style={{ borderTop: "1px solid var(--border-soft)" }}>
+                    <td style={tdCellStyle}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <CategoryIcon icon={r.icon} color={r.color} size={28} />
+                        <span style={{ fontSize: 13, fontWeight: 600 }}>{r.name}</span>
+                      </div>
+                    </td>
+                    <td style={{ ...tdCellStyle, textAlign: "right", color: "var(--text-secondary)" }}>{r.count}</td>
+                    <td style={{ ...tdCellStyle, textAlign: "right", fontWeight: 700 }}>{formatBRL(r.total)}</td>
+                    <td style={{ ...tdCellStyle, textAlign: "right" }}>
+                      <TrendBadge pct={r.trendPct} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr style={{ borderTop: "2px solid var(--border)" }}>
+                  <td style={{ ...tdCellStyle, fontWeight: 700 }}>Total Geral</td>
+                  <td style={{ ...tdCellStyle, textAlign: "right", color: "var(--text-secondary)" }}>
+                    {breakdown.rows.reduce((s, r) => s + r.count, 0)}
+                  </td>
+                  <td style={{ ...tdCellStyle, textAlign: "right", fontWeight: 700 }}>{formatBRL(breakdown.total)}</td>
+                  <td style={tdCellStyle} />
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
+  );
+}
+
+/** For an expense category, spending less than before is the good outcome — green on the way down, red on the way up. */
+function TrendBadge({ pct }: { pct: number | null }) {
+  if (pct === null) {
+    return <span style={{ fontSize: 12, color: "var(--text-disabled)" }}>—</span>;
+  }
+  const flat = Math.abs(pct) < 3;
+  const color = flat ? "var(--text-secondary)" : pct > 0 ? "var(--color-danger)" : "var(--color-success)";
+  const bg = flat ? "var(--border-soft)" : pct > 0 ? "var(--color-danger-tint)" : "var(--color-success-tint)";
+  const Icon = flat ? TbMinus : pct > 0 ? TbTrendingUp : TbTrendingDown;
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 4,
+        fontSize: 12,
+        fontWeight: 700,
+        color,
+        background: bg,
+        padding: "3px 8px",
+        borderRadius: 99,
+      }}
+    >
+      <Icon size={12} />
+      {flat ? "0%" : `${pct > 0 ? "+" : ""}${pct}%`}
+    </span>
   );
 }
 
@@ -142,3 +287,17 @@ const cardStyle: React.CSSProperties = {
 };
 
 const labelStyle: React.CSSProperties = { fontSize: 12, color: "var(--text-secondary)" };
+
+const theadCellStyle: React.CSSProperties = {
+  textAlign: "left",
+  fontSize: 11,
+  fontWeight: 700,
+  color: "var(--text-disabled)",
+  padding: "10px 20px",
+  letterSpacing: 0.4,
+};
+
+const tdCellStyle: React.CSSProperties = {
+  padding: "12px 20px",
+  fontSize: 13,
+};
