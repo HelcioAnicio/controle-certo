@@ -4,12 +4,12 @@ import { buildDailyLedger, loadMonthData, type EnrichedTransaction } from "@/lib
 import { getUserSettings } from "@/prisma/settings";
 import { formatBRL, periodForDate } from "@/lib/finance";
 import CategoryIcon from "@/components/CategoryIcon";
-import StatusBadge from "@/components/StatusBadge";
 import PayButton from "@/components/PayButton";
 import DeleteButton from "@/components/DeleteButton";
 import EditTransactionButton from "@/components/EditTransactionButton";
 import FilterChips from "@/components/FilterChips";
 import SearchInput from "@/components/SearchInput";
+import HelpButton from "@/components/HelpButton";
 import EmptyState from "@/components/EmptyState";
 
 export default async function LancamentosPage({
@@ -63,7 +63,12 @@ export default async function LancamentosPage({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <SearchInput placeholder="Buscar por descrição ou subcategoria..." />
-      <FilterChips />
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <FilterChips />
+        <HelpButton title="Como ler os lançamentos">
+          <LancamentosHelpContent />
+        </HelpButton>
+      </div>
 
       {filtered.length === 0 ? (
         <div
@@ -155,6 +160,38 @@ export default async function LancamentosPage({
   );
 }
 
+function LancamentosHelpContent() {
+  return (
+    <>
+      <div>
+        <b style={{ color: "var(--text)" }}>Saldo do dia</b>: o quanto entrou/saiu de fato até
+        aquele dia (só conta o que já foi pago ou recebido).
+      </div>
+      <div>
+        <b style={{ color: "var(--text)" }}>Previsto</b>: o mesmo saldo, mas já considerando
+        contas com data de vencimento futura — mostra pra onde seu saldo vai, mesmo antes de
+        você confirmar o pagamento/recebimento.
+      </div>
+      <div>
+        <b style={{ color: "var(--text)" }}>Ordem</b>: os lançamentos são agrupados por dia
+        (data de pagamento se já foi pago, senão a data de vencimento) e ordenados do mais
+        antigo pro mais recente. Sem nenhuma data, o lançamento aparece em &quot;Sem data
+        definida&quot;.
+      </div>
+      <div>
+        <b style={{ color: "var(--text)" }}>Botão de ação</b>: já indica o status — para
+        despesas, alterna entre Agendado, Pagar e Pago; para receitas, entre Agendado, Receber
+        e Recebido. &quot;Agendado&quot; fica bloqueado até a data chegar.
+      </div>
+      <div>
+        <b style={{ color: "var(--text)" }}>Filtros e busca</b>: os chips filtram por status
+        (Pendentes, Pagos, A vencer, Atrasados) e o campo de busca filtra por descrição ou
+        subcategoria — os dois podem ser usados juntos.
+      </div>
+    </>
+  );
+}
+
 function formatDayHeader(date: Date): string {
   const s = date.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short" });
   return s.charAt(0).toUpperCase() + s.slice(1);
@@ -181,9 +218,8 @@ function TxRow({ t, last }: { t: EnrichedTransaction; last: boolean }) {
           {t.subcategoryName} · {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR") : "—"}
         </div>
       </div>
-      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+      <div style={{ display: "flex", gap: 12, alignItems: "center", justifyContent: "flex-end" }}>
         <PayButton tx={t} variant="row" />
-        {t.type === "expense" && <StatusBadge status={t.status} />}
         <div
           style={{
             width: 110,
