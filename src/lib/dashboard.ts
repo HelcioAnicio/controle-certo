@@ -325,10 +325,12 @@ export function computeCategoryBreakdown(
   currentExpenses: EnrichedTransaction[],
   previousExpenses: EnrichedTransaction[],
   categoryId?: string,
+  budgetProgress: BudgetProgress[] = [],
 ): CategoryBreakdown {
   const mode: "category" | "subcategory" = categoryId ? "subcategory" : "category";
   const scoped = categoryId ? currentExpenses.filter((t) => t.categoryId === categoryId) : currentExpenses;
   const scopedPrev = categoryId ? previousExpenses.filter((t) => t.categoryId === categoryId) : previousExpenses;
+  const scopedBudgets = categoryId ? budgetProgress.filter((b) => b.categoryId === categoryId) : budgetProgress;
 
   function groupKey(t: EnrichedTransaction) {
     return mode === "category" ? t.categoryId || t.categoryName : t.subcategoryId;
@@ -349,6 +351,26 @@ export function computeCategoryBreakdown(
         color: t.categoryColor,
         count: 1,
         total: amount,
+      });
+    }
+  }
+
+  // Unspent budget reserve counts as anticipated spend here too (the caller
+  // decides whether to pass it at all, via the "considerar orçamento" toggle).
+  for (const b of scopedBudgets) {
+    const reserve = Math.max(b.monthlyAmount - b.spent, 0);
+    if (reserve <= 0) continue;
+    const key = mode === "category" ? b.categoryId || b.categoryName : b.subcategoryId;
+    const existing = groups.get(key);
+    if (existing) {
+      existing.total += reserve;
+    } else {
+      groups.set(key, {
+        name: mode === "category" ? b.categoryName : b.subcategoryName,
+        icon: mode === "category" ? "folder" : b.subcategoryIcon,
+        color: b.categoryColor,
+        count: 0,
+        total: reserve,
       });
     }
   }

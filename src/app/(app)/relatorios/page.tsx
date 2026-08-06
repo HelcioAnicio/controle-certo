@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { computeCategoryBreakdown, loadMonthData, type BreakdownRow } from "@/lib/dashboard";
+import { computeCategoryBreakdown, computeMonthSummary, loadMonthData, type BreakdownRow } from "@/lib/dashboard";
 import { getUserSettings } from "@/prisma/settings";
 import { addMonths, formatBRL, periodForDate } from "@/lib/finance";
 import CategoryIcon from "@/components/CategoryIcon";
@@ -12,9 +12,10 @@ const RANGE_VALUES = new Set(["1", "3", "6", "12"]);
 export default async function RelatoriosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ month?: string; range?: string; category?: string }>;
+  searchParams: Promise<{ month?: string; range?: string; category?: string; orcamento?: string }>;
 }) {
-  const { month, range: rangeParam, category: categoryId } = await searchParams;
+  const { month, range: rangeParam, category: categoryId, orcamento } = await searchParams;
+  const considerBudget = orcamento !== "0";
   const user = await requireUser();
   const { monthStartDay, trackingStartPeriod } = await getUserSettings(user.id);
   const period = month || periodForDate(new Date(), monthStartDay);
@@ -45,31 +46,47 @@ export default async function RelatoriosPage({
         ? await loadMonthData(user.id, prevPeriod, monthStartDay, trackingStartPeriod)
         : undefined;
 
+  // "Considerar orçamento" toggle: with it on, an unspent monthly budget counts
+  // as anticipated spend (same forecast logic as the painel); off, only what's
+  // actually been logged counts. Summaries are recomputed per period rather
+  // than reusing loadMonthData's bundled one, which always includes budgets.
+  const effectiveSummaries = barData.map((m) => computeMonthSummary(m.transactions, considerBudget ? m.budgetProgress : []));
+  const currentSummary = effectiveSummaries[effectiveSummaries.length - 1];
+  const previousIndexForSummary = previous ? barData.indexOf(previous) : -1;
+  const previousSummary =
+    previousIndexForSummary >= 0
+      ? effectiveSummaries[previousIndexForSummary]
+      : previous
+        ? computeMonthSummary(previous.transactions, considerBudget ? previous.budgetProgress : [])
+        : undefined;
+
   const currentExpenses = current.transactions.filter((t) => t.type === "expense");
   const previousExpenses = previous ? previous.transactions.filter((t) => t.type === "expense") : [];
-  const breakdown = computeCategoryBreakdown(currentExpenses, previousExpenses, categoryId || undefined);
+  const breakdown = computeCategoryBreakdown(
+    currentExpenses,
+    previousExpenses,
+    categoryId || undefined,
+    considerBudget ? current.budgetProgress : [],
+  );
   const filteredCategory = categoryId ? current.categories.find((c) => c.id === categoryId) : undefined;
 
   const topRow: BreakdownRow | undefined = breakdown.rows[0];
   const changePct =
-    previous && previous.summary.previstoTotal > 0
-      ? Math.round(
-          ((current.summary.previstoTotal - previous.summary.previstoTotal) / previous.summary.previstoTotal) * 100,
-        )
+    previousSummary && previousSummary.previstoTotal > 0
+      ? Math.round(((currentSummary.previstoTotal - previousSummary.previstoTotal) / previousSummary.previstoTotal) * 100)
       : null;
-  const monthsWithData = barData.filter((m) => m.summary.previstoTotal > 0);
+  const monthsWithData = effectiveSummaries.filter((s) => s.previstoTotal > 0);
   const average =
     monthsWithData.length > 0
-      ? monthsWithData.reduce((sum, m) => sum + m.summary.previstoTotal, 0) / monthsWithData.length
+      ? monthsWithData.reduce((sum, s) => sum + s.previstoTotal, 0) / monthsWithData.length
       : 0;
 
-  const evolutionValues = barPeriods.map((p, i) =>
-    categoryId
-      ? barData[i].transactions
-          .filter((t) => t.type === "expense" && t.categoryId === categoryId)
-          .reduce((sum, t) => sum + t.displayAmount, 0)
-      : barData[i].summary.previstoTotal,
-  );
+  const evolutionValues = barPeriods.map((p, i) => {
+    if (!categoryId) return effectiveSummaries[i].previstoTotal;
+    const periodExpenses = barData[i].transactions.filter((t) => t.type === "expense");
+    const periodBudgets = considerBudget ? barData[i].budgetProgress : [];
+    return computeCategoryBreakdown(periodExpenses, [], categoryId, periodBudgets).total;
+  });
   const maxVal = Math.max(1, ...evolutionValues);
 
   const itemLabel = breakdown.mode === "category" ? "Categoria" : "Subcategoria";
