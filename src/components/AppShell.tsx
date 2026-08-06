@@ -1,30 +1,31 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { TbPlus } from 'react-icons/tb';
-import { NAV_ICONS } from '@/lib/icons';
-import { useModal } from './providers/ModalProvider';
-import MonthSwitcher from './MonthSwitcher';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { TbPlus } from "react-icons/tb";
+import { NAV_ICONS } from "@/lib/icons";
+import { useModal } from "./providers/ModalProvider";
+import MonthSwitcher from "./MonthSwitcher";
+import { cn } from "@/lib/cn";
 
 const NAV_ITEMS = [
-  { id: 'painel', label: 'Painel', href: '/painel' },
-  { id: 'lancamentos', label: 'Lançamentos', href: '/lancamentos' },
-  { id: 'fixos', label: 'Gastos Fixos', href: '/gastos-fixos' },
-  { id: 'relatorios', label: 'Relatórios', href: '/relatorios' },
-  { id: 'categorias', label: 'Categorias', href: '/categorias' },
-  { id: 'config', label: 'Config.', href: '/configuracoes' },
+  { id: "painel", label: "Painel", href: "/painel" },
+  { id: "lancamentos", label: "Lançamentos", href: "/lancamentos" },
+  { id: "fixos", label: "Gastos Fixos", href: "/gastos-fixos" },
+  { id: "relatorios", label: "Relatórios", href: "/relatorios" },
+  { id: "categorias", label: "Categorias", href: "/categorias" },
+  { id: "config", label: "Config.", href: "/configuracoes" },
 ];
 
-const MOBILE_NAV_ITEMS = NAV_ITEMS.filter((n) => n.id !== 'categorias');
+const MOBILE_NAV_ITEMS = NAV_ITEMS.filter((n) => n.id !== "categorias");
 
 const SCREEN_TITLES: Record<string, string> = {
-  '/painel': 'Painel',
-  '/lancamentos': 'Lançamentos',
-  '/gastos-fixos': 'Gastos Fixos',
-  '/relatorios': 'Relatórios',
-  '/categorias': 'Categorias',
-  '/configuracoes': 'Configurações',
+  "/painel": "Painel",
+  "/lancamentos": "Lançamentos",
+  "/gastos-fixos": "Gastos Fixos",
+  "/relatorios": "Relatórios",
+  "/categorias": "Categorias",
+  "/configuracoes": "Configurações",
 };
 
 export default function AppShell({
@@ -39,66 +40,28 @@ export default function AppShell({
   const pathname = usePathname();
   const { openModal } = useModal();
   const initials = name
-    .split(' ')
+    .split(" ")
     .map((p) => p[0])
     .slice(0, 2)
-    .join('')
+    .join("")
     .toUpperCase();
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
-      <aside
-        className='app-sidebar'
-        style={{
-          width: 232,
-          flexShrink: 0,
-          background: 'var(--surface)',
-          borderRight: '1px solid var(--border)',
-          padding: '20px 16px',
-          flexDirection: 'column',
-          gap: 22,
-          position: 'sticky',
-          top: 0,
-          height: '100vh',
-        }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            padding: '4px 6px',
-          }}>
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 10,
-              background: 'var(--color-primary)',
-              flexShrink: 0,
-            }}
-          />
-          <div style={{ fontSize: 16, fontWeight: 700 }}>Casa em Dia</div>
+    <div className="flex min-h-screen">
+      <aside className="app-sidebar sticky top-0 h-screen w-[232px] shrink-0 flex-col gap-[22px] border-r border-border bg-surface px-4 py-5">
+        <div className="flex items-center gap-2.5 py-1 px-1.5">
+          <div className="h-8 w-8 shrink-0 rounded-[10px] bg-primary" />
+          <div className="text-base font-bold">Casa em Dia</div>
         </div>
 
         <button
-          onClick={() => openModal('novoLancamento')}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-            padding: 12,
-            border: 'none',
-            borderRadius: 'var(--radius-md)',
-            background: 'var(--color-primary)',
-            color: '#fff',
-            fontWeight: 600,
-            fontSize: 14,
-          }}>
+          onClick={() => openModal("novoLancamento")}
+          className="flex items-center justify-center gap-2 rounded-md border-none bg-primary p-3 text-sm font-semibold text-white"
+        >
           <TbPlus size={16} /> Novo lançamento
         </button>
 
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <nav className="flex flex-col gap-0.5">
           {NAV_ITEMS.map((item) => {
             const Icon = NAV_ICONS[item.id];
             const active = pathname.startsWith(item.href);
@@ -106,153 +69,42 @@ export default function AppShell({
               <Link
                 key={item.id}
                 href={item.href}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '10px 12px',
-                  borderRadius: 10,
-                  fontSize: 14,
-                  fontWeight: active ? 600 : 500,
-                  background: active
-                    ? 'var(--color-primary-tint)'
-                    : 'transparent',
-                  color: active ? 'var(--color-primary)' : '#fff',
-                  textDecoration: 'none',
-                }}>
-                <Icon
-                  size={16}
-                  color={
-                    active ? 'var(--color-primary)' : 'var(--text-disabled)'
-                  }
-                />
+                className={cn(
+                  "flex items-center gap-2.5 rounded-[10px] px-3 py-2.5 text-sm no-underline",
+                  active ? "bg-primary-tint font-semibold text-primary" : "bg-transparent font-medium text-white",
+                )}
+              >
+                <Icon size={16} color={active ? "var(--color-primary)" : "var(--text-disabled)"} />
                 <span>{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        <div
-          style={{
-            marginTop: 'auto',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            padding: '10px 6px',
-            borderTop: '1px solid var(--border)',
-            paddingTop: 16,
-          }}>
-          <div
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: '50%',
-              background: 'var(--color-primary-tint)',
-              color: 'var(--color-primary-dark)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 13,
-              fontWeight: 700,
-              flexShrink: 0,
-            }}>
-            {initials || '?'}
+        <div className="mt-auto flex items-center gap-2.5 border-t border-border pt-4 pr-1.5 pb-2.5 pl-1.5">
+          <div className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-primary-tint text-[13px] font-bold text-primary-dark">
+            {initials || "?"}
           </div>
-          <div style={{ minWidth: 0 }}>
-            <div
-              style={{
-                fontSize: 13,
-                fontWeight: 600,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}>
-              {name}
-            </div>
-            <div
-              style={{
-                fontSize: 12,
-                color: 'var(--text-secondary)',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}>
-              {email}
-            </div>
+          <div className="min-w-0">
+            <div className="overflow-hidden text-ellipsis whitespace-nowrap text-[13px] font-semibold">{name}</div>
+            <div className="overflow-hidden text-ellipsis whitespace-nowrap text-xs text-text-secondary">{email}</div>
           </div>
         </div>
       </aside>
 
-      <div
-        style={{
-          flex: 1,
-          minWidth: 0,
-          display: 'flex',
-          flexDirection: 'column',
-        }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '18px 28px',
-            background: 'var(--bg)',
-            position: 'sticky',
-            top: 0,
-            zIndex: 10,
-            borderBottom: '1px solid var(--border)',
-          }}>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-canvas px-7 py-[18px]">
           <MonthSwitcher />
-          <div
-            className='app-topbar-title'
-            style={{ fontSize: 18, fontWeight: 700 }}>
-            {SCREEN_TITLES[pathname] ?? ''}
-          </div>
-          <div
-            className='app-topbar-avatar'
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: '50%',
-              background: 'var(--color-primary-tint)',
-              color: 'var(--color-primary-dark)',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 12,
-              fontWeight: 700,
-            }}>
-            {initials || '?'}
+          <div className="app-topbar-title text-lg font-bold">{SCREEN_TITLES[pathname] ?? ""}</div>
+          <div className="app-topbar-avatar h-[34px] w-[34px] items-center justify-center rounded-full bg-primary-tint text-xs font-bold text-primary-dark">
+            {initials || "?"}
           </div>
         </div>
 
-        <div
-          className='app-screen-body'
-          style={{
-            flex: 1,
-            padding: '24px 28px 40px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 22,
-          }}>
-          {children}
-        </div>
+        <div className="app-screen-body flex flex-1 flex-col gap-[22px] px-7 pt-6 pb-10">{children}</div>
       </div>
 
-      <div
-        className='app-bottom-nav'
-        style={{
-          position: 'fixed',
-          left: 0,
-          right: 0,
-          bottom: 0,
-          height: 64,
-          background: 'var(--surface)',
-          borderTop: '1px solid var(--border)',
-          alignItems: 'center',
-          justifyContent: 'space-around',
-          padding: '0 4px',
-          zIndex: 40,
-        }}>
+      <div className="app-bottom-nav fixed inset-x-0 bottom-0 z-40 h-16 items-center justify-around border-t border-border bg-surface px-1">
         {MOBILE_NAV_ITEMS.map((item) => {
           const Icon = NAV_ICONS[item.id];
           const active = pathname.startsWith(item.href);
@@ -260,43 +112,22 @@ export default function AppShell({
             <Link
               key={item.id}
               href={item.href}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 4,
-                background: 'none',
-                padding: '6px 8px',
-                color: active ? 'var(--color-primary)' : 'var(--text-disabled)',
-                fontWeight: active ? 600 : 500,
-                textDecoration: 'none',
-              }}>
+              className={cn(
+                "flex flex-col items-center gap-1 bg-transparent px-2 py-1.5 no-underline",
+                active ? "font-semibold text-primary" : "font-medium text-text-disabled",
+              )}
+            >
               <Icon size={18} />
-              <span style={{ fontSize: 10 }}>{item.label}</span>
+              <span className="text-[10px]">{item.label}</span>
             </Link>
           );
         })}
       </div>
 
       <button
-        className='app-fab'
-        onClick={() => openModal('novoLancamento')}
-        style={{
-          position: 'fixed',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          bottom: 36,
-          width: 56,
-          height: 56,
-          borderRadius: '50%',
-          background: 'var(--color-primary)',
-          border: 'none',
-          color: '#fff',
-          boxShadow: '0 6px 18px rgba(37,99,235,0.4)',
-          zIndex: 41,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
+        className="app-fab fixed bottom-9 left-1/2 z-[41] h-14 w-14 -translate-x-1/2 items-center justify-center rounded-full border-none bg-primary text-white shadow-[0_6px_18px_rgba(37,99,235,0.4)]"
+        onClick={() => openModal("novoLancamento")}
+      >
         <TbPlus size={26} />
       </button>
     </div>

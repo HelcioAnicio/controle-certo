@@ -22,24 +22,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={{ showToast }}>
       {children}
       {toast.show && (
-        <div
-          style={{
-            position: "fixed",
-            left: "50%",
-            bottom: 32,
-            transform: "translateX(-50%)",
-            background: "#0F172A",
-            color: "#fff",
-            padding: "12px 20px",
-            borderRadius: "var(--radius-md)",
-            fontSize: 14,
-            fontWeight: 500,
-            boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
-            zIndex: 100,
-            animation: "toastIn .25s ease",
-          }}
-          className="app-toast"
-        >
+        <div className="app-toast fixed bottom-8 left-1/2 z-[100] -translate-x-1/2 rounded-md bg-[#0F172A] px-5 py-3 text-sm font-medium text-white shadow-[0_8px_24px_rgba(0,0,0,0.2)] [animation:toastIn_0.25s_ease]">
           {toast.msg}
         </div>
       )}
