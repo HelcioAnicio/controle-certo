@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { addMonths, periodDateRange, periodForDate, periodLabel } from "@/lib/finance";
+import { addMonths, BR_TIMEZONE, periodDateRange, periodForDate, periodLabel } from "@/lib/finance";
 import { TbChevronLeft, TbChevronRight } from "react-icons/tb";
 import { useSettings } from "./providers/SettingsProvider";
 
@@ -35,8 +35,8 @@ export default function MonthSwitcher() {
         <div style={{ fontSize: 15, fontWeight: 600 }}>{periodLabel(current)}</div>
         {range && (
           <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>
-            {range.start.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} –{" "}
-            {range.end.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
+            {range.start.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", timeZone: BR_TIMEZONE })} –{" "}
+            {range.end.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", timeZone: BR_TIMEZONE })}
           </div>
         )}
       </div>

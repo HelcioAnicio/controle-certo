@@ -2,6 +2,7 @@
 
 import { useModal } from './providers/ModalProvider';
 import type { EnrichedTransaction } from '@/lib/dashboard';
+import { BR_TIMEZONE } from '@/lib/finance';
 
 export default function PayButton({
   tx,
@@ -55,7 +56,7 @@ export default function PayButton({
       disabled={locked}
       title={
         locked && tx.status === 'scheduled' && tx.dueDate
-          ? `Disponível a partir de ${tx.dueDate.toLocaleDateString('pt-BR')}`
+          ? `Disponível a partir de ${tx.dueDate.toLocaleDateString('pt-BR', { timeZone: BR_TIMEZONE })}`
           : undefined
       }
       onClick={() =>
@@ -66,7 +67,7 @@ export default function PayButton({
           type: tx.type,
           locked,
           lockDateLabel: tx.dueDate
-            ? tx.dueDate.toLocaleDateString('pt-BR')
+            ? tx.dueDate.toLocaleDateString('pt-BR', { timeZone: BR_TIMEZONE })
             : undefined,
         })
       }

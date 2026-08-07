@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { buildDailyLedger, loadMonthData, type EnrichedTransaction } from "@/lib/dashboard";
 import { getUserSettings } from "@/prisma/settings";
-import { formatBRL, periodForDate } from "@/lib/finance";
+import { BR_TIMEZONE, formatBRL, periodForDate } from "@/lib/finance";
 import CategoryIcon from "@/components/CategoryIcon";
 import PayButton from "@/components/PayButton";
 import DeleteButton from "@/components/DeleteButton";
@@ -193,7 +193,7 @@ function LancamentosHelpContent() {
 }
 
 function formatDayHeader(date: Date): string {
-  const s = date.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short" });
+  const s = date.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short", timeZone: BR_TIMEZONE });
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
@@ -215,7 +215,7 @@ function TxRow({ t, last }: { t: EnrichedTransaction; last: boolean }) {
           {t.description || t.subcategoryName}
         </div>
         <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-          {t.subcategoryName} · {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR") : "—"}
+          {t.subcategoryName} · {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR", { timeZone: BR_TIMEZONE }) : "—"}
         </div>
       </div>
       <div style={{ display: "flex", gap: 12, alignItems: "center", justifyContent: "flex-end" }}>

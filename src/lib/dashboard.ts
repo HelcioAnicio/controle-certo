@@ -6,7 +6,7 @@ import {
   type Transaction,
 } from "@/prisma/transactions";
 import { listBudgets, type Budget } from "@/prisma/budgets";
-import { COLOR_SWATCHES, computeStatus, formatBRL, type TxStatus } from "./finance";
+import { COLOR_SWATCHES, computeStatus, formatBRL, fromBRDateKey, toBRDateKey, type TxStatus } from "./finance";
 
 export type EnrichedTransaction = Transaction & {
   subcategoryName: string;
@@ -211,9 +211,7 @@ export function computeBudgetProgress(
     .sort((a, b) => a.subcategoryName.localeCompare(b.subcategoryName, "pt-BR"));
 }
 
-function dayKey(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
+const dayKey = toBRDateKey;
 
 export type LedgerDay = {
   dateKey: string;
@@ -284,10 +282,9 @@ export function buildDailyLedger(
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([key, txs]) => {
       const cum = cumByDay.get(key)!;
-      const [y, m, d] = key.split("-").map(Number);
       return {
         dateKey: key,
-        date: new Date(y, m - 1, d),
+        date: fromBRDateKey(key),
         actualBalance: cum.actual,
         projectedBalance: cum.projected,
         transactions: txs,

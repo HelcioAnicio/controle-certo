@@ -17,21 +17,55 @@ export function formatBRL(value: number): string {
   });
 }
 
-/** Truncates a Date to its calendar day in local time, for date-only comparisons. */
+/**
+ * This app only serves Brazil, which has been a fixed UTC-3 with no daylight
+ * saving since 2019 — so instead of relying on the *runtime's* local
+ * timezone (which is Brazil on a developer's machine but UTC on Vercel,
+ * silently shifting dates by hours near midnight), every date helper below
+ * is anchored to this fixed offset. That makes them behave identically in
+ * dev, in the browser, and on any server region. `BR_TIMEZONE` is for
+ * `Intl`/`toLocaleDateString` calls elsewhere, which accept a `timeZone`
+ * option that (unlike local getters) doesn't depend on the runtime either.
+ */
+export const BR_TIMEZONE = "America/Sao_Paulo";
+const BR_OFFSET_MS = 3 * 60 * 60 * 1000;
+
+function toBRParts(d: Date): { year: number; month: number; date: number } {
+  const shifted = new Date(d.getTime() - BR_OFFSET_MS);
+  return { year: shifted.getUTCFullYear(), month: shifted.getUTCMonth(), date: shifted.getUTCDate() };
+}
+
+function fromBRParts(year: number, month: number, date: number): Date {
+  return new Date(Date.UTC(year, month, date) + BR_OFFSET_MS);
+}
+
+/** Truncates a Date to its calendar day in Brazil time, for date-only comparisons. */
 export function dateOnly(d: Date): number {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const p = toBRParts(d);
+  return fromBRParts(p.year, p.month, p.date).getTime();
+}
+
+/** Formats a Date as "YYYY-MM-DD" in Brazil time — the inverse of `fromBRDateKey`. */
+export function toBRDateKey(d: Date): string {
+  const p = toBRParts(d);
+  return `${p.year}-${String(p.month + 1).padStart(2, "0")}-${String(p.date).padStart(2, "0")}`;
+}
+
+/** Parses a "YYYY-MM-DD" key as Brazil-local midnight — the inverse of `toBRDateKey`. */
+export function fromBRDateKey(key: string): Date {
+  const [y, m, d] = key.split("-").map(Number);
+  return fromBRParts(y, m - 1, d);
 }
 
 /**
- * Parses a `<input type="date">` value ("YYYY-MM-DD") as local midnight.
- * `new Date("YYYY-MM-DD")` parses it as UTC midnight instead, which shifts a
- * day earlier in any timezone behind UTC (e.g. Brazil) once local getters
- * like `.getDate()` are used on it — silently filing things under the wrong
- * day/period.
+ * Parses a `<input type="date">` value ("YYYY-MM-DD") as Brazil-local
+ * midnight. `new Date("YYYY-MM-DD")` parses it as UTC midnight instead,
+ * which shifts a day earlier once Brazil-local getters are used on it —
+ * silently filing things under the wrong day/period.
  */
 export function parseLocalDate(value: string): Date {
   const [y, m, d] = value.split("-").map(Number);
-  return new Date(y, m - 1, d);
+  return fromBRParts(y, m - 1, d);
 }
 
 export function computeStatus(
@@ -49,19 +83,20 @@ export function computeStatus(
 
 /** Format a Date as the "YYYY-MM" period key transactions are scoped by. */
 export function periodKey(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  const p = toBRParts(d);
+  return `${p.year}-${String(p.month + 1).padStart(2, "0")}`;
 }
 
 export function periodLabel(period: string): string {
   const [y, m] = period.split("-").map(Number);
-  const date = new Date(y, m - 1, 1);
-  const label = date.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  const date = fromBRParts(y, m - 1, 1);
+  const label = date.toLocaleDateString("pt-BR", { month: "long", year: "numeric", timeZone: BR_TIMEZONE });
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
 export function addMonths(period: string, delta: number): string {
   const [y, m] = period.split("-").map(Number);
-  const date = new Date(y, m - 1 + delta, 1);
+  const date = fromBRParts(y, m - 1 + delta, 1);
   return periodKey(date);
 }
 
@@ -73,15 +108,15 @@ export function addMonths(period: string, delta: number): string {
  * paycheck through 06/09, so 07/09 is when the "September" period starts.
  */
 export function periodForDate(d: Date, startDay: number = 1): string {
-  if (startDay <= 1 || d.getDate() >= startDay) {
+  if (startDay <= 1 || toBRParts(d).date >= startDay) {
     return periodKey(d);
   }
   return addMonths(periodKey(d), -1);
 }
 
 function clampedDate(year: number, monthIndex0: number, day: number): Date {
-  const lastDay = new Date(year, monthIndex0 + 1, 0).getDate();
-  return new Date(year, monthIndex0, Math.min(Math.max(day, 1), lastDay));
+  const lastDay = toBRParts(fromBRParts(year, monthIndex0 + 1, 0)).date;
+  return fromBRParts(year, monthIndex0, Math.min(Math.max(day, 1), lastDay));
 }
 
 /** The real calendar date `startDay` of a period falls on (clamped to the month's length). */
@@ -94,8 +129,8 @@ function periodStartDate(period: string, startDay: number): Date {
 export function periodDateRange(period: string, startDay: number = 1): { start: Date; end: Date } {
   const start = periodStartDate(period, startDay);
   const nextStart = periodStartDate(addMonths(period, 1), startDay);
-  const end = new Date(nextStart);
-  end.setDate(end.getDate() - 1);
+  const p = toBRParts(nextStart);
+  const end = fromBRParts(p.year, p.month, p.date - 1);
   return { start, end };
 }
 

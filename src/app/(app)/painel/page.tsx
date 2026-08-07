@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { loadMonthData } from "@/lib/dashboard";
 import { getUserSettings } from "@/prisma/settings";
-import { formatBRL, periodForDate } from "@/lib/finance";
+import { BR_TIMEZONE, formatBRL, periodForDate } from "@/lib/finance";
 import CategoryIcon from "@/components/CategoryIcon";
 import StatusBadge from "@/components/StatusBadge";
 import PayButton from "@/components/PayButton";
@@ -152,7 +152,7 @@ export default async function PainelPage({
                       {t.description || t.subcategoryName}
                     </div>
                     <div style={{ fontSize: 12, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
-                      {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR") : "—"} · {formatBRL(Number(t.amount))}
+                      {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR", { timeZone: BR_TIMEZONE }) : "—"} · {formatBRL(Number(t.amount))}
                     </div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 42 }}>
@@ -181,7 +181,7 @@ export default async function PainelPage({
                     {t.description || t.subcategoryName}
                   </div>
                   <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                    {t.subcategoryName} · {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR") : "—"}
+                    {t.subcategoryName} · {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR", { timeZone: BR_TIMEZONE }) : "—"}
                   </div>
                 </div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: t.status === "paid" ? (t.type === "income" ? "var(--color-success)" : "var(--text)") : "var(--text-disabled)" }}>

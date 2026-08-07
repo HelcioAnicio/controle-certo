@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { computeCategoryBreakdown, computeMonthSummary, loadMonthData, type BreakdownRow } from "@/lib/dashboard";
 import { getUserSettings } from "@/prisma/settings";
-import { addMonths, formatBRL, periodForDate } from "@/lib/finance";
+import { addMonths, BR_TIMEZONE, formatBRL, fromBRDateKey, periodForDate } from "@/lib/finance";
 import CategoryIcon from "@/components/CategoryIcon";
 import ReportFilters from "@/components/ReportFilters";
 import { TbMinus, TbTrendingDown, TbTrendingUp } from "react-icons/tb";
@@ -291,8 +291,10 @@ function TrendBadge({ pct }: { pct: number | null }) {
 }
 
 function monthShortLabel(period: string): string {
-  const [y, m] = period.split("-").map(Number);
-  const label = new Date(y, m - 1, 1).toLocaleDateString("pt-BR", { month: "short" });
+  const label = fromBRDateKey(`${period}-01`).toLocaleDateString("pt-BR", {
+    month: "short",
+    timeZone: BR_TIMEZONE,
+  });
   return label.replace(".", "").replace(/^./, (c) => c.toUpperCase());
 }
 
