@@ -125,6 +125,16 @@ export async function payTransaction(
   });
 }
 
+export async function unpayTransaction(
+  userId: string,
+  id: string,
+): Promise<void> {
+  await db.orm.public.Transaction.where({ id, userId }).update({
+    paidAmount: null,
+    paidDate: null,
+  });
+}
+
 export async function deleteTransaction(
   userId: string,
   id: string,

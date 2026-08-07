@@ -3,8 +3,11 @@
 import { useState, useTransition } from "react";
 import { useModal } from "../providers/ModalProvider";
 import { useToast } from "../providers/ToastProvider";
-import { payTransactionAction } from "@/app/(app)/actions";
-import { formatBRL } from "@/lib/finance";
+import {
+  payTransactionAction,
+  unpayTransactionAction,
+} from "@/app/(app)/actions";
+import { formatBRL, toBRDateKey } from "@/lib/finance";
 import type { TxType } from "@/lib/finance";
 import { cn } from "@/lib/cn";
 import {
@@ -13,6 +16,7 @@ import {
   inputStyle,
   modalHeader,
   modalTitle,
+  primaryBtn,
   secondaryBtn,
   successBtn,
 } from "./styles";
@@ -22,6 +26,9 @@ export type PagamentoCtx = {
   desc: string;
   amount: number;
   type: TxType;
+  paid?: boolean;
+  paidAmount?: number | null;
+  paidDate?: Date | null;
 };
 
 function todayInputValue() {
@@ -36,9 +43,14 @@ export default function ConfirmarPagamentoModal({
 }) {
   const { closeModal } = useModal();
   const { showToast } = useToast();
-  const [amount, setAmount] = useState(String(ctx.amount));
-  const [date, setDate] = useState(todayInputValue());
+  const [amount, setAmount] = useState(
+    String(ctx.paid ? (ctx.paidAmount ?? ctx.amount) : ctx.amount),
+  );
+  const [date, setDate] = useState(
+    ctx.paid && ctx.paidDate ? toBRDateKey(ctx.paidDate) : todayInputValue(),
+  );
   const [pending, startTransition] = useTransition();
+  const [undoing, startUndoTransition] = useTransition();
   const isIncome = ctx.type === "income";
 
   function confirm() {
@@ -52,8 +64,20 @@ export default function ConfirmarPagamentoModal({
       });
       closeModal();
       showToast(
-        isIncome ? "Recebimento registrado ✓" : "Pagamento registrado ✓",
+        ctx.paid
+          ? "Alterações salvas ✓"
+          : isIncome
+            ? "Recebimento registrado ✓"
+            : "Pagamento registrado ✓",
       );
+    });
+  }
+
+  function undo() {
+    startUndoTransition(async () => {
+      await unpayTransactionAction(ctx.id);
+      closeModal();
+      showToast(isIncome ? "Recebimento desfeito" : "Pagamento desfeito");
     });
   }
 
@@ -61,7 +85,13 @@ export default function ConfirmarPagamentoModal({
     <div>
       <div className={modalHeader}>
         <div className={modalTitle}>
-          {isIncome ? "Confirmar recebimento" : "Confirmar pagamento"}
+          {ctx.paid
+            ? isIncome
+              ? "Editar recebimento"
+              : "Editar pagamento"
+            : isIncome
+              ? "Confirmar recebimento"
+              : "Confirmar pagamento"}
         </div>
         <button type="button" onClick={closeModal} className={closeBtn}>
           ×
@@ -98,7 +128,24 @@ export default function ConfirmarPagamentoModal({
           />
         </div>
       </div>
-      <div className="mt-[22px] flex gap-2.5">
+      {ctx.paid && (
+        <button
+          type="button"
+          onClick={undo}
+          disabled={undoing}
+          className={cn(
+            "mt-[22px] w-full rounded-md border border-danger bg-transparent p-[13px] text-sm font-semibold text-danger",
+            undoing && "opacity-70",
+          )}
+        >
+          {undoing
+            ? "Desfazendo…"
+            : isIncome
+              ? "Marcar como não recebido"
+              : "Marcar como não pago"}
+        </button>
+      )}
+      <div className={cn("flex gap-2.5", ctx.paid ? "mt-2.5" : "mt-[22px]")}>
         <button type="button" onClick={closeModal} className={secondaryBtn}>
           Cancelar
         </button>
@@ -106,13 +153,18 @@ export default function ConfirmarPagamentoModal({
           type="button"
           onClick={confirm}
           disabled={pending}
-          className={cn(successBtn, pending && "opacity-70")}
+          className={cn(
+            isIncome ? successBtn : primaryBtn,
+            pending && "opacity-70",
+          )}
         >
           {pending
-            ? "Confirmando…"
-            : isIncome
-              ? "Confirmar recebimento"
-              : "Confirmar pagamento"}
+            ? "Salvando…"
+            : ctx.paid
+              ? "Salvar alterações"
+              : isIncome
+                ? "Confirmar recebimento"
+                : "Confirmar pagamento"}
         </button>
       </div>
     </div>

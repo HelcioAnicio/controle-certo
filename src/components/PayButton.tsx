@@ -26,20 +26,24 @@ export default function PayButton({
     "whitespace-nowrap rounded-sm border-none text-xs font-semibold",
     variant === "row" ? "px-3.5 py-[7px]" : "px-3 py-1.5",
     paid
-      ? "cursor-default bg-success-tint text-success"
+      ? isIncome
+        ? "bg-success-tint text-success"
+        : "bg-primary-tint text-primary"
       : "bg-primary text-white",
   );
 
   return (
     <button
       type="button"
-      disabled={paid}
       onClick={() =>
         openModal("confirmarPagamento", {
           id: tx.id,
           desc: tx.description || tx.subcategoryName,
           amount: Number(tx.amount),
           type: tx.type,
+          paid,
+          paidAmount: tx.paidAmount ? Number(tx.paidAmount) : null,
+          paidDate: tx.paidDate,
         })
       }
       className={className}

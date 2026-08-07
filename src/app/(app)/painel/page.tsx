@@ -192,81 +192,92 @@ export default async function PainelPage({
         </div>
 
         <div className="rounded-lg border border-border bg-surface p-5 [grid-area:pie]">
-          <div className="mb-4 text-sm font-semibold">Gastos por categoria</div>
-          {summary.pieSlices.length === 0 ? (
-            <div className="text-[13px] text-text-secondary">
-              Sem despesas neste mês.
-            </div>
-          ) : (
-            <div className="flex flex-wrap items-center gap-6">
-              <div
-                className="h-[120px] w-[120px] shrink-0 rounded-full"
-                style={{ background: summary.pieGradient }}
-              />
-              <div className="flex min-w-[220px] flex-1 flex-col gap-2">
-                {summary.pieSlices.map((s) => (
+          <div
+            className={cn(
+              budgetProgress.length > 0 &&
+                "min-[880px]:grid min-[880px]:grid-cols-2 min-[880px]:items-start min-[880px]:gap-8",
+            )}
+          >
+            <div>
+              <div className="mb-4 text-sm font-semibold">
+                Gastos por categoria
+              </div>
+              {summary.pieSlices.length === 0 ? (
+                <div className="text-[13px] text-text-secondary">
+                  Sem despesas neste mês.
+                </div>
+              ) : (
+                <div className="flex flex-wrap items-center gap-6">
                   <div
-                    key={s.id}
-                    className="flex items-center gap-2 text-[13px]"
-                  >
-                    <div
-                      className="h-2.5 w-2.5 shrink-0 rounded-full"
-                      style={{ background: s.color }}
-                    />
-                    <span className="flex-1 text-text">{s.name}</span>
-                    <span className="text-text-secondary">
-                      {formatBRL(s.value)}
-                    </span>
-                    <span className="w-10 text-right font-semibold">
-                      {s.pct}%
-                    </span>
+                    className="h-[120px] w-[120px] shrink-0 rounded-full"
+                    style={{ background: summary.pieGradient }}
+                  />
+                  <div className="flex min-w-[220px] flex-1 flex-col gap-2">
+                    {summary.pieSlices.map((s) => (
+                      <div
+                        key={s.id}
+                        className="flex items-center gap-2 text-[13px]"
+                      >
+                        <div
+                          className="h-2.5 w-2.5 shrink-0 rounded-full"
+                          style={{ background: s.color }}
+                        />
+                        <span className="flex-1 text-text">{s.name}</span>
+                        <span className="text-text-secondary">
+                          {formatBRL(s.value)}
+                        </span>
+                        <span className="w-10 text-right font-semibold">
+                          {s.pct}%
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {budgetProgress.length > 0 && (
+              <div className="mt-5 flex flex-col gap-3.5 border-t border-border-soft pt-5 min-[880px]:mt-0 min-[880px]:border-t-0 min-[880px]:border-l min-[880px]:pt-0 min-[880px]:pl-8">
+                <div className="text-sm font-semibold">Orçamentos do mês</div>
+                {budgetProgress.map((b) => (
+                  <div key={b.subcategoryId}>
+                    <div className="mb-1.5 flex justify-between text-[13px] text-text">
+                      <span className="flex items-center gap-2">
+                        <CategoryIcon
+                          icon={b.subcategoryIcon}
+                          color={b.categoryColor}
+                          size={24}
+                        />
+                        {b.subcategoryName}
+                      </span>
+                      <span
+                        className={cn(
+                          "font-semibold",
+                          b.remaining < 0 ? "text-danger" : "text-text",
+                        )}
+                      >
+                        {formatBRL(b.spent)} de {formatBRL(b.monthlyAmount)}
+                      </span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-border-soft">
+                      <div
+                        className={cn(
+                          "h-full rounded-full",
+                          b.remaining < 0 ? "bg-danger" : "bg-primary",
+                        )}
+                        style={{ width: `${b.pct}%` }}
+                      />
+                    </div>
+                    <div className="mt-1 text-xs text-text-secondary">
+                      {b.remaining >= 0
+                        ? `${formatBRL(b.remaining)} restantes`
+                        : `${formatBRL(-b.remaining)} acima do orçamento`}
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-
-          {budgetProgress.length > 0 && (
-            <div className="mt-5 flex flex-col gap-3.5 border-t border-border-soft pt-5">
-              <div className="text-sm font-semibold">Orçamentos do mês</div>
-              {budgetProgress.map((b) => (
-                <div key={b.subcategoryId}>
-                  <div className="mb-1.5 flex justify-between text-[13px] text-text">
-                    <span className="flex items-center gap-2">
-                      <CategoryIcon
-                        icon={b.subcategoryIcon}
-                        color={b.categoryColor}
-                        size={24}
-                      />
-                      {b.subcategoryName}
-                    </span>
-                    <span
-                      className={cn(
-                        "font-semibold",
-                        b.remaining < 0 ? "text-danger" : "text-text",
-                      )}
-                    >
-                      {formatBRL(b.spent)} de {formatBRL(b.monthlyAmount)}
-                    </span>
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-border-soft">
-                    <div
-                      className={cn(
-                        "h-full rounded-full",
-                        b.remaining < 0 ? "bg-danger" : "bg-primary",
-                      )}
-                      style={{ width: `${b.pct}%` }}
-                    />
-                  </div>
-                  <div className="mt-1 text-xs text-text-secondary">
-                    {b.remaining >= 0
-                      ? `${formatBRL(b.remaining)} restantes`
-                      : `${formatBRL(-b.remaining)} acima do orçamento`}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>

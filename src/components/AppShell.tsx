@@ -72,15 +72,13 @@ export default function AppShell({
                 className={cn(
                   "flex items-center gap-2.5 rounded-[10px] px-3 py-2.5 text-sm no-underline",
                   active
-                    ? "bg-primary-tint font-semibold text-primary"
+                    ? "bg-primary font-semibold text-white"
                     : "bg-transparent font-medium text-text-secondary",
                 )}
               >
                 <Icon
                   size={16}
-                  color={
-                    active ? "var(--color-primary)" : "var(--text-disabled)"
-                  }
+                  color={active ? "#fff" : "var(--text-disabled)"}
                 />
                 <span>{item.label}</span>
               </Link>

@@ -20,6 +20,7 @@ import {
   createTransaction,
   deleteTransaction,
   payTransaction,
+  unpayTransaction,
   updateTransaction,
 } from "@/prisma/transactions";
 import { setMonthStartDay, setTrackingStartPeriod } from "@/prisma/settings";
@@ -61,6 +62,12 @@ export async function payTransactionAction(input: {
     paidAmount: input.paidAmount,
     paidDate: parseLocalDate(input.paidDate),
   });
+  refresh();
+}
+
+export async function unpayTransactionAction(id: string) {
+  const user = await requireUser();
+  await unpayTransaction(user.id, id);
   refresh();
 }
 

@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { TbBrandWhatsapp } from "react-icons/tb";
 import { requireUser } from "@/lib/auth";
 import { signOut } from "@/app/(auth)/actions";
 import { getUserSettings } from "@/prisma/settings";
 import MonthStartDaySelect from "@/components/MonthStartDaySelect";
 import TrackingStartMonthInput from "@/components/TrackingStartMonthInput";
+import ThemeToggle from "@/components/ThemeToggle";
 import { cn } from "@/lib/cn";
 
 export default async function ConfiguracoesPage() {
@@ -42,7 +44,7 @@ export default async function ConfiguracoesPage() {
 
       <div className="flex flex-col rounded-lg border border-border bg-surface px-5 py-1.5">
         <Row label="Modo escuro">
-          <Toggle />
+          <ThemeToggle />
         </Row>
         <Row label="Moeda">
           <span className="text-[13px] text-text-secondary">R$ (Real)</span>
@@ -79,6 +81,31 @@ export default async function ConfiguracoesPage() {
         />
       </div>
 
+      <div className="mt-1.5 text-[13px] font-semibold text-text-secondary">
+        Suporte e sugestões
+      </div>
+      <a
+        href={`https://wa.me/5531991973835?text=${encodeURIComponent(
+          "Olá! Tenho uma sugestão/dúvida/reclamação sobre o app Casa em Dia:",
+        )}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-3.5 rounded-lg border border-border bg-surface p-4 no-underline"
+      >
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-success-tint text-success">
+          <TbBrandWhatsapp size={20} />
+        </div>
+        <div className="flex-1">
+          <div className="text-sm font-semibold text-text">
+            Fale com a gente
+          </div>
+          <div className="mt-0.5 text-xs text-text-secondary">
+            Sugestões, reclamações ou dúvidas sobre o uso — mande uma mensagem
+            no WhatsApp.
+          </div>
+        </div>
+      </a>
+
       <form action={signOut}>
         <button
           type="submit"
@@ -109,14 +136,6 @@ function Row({
     >
       <span className="text-sm font-medium">{label}</span>
       {children}
-    </div>
-  );
-}
-
-function Toggle() {
-  return (
-    <div className="relative h-6 w-[42px] rounded-full bg-border">
-      <div className="absolute top-[3px] left-[3px] h-[18px] w-[18px] rounded-full bg-white" />
     </div>
   );
 }

@@ -174,9 +174,10 @@ function LancamentosHelpContent() {
       </div>
       <div>
         <b className="text-text">Botão de ação</b>: já indica o status — para
-        despesas, alterna entre Pagar e Pago; para receitas, entre Receber e
-        Recebido. Pode confirmar a qualquer momento, mesmo antes da data de
-        vencimento.
+        despesas, alterna entre Pagar (azul) e Pago (tom azulado); para
+        receitas, entre Receber (azul) e Recebido (verde). Pode confirmar a
+        qualquer momento, mesmo antes da data de vencimento. Clicando de novo
+        depois de confirmado, dá pra editar valor/data ou desfazer o pagamento.
       </div>
       <div>
         <b className="text-text">Filtros e busca</b>: os chips filtram por
@@ -199,37 +200,40 @@ function formatDayHeader(date: Date): string {
 
 function TxRow({ t, last }: { t: EnrichedTransaction; last: boolean }) {
   const d = effectiveDate(t);
+  const paid = t.status === "paid";
   return (
     <div
       className={cn(
-        "flex flex-col flex-wrap gap-3 px-4 py-3.5",
+        "flex flex-wrap items-center justify-between gap-3 px-4 py-3.5",
         !last && "border-b border-border-soft",
       )}
     >
-      <div className="flex min-w-0 flex-1 items-center gap-2.5">
+      <div className="flex min-w-0 items-center gap-2.5">
         <CategoryIcon
           icon={t.subcategoryIcon}
           color={t.categoryColor}
           size={32}
         />
-        <div className="overflow-hidden text-base font-semibold text-ellipsis whitespace-nowrap">
-          {t.description || t.subcategoryName}
-        </div>
-        <div className="text-xs text-text-secondary">
-          {t.subcategoryName} ·{" "}
-          {d
-            ? t.status === "paid"
-              ? `pago em ${d.toLocaleDateString("pt-BR", { timeZone: BR_TIMEZONE })}`
-              : d.toLocaleDateString("pt-BR", { timeZone: BR_TIMEZONE })
-            : "—"}
+        <div className="min-w-0">
+          <div className="overflow-hidden text-base font-semibold text-ellipsis whitespace-nowrap">
+            {t.description || t.subcategoryName}
+          </div>
+          <div className="text-xs text-text-secondary">
+            {t.subcategoryName} ·{" "}
+            {d
+              ? paid
+                ? `${t.type === "income" ? "recebido" : "pago"} em ${d.toLocaleDateString("pt-BR", { timeZone: BR_TIMEZONE })}`
+                : d.toLocaleDateString("pt-BR", { timeZone: BR_TIMEZONE })
+              : "—"}
+          </div>
         </div>
       </div>
-      <div className="flex items-center justify-end gap-3">
+      <div className="flex items-center gap-3">
         <PayButton tx={t} variant="row" />
         <div
           className={cn(
             "w-[110px] text-right text-sm font-bold",
-            t.status === "paid"
+            paid
               ? t.type === "income"
                 ? "text-success"
                 : "text-text"
