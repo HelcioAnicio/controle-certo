@@ -36,7 +36,7 @@ export default function FilterChips() {
               "shrink-0 rounded-full border px-3.5 py-2 text-[13px] font-semibold",
               active
                 ? "border-primary bg-primary text-white"
-                : "border-border bg-surface text-[#334155]",
+                : "border-border bg-surface text-text",
             )}
           >
             {f.label}

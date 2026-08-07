@@ -254,7 +254,7 @@ export default async function RelatoriosPage({
                       className="h-2.5 w-2.5 shrink-0 rounded-full"
                       style={{ background: r.color }}
                     />
-                    <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-[#334155]">
+                    <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-text">
                       {r.name}
                     </span>
                     <span className="text-text-secondary">
@@ -295,7 +295,7 @@ export default async function RelatoriosPage({
                     )}
                     style={{ height: `${Math.max(pct, 2)}%` }}
                   />
-                  <div className="text-xs font-semibold text-[#334155]">
+                  <div className="text-xs font-semibold text-text">
                     {monthShortLabel(p)}
                   </div>
                 </div>

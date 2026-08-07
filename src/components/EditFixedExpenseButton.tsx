@@ -22,7 +22,7 @@ export default function EditFixedExpenseButton({
           dueDay: fixedExpense.dueDay,
         })
       }
-      className="flex h-[30px] w-[30px] items-center justify-center rounded-sm border border-border bg-surface text-[#334155]"
+      className="flex h-[30px] w-[30px] items-center justify-center rounded-sm border border-border bg-surface text-text"
     >
       <TbPencil size={13} />
     </button>

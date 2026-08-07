@@ -73,7 +73,7 @@ export default function AppShell({
                   "flex items-center gap-2.5 rounded-[10px] px-3 py-2.5 text-sm no-underline",
                   active
                     ? "bg-primary-tint font-semibold text-primary"
-                    : "bg-transparent font-medium text-white",
+                    : "bg-transparent font-medium text-text-secondary",
                 )}
               >
                 <Icon

@@ -13,7 +13,7 @@ import { useSettings } from "./providers/SettingsProvider";
 import { cn } from "@/lib/cn";
 
 const navBtnStyle =
-  "flex h-8 w-8 items-center justify-center rounded-sm border border-border bg-surface text-[#334155]";
+  "flex h-8 w-8 items-center justify-center rounded-sm border border-border bg-surface text-text";
 
 export default function MonthSwitcher() {
   const router = useRouter();

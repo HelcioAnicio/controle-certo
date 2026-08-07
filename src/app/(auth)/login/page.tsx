@@ -167,9 +167,7 @@ function Field({
 }) {
   return (
     <div>
-      <div className="mb-1.5 text-[13px] font-semibold text-[#334155]">
-        {label}
-      </div>
+      <div className="mb-1.5 text-[13px] font-semibold text-text">{label}</div>
       {children}
     </div>
   );
