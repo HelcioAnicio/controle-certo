@@ -11,7 +11,9 @@ export default async function CategoriasPage() {
     listSubcategories(user.id),
     listBudgets(user.id),
   ]);
-  const budgetBySubcategoryId = new Map(budgets.map((b) => [b.subcategoryId, Number(b.monthlyAmount)]));
+  const budgetBySubcategoryId = new Map(
+    budgets.map((b) => [b.subcategoryId, Number(b.monthlyAmount)]),
+  );
 
   return (
     <div className="flex flex-col gap-4">

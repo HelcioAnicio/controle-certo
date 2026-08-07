@@ -15,14 +15,19 @@ export type FixedExpense = {
   createdAt: Date;
 };
 
-export async function listFixedExpenses(userId: string): Promise<FixedExpense[]> {
-  const rows = await db.orm.public.FixedExpense.where({ userId }).orderBy((f) => f.dueDay.asc()).all();
+export async function listFixedExpenses(
+  userId: string,
+): Promise<FixedExpense[]> {
+  const rows = await db.orm.public.FixedExpense.where({ userId })
+    .orderBy((f) => f.dueDay.asc())
+    .all();
   return rows as FixedExpense[];
 }
 
-export async function listActiveFixedExpenses(userId: string): Promise<FixedExpense[]> {
-  const rows = await db.orm.public.FixedExpense
-    .where({ userId, active: true })
+export async function listActiveFixedExpenses(
+  userId: string,
+): Promise<FixedExpense[]> {
+  const rows = await db.orm.public.FixedExpense.where({ userId, active: true })
     .orderBy((f) => f.dueDay.asc())
     .all();
   return rows as FixedExpense[];
@@ -30,9 +35,18 @@ export async function listActiveFixedExpenses(userId: string): Promise<FixedExpe
 
 export async function createFixedExpense(
   userId: string,
-  input: { subcategoryId: string; name: string; estimatedAmount: number; dueDay: number },
+  input: {
+    subcategoryId: string;
+    name: string;
+    estimatedAmount: number;
+    dueDay: number;
+  },
 ): Promise<FixedExpense> {
-  const row = await db.orm.public.FixedExpense.create({ userId, ...input, active: true });
+  const row = await db.orm.public.FixedExpense.create({
+    userId,
+    ...input,
+    active: true,
+  });
   return row as FixedExpense;
 }
 
@@ -42,15 +56,23 @@ export async function createFixedExpense(
  * placeholders the user has to hunt down and delete month by month — but
  * already-paid transactions are real history and must never be touched.
  */
-async function purgeUnpaidUpcomingTransactions(userId: string, fixedExpenseId: string): Promise<void> {
+async function purgeUnpaidUpcomingTransactions(
+  userId: string,
+  fixedExpenseId: string,
+): Promise<void> {
   const { monthStartDay } = await getUserSettings(userId);
   const currentPeriod = periodForDate(new Date(), monthStartDay);
-  const rows = await db.orm.public.Transaction.where({ userId, fixedExpenseId }).all();
+  const rows = await db.orm.public.Transaction.where({
+    userId,
+    fixedExpenseId,
+  }).all();
   const idsToDelete = rows
     .filter((t) => !t.paidDate && t.periodMonth >= currentPeriod)
     .map((t) => t.id);
   if (idsToDelete.length === 0) return;
-  await db.orm.public.Transaction.where({ userId }).where((t) => t.id.in(idsToDelete)).delete();
+  await db.orm.public.Transaction.where({ userId })
+    .where((t) => t.id.in(idsToDelete))
+    .delete();
 }
 
 export async function setFixedExpenseActive(
@@ -74,14 +96,20 @@ export async function setFixedExpenseActive(
 async function syncUnpaidTransactionsWithTemplate(
   userId: string,
   fixedExpenseId: string,
-  input: { subcategoryId: string; name: string; estimatedAmount: number; dueDay: number },
+  input: {
+    subcategoryId: string;
+    name: string;
+    estimatedAmount: number;
+    dueDay: number;
+  },
 ): Promise<void> {
   const [{ monthStartDay }, subcategories, rows] = await Promise.all([
     getUserSettings(userId),
     listSubcategories(userId),
     db.orm.public.Transaction.where({ userId, fixedExpenseId }).all(),
   ]);
-  const type = subcategories.find((s) => s.id === input.subcategoryId)?.type ?? "expense";
+  const type =
+    subcategories.find((s) => s.id === input.subcategoryId)?.type ?? "expense";
 
   for (const t of rows) {
     if (t.paidDate) continue;
@@ -98,13 +126,21 @@ async function syncUnpaidTransactionsWithTemplate(
 export async function updateFixedExpense(
   userId: string,
   id: string,
-  input: { subcategoryId: string; name: string; estimatedAmount: number; dueDay: number },
+  input: {
+    subcategoryId: string;
+    name: string;
+    estimatedAmount: number;
+    dueDay: number;
+  },
 ): Promise<void> {
   await db.orm.public.FixedExpense.where({ id, userId }).update(input);
   await syncUnpaidTransactionsWithTemplate(userId, id, input);
 }
 
-export async function deleteFixedExpense(userId: string, id: string): Promise<void> {
+export async function deleteFixedExpense(
+  userId: string,
+  id: string,
+): Promise<void> {
   await purgeUnpaidUpcomingTransactions(userId, id);
   await db.orm.public.FixedExpense.where({ id, userId }).delete();
 }

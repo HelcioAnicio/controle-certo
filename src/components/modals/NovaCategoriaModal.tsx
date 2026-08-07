@@ -3,11 +3,25 @@
 import { useState, useTransition } from "react";
 import { useModal } from "../providers/ModalProvider";
 import { useToast } from "../providers/ToastProvider";
-import { createCategoryAction, createSubcategoryAction, updateSubcategoryAction } from "@/app/(app)/actions";
+import {
+  createCategoryAction,
+  createSubcategoryAction,
+  updateSubcategoryAction,
+} from "@/app/(app)/actions";
 import { COLOR_SWATCHES, ICON_SWATCHES, type TxType } from "@/lib/finance";
 import { iconFor } from "@/lib/icons";
 import { cn } from "@/lib/cn";
-import { closeBtn, fieldLabel, footerRow, formGap, inputStyle, modalHeader, modalTitle, primaryBtn, secondaryBtn } from "./styles";
+import {
+  closeBtn,
+  fieldLabel,
+  footerRow,
+  formGap,
+  inputStyle,
+  modalHeader,
+  modalTitle,
+  primaryBtn,
+  secondaryBtn,
+} from "./styles";
 
 export type NovaCategoriaCtx =
   | { kind: "categoria" }
@@ -30,7 +44,9 @@ export default function NovaCategoriaModal({ ctx }: { ctx: NovaCategoriaCtx }) {
 
   const [name, setName] = useState(isEdit ? ctx.name : "");
   const [color, setColor] = useState(COLOR_SWATCHES[0]);
-  const [icon, setIcon] = useState<string>(isEdit ? ctx.icon : ICON_SWATCHES[0]);
+  const [icon, setIcon] = useState<string>(
+    isEdit ? ctx.icon : ICON_SWATCHES[0],
+  );
   const [type, setType] = useState<TxType>(isEdit ? ctx.type : "expense");
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
@@ -44,7 +60,12 @@ export default function NovaCategoriaModal({ ctx }: { ctx: NovaCategoriaCtx }) {
     setError("");
     startTransition(async () => {
       if (ctx.kind === "editarSubcategoria") {
-        await updateSubcategoryAction({ id: ctx.id, name: name.trim(), type, icon });
+        await updateSubcategoryAction({
+          id: ctx.id,
+          name: name.trim(),
+          type,
+          icon,
+        });
       } else if (ctx.kind === "subcategoria") {
         await createSubcategoryAction({
           categoryId: ctx.categoryId,
@@ -56,7 +77,13 @@ export default function NovaCategoriaModal({ ctx }: { ctx: NovaCategoriaCtx }) {
         await createCategoryAction({ name: name.trim(), color, icon });
       }
       closeModal();
-      showToast(isEdit ? "Subcategoria atualizada ✓" : isSub ? "Subcategoria salva ✓" : "Categoria salva ✓");
+      showToast(
+        isEdit
+          ? "Subcategoria atualizada ✓"
+          : isSub
+            ? "Subcategoria salva ✓"
+            : "Categoria salva ✓",
+      );
     });
   }
 
@@ -64,7 +91,11 @@ export default function NovaCategoriaModal({ ctx }: { ctx: NovaCategoriaCtx }) {
     <form onSubmit={handleSubmit}>
       <div className={modalHeader}>
         <div className={modalTitle}>
-          {isEdit ? "Editar subcategoria" : isSub ? "Nova subcategoria" : "Nova categoria"}
+          {isEdit
+            ? "Editar subcategoria"
+            : isSub
+              ? "Nova subcategoria"
+              : "Nova categoria"}
         </div>
         <button type="button" onClick={closeModal} className={closeBtn}>
           ×
@@ -98,7 +129,9 @@ export default function NovaCategoriaModal({ ctx }: { ctx: NovaCategoriaCtx }) {
               onClick={() => setType("expense")}
               className={cn(
                 "flex-1 rounded-[9px] border-none p-2.5 text-[13px] font-semibold",
-                type === "expense" ? "bg-surface text-danger" : "bg-transparent text-text-secondary",
+                type === "expense"
+                  ? "bg-surface text-danger"
+                  : "bg-transparent text-text-secondary",
               )}
             >
               Despesa
@@ -108,7 +141,9 @@ export default function NovaCategoriaModal({ ctx }: { ctx: NovaCategoriaCtx }) {
               onClick={() => setType("income")}
               className={cn(
                 "flex-1 rounded-[9px] border-none p-2.5 text-[13px] font-semibold",
-                type === "income" ? "bg-surface text-success" : "bg-transparent text-text-secondary",
+                type === "income"
+                  ? "bg-surface text-success"
+                  : "bg-transparent text-text-secondary",
               )}
             >
               Receita
@@ -149,7 +184,9 @@ export default function NovaCategoriaModal({ ctx }: { ctx: NovaCategoriaCtx }) {
                   onClick={() => setIcon(key)}
                   className={cn(
                     "flex h-9 w-9 items-center justify-center rounded-full border-none",
-                    selected ? "bg-primary-tint text-primary" : "bg-border-soft text-text-secondary",
+                    selected
+                      ? "bg-primary-tint text-primary"
+                      : "bg-border-soft text-text-secondary",
                   )}
                 >
                   <Icon size={17} />
@@ -165,7 +202,11 @@ export default function NovaCategoriaModal({ ctx }: { ctx: NovaCategoriaCtx }) {
         <button type="button" onClick={closeModal} className={secondaryBtn}>
           Cancelar
         </button>
-        <button type="submit" disabled={pending} className={cn(primaryBtn, pending && "opacity-70")}>
+        <button
+          type="submit"
+          disabled={pending}
+          className={cn(primaryBtn, pending && "opacity-70")}
+        >
           {pending ? "Salvando…" : "Salvar"}
         </button>
       </div>

@@ -1,20 +1,47 @@
 export type TxType = "income" | "expense";
 export type TxStatus = "pending" | "scheduled" | "due" | "paid" | "overdue";
 
-export const STATUS_META: Record<TxStatus, { label: string; textClass: string; bgClass: string }> = {
-  pending: { label: "Pendente", textClass: "text-warning", bgClass: "bg-warning-tint" },
-  scheduled: { label: "Agendado", textClass: "text-info", bgClass: "bg-primary-tint" },
-  due: { label: "Vence hoje", textClass: "text-warning-strong", bgClass: "bg-warning-tint" },
-  paid: { label: "Pago", textClass: "text-success", bgClass: "bg-success-tint" },
-  overdue: { label: "Atrasado", textClass: "text-danger", bgClass: "bg-danger-tint" },
+export const STATUS_META: Record<
+  TxStatus,
+  { label: string; textClass: string; bgClass: string }
+> = {
+  pending: {
+    label: "Pendente",
+    textClass: "text-warning",
+    bgClass: "bg-warning-tint",
+  },
+  scheduled: {
+    label: "Agendado",
+    textClass: "text-info",
+    bgClass: "bg-primary-tint",
+  },
+  due: {
+    label: "Vence hoje",
+    textClass: "text-warning-strong",
+    bgClass: "bg-warning-tint",
+  },
+  paid: {
+    label: "Pago",
+    textClass: "text-success",
+    bgClass: "bg-success-tint",
+  },
+  overdue: {
+    label: "Atrasado",
+    textClass: "text-danger",
+    bgClass: "bg-danger-tint",
+  },
 };
 
 export function formatBRL(value: number): string {
   const n = Number(value) || 0;
-  return (n < 0 ? "-" : "") + "R$ " + Math.abs(n).toLocaleString("pt-BR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+  return (
+    (n < 0 ? "-" : "") +
+    "R$ " +
+    Math.abs(n).toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+  );
 }
 
 /** Truncates a Date to its calendar day in local time, for date-only comparisons. */
@@ -55,7 +82,10 @@ export function periodKey(d: Date): string {
 export function periodLabel(period: string): string {
   const [y, m] = period.split("-").map(Number);
   const date = new Date(y, m - 1, 1);
-  const label = date.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  const label = date.toLocaleDateString("pt-BR", {
+    month: "long",
+    year: "numeric",
+  });
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
@@ -91,7 +121,10 @@ function periodStartDate(period: string, startDay: number): Date {
 }
 
 /** The [start, end] calendar dates a "YYYY-MM" period spans, given the configured month-start day. */
-export function periodDateRange(period: string, startDay: number = 1): { start: Date; end: Date } {
+export function periodDateRange(
+  period: string,
+  startDay: number = 1,
+): { start: Date; end: Date } {
   const start = periodStartDate(period, startDay);
   const nextStart = periodStartDate(addMonths(period, 1), startDay);
   const end = new Date(nextStart);
@@ -105,7 +138,11 @@ export function periodDateRange(period: string, startDay: number = 1): { start: 
  * earlier than `startDay` falls in the following calendar month (that's the
  * whole point: it's still within this pay period, just after the 1st).
  */
-export function dueDateForPeriod(period: string, dueDay: number, startDay: number = 1): Date {
+export function dueDateForPeriod(
+  period: string,
+  dueDay: number,
+  startDay: number = 1,
+): Date {
   const [y, m] = period.split("-").map(Number);
   if (dueDay < startDay) {
     const [ny, nm] = addMonths(period, 1).split("-").map(Number);
@@ -123,23 +160,125 @@ export const DEFAULT_CATEGORIES = [
 ] as const;
 
 export const DEFAULT_SUBCATEGORIES = [
-  { key: "salario", categoryKey: "geral", name: "Salário", type: "income", icon: "cash" },
-  { key: "freelance", categoryKey: "geral", name: "Freelance", type: "income", icon: "briefcase" },
-  { key: "outros", categoryKey: "geral", name: "Outros", type: "expense", icon: "folder" },
-  { key: "presentes", categoryKey: "geral", name: "Presentes", type: "expense", icon: "gift" },
-  { key: "supermercado", categoryKey: "basica", name: "Supermercado", type: "expense", icon: "cart" },
-  { key: "agua", categoryKey: "basica", name: "Conta de Água", type: "expense", icon: "water" },
-  { key: "luz", categoryKey: "basica", name: "Conta de Luz", type: "expense", icon: "bulb" },
-  { key: "condominio", categoryKey: "basica", name: "Condomínio", type: "expense", icon: "building" },
-  { key: "aluguel", categoryKey: "basica", name: "Aluguel", type: "expense", icon: "home" },
-  { key: "internet", categoryKey: "basica", name: "Internet", type: "expense", icon: "wifi" },
-  { key: "restaurantes", categoryKey: "lazer", name: "Restaurantes", type: "expense", icon: "food" },
-  { key: "streaming", categoryKey: "lazer", name: "Streaming", type: "expense", icon: "movie" },
-  { key: "viagem", categoryKey: "lazer", name: "Viagem", type: "expense", icon: "plane" },
-  { key: "reserva", categoryKey: "invest", name: "Reserva de Emergência", type: "expense", icon: "piggy" },
-  { key: "acoes", categoryKey: "invest", name: "Ações", type: "expense", icon: "chart" },
-  { key: "cursos", categoryKey: "estudo", name: "Cursos", type: "expense", icon: "graduation" },
-  { key: "livros", categoryKey: "estudo", name: "Livros", type: "expense", icon: "book" },
+  {
+    key: "salario",
+    categoryKey: "geral",
+    name: "Salário",
+    type: "income",
+    icon: "cash",
+  },
+  {
+    key: "freelance",
+    categoryKey: "geral",
+    name: "Freelance",
+    type: "income",
+    icon: "briefcase",
+  },
+  {
+    key: "outros",
+    categoryKey: "geral",
+    name: "Outros",
+    type: "expense",
+    icon: "folder",
+  },
+  {
+    key: "presentes",
+    categoryKey: "geral",
+    name: "Presentes",
+    type: "expense",
+    icon: "gift",
+  },
+  {
+    key: "supermercado",
+    categoryKey: "basica",
+    name: "Supermercado",
+    type: "expense",
+    icon: "cart",
+  },
+  {
+    key: "agua",
+    categoryKey: "basica",
+    name: "Conta de Água",
+    type: "expense",
+    icon: "water",
+  },
+  {
+    key: "luz",
+    categoryKey: "basica",
+    name: "Conta de Luz",
+    type: "expense",
+    icon: "bulb",
+  },
+  {
+    key: "condominio",
+    categoryKey: "basica",
+    name: "Condomínio",
+    type: "expense",
+    icon: "building",
+  },
+  {
+    key: "aluguel",
+    categoryKey: "basica",
+    name: "Aluguel",
+    type: "expense",
+    icon: "home",
+  },
+  {
+    key: "internet",
+    categoryKey: "basica",
+    name: "Internet",
+    type: "expense",
+    icon: "wifi",
+  },
+  {
+    key: "restaurantes",
+    categoryKey: "lazer",
+    name: "Restaurantes",
+    type: "expense",
+    icon: "food",
+  },
+  {
+    key: "streaming",
+    categoryKey: "lazer",
+    name: "Streaming",
+    type: "expense",
+    icon: "movie",
+  },
+  {
+    key: "viagem",
+    categoryKey: "lazer",
+    name: "Viagem",
+    type: "expense",
+    icon: "plane",
+  },
+  {
+    key: "reserva",
+    categoryKey: "invest",
+    name: "Reserva de Emergência",
+    type: "expense",
+    icon: "piggy",
+  },
+  {
+    key: "acoes",
+    categoryKey: "invest",
+    name: "Ações",
+    type: "expense",
+    icon: "chart",
+  },
+  {
+    key: "cursos",
+    categoryKey: "estudo",
+    name: "Cursos",
+    type: "expense",
+    icon: "graduation",
+  },
+  {
+    key: "livros",
+    categoryKey: "estudo",
+    name: "Livros",
+    type: "expense",
+    icon: "book",
+  },
 ] as const;
 
 /**
@@ -150,7 +289,11 @@ export const DEFAULT_SUBCATEGORIES = [
 export function buildSubcategoryOptions<
   C extends { id: string; name: string },
   S extends { id: string; name: string; categoryId: string; type: TxType },
->(categories: C[], subcategories: S[], filter?: (s: S) => boolean): { id: string; label: string }[] {
+>(
+  categories: C[],
+  subcategories: S[],
+  filter?: (s: S) => boolean,
+): { id: string; label: string }[] {
   const categoryOrder = new Map(categories.map((c, i) => [c.id, i]));
   const catNameById = new Map(categories.map((c) => [c.id, c.name]));
   return subcategories
@@ -162,11 +305,30 @@ export function buildSubcategoryOptions<
       if (ao !== bo) return ao - bo;
       return a.name.localeCompare(b.name, "pt-BR");
     })
-    .map((s) => ({ id: s.id, label: `${catNameById.get(s.categoryId) ?? "—"} - ${s.name}` }));
+    .map((s) => ({
+      id: s.id,
+      label: `${catNameById.get(s.categoryId) ?? "—"} - ${s.name}`,
+    }));
 }
 
-export const COLOR_SWATCHES = ["#2563EB", "#DB2777", "#0D9488", "#7C3AED", "#F59E0B", "#EF4444", "#64748B", "#0EA5E9"];
+export const COLOR_SWATCHES = [
+  "#2563EB",
+  "#DB2777",
+  "#0D9488",
+  "#7C3AED",
+  "#F59E0B",
+  "#EF4444",
+  "#64748B",
+  "#0EA5E9",
+];
 
 export const ICON_SWATCHES = [
-  "folder", "home", "party", "trending", "book", "cart", "water", "food",
+  "folder",
+  "home",
+  "party",
+  "trending",
+  "book",
+  "cart",
+  "water",
+  "food",
 ] as const;

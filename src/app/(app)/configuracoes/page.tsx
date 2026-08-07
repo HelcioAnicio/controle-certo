@@ -9,9 +9,17 @@ import { cn } from "@/lib/cn";
 export default async function ConfiguracoesPage() {
   const user = await requireUser();
   const { monthStartDay, trackingStartPeriod } = await getUserSettings(user.id);
-  const name = (user.user_metadata?.name as string | undefined)?.trim() || user.email || "Você";
+  const name =
+    (user.user_metadata?.name as string | undefined)?.trim() ||
+    user.email ||
+    "Você";
   const email = user.email ?? "";
-  const initials = name.split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
+  const initials = name
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
   return (
     <div className="flex max-w-[560px] flex-col gap-4">
@@ -47,15 +55,19 @@ export default async function ConfiguracoesPage() {
         </Row>
       </div>
       <div className="-mt-2 text-xs leading-normal text-text-secondary">
-        Se você recebe salário depois do dia 1, defina o dia aqui — os primeiros dias do mês
-        continuam contando como parte do período anterior, junto com o que você já recebeu.
+        Se você recebe salário depois do dia 1, defina o dia aqui — os primeiros
+        dias do mês continuam contando como parte do período anterior, junto com
+        o que você já recebeu.
       </div>
       <div className="-mt-2 text-xs leading-normal text-text-secondary">
-        O mês de início marca a partir de quando você quer acompanhar. Meses anteriores a ele não
-        geram gastos fixos nem aparecem no painel, lançamentos ou relatórios.
+        O mês de início marca a partir de quando você quer acompanhar. Meses
+        anteriores a ele não geram gastos fixos nem aparecem no painel,
+        lançamentos ou relatórios.
       </div>
 
-      <div className="mt-1.5 text-[13px] font-semibold text-text-secondary">Em breve</div>
+      <div className="mt-1.5 text-[13px] font-semibold text-text-secondary">
+        Em breve
+      </div>
       <div className="flex flex-col gap-2.5">
         <ComingSoon
           title="Importação automática do banco"
@@ -79,9 +91,22 @@ export default async function ConfiguracoesPage() {
   );
 }
 
-function Row({ label, children, last }: { label: string; children: React.ReactNode; last?: boolean }) {
+function Row({
+  label,
+  children,
+  last,
+}: {
+  label: string;
+  children: React.ReactNode;
+  last?: boolean;
+}) {
   return (
-    <div className={cn("flex items-center justify-between py-3.5", !last && "border-b border-border-soft")}>
+    <div
+      className={cn(
+        "flex items-center justify-between py-3.5",
+        !last && "border-b border-border-soft",
+      )}
+    >
       <span className="text-sm font-medium">{label}</span>
       {children}
     </div>
@@ -96,7 +121,13 @@ function Toggle() {
   );
 }
 
-function ComingSoon({ title, description }: { title: string; description: string }) {
+function ComingSoon({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
   return (
     <div className="flex items-center justify-between rounded-[14px] border border-dashed border-border bg-canvas p-4 opacity-75">
       <div>

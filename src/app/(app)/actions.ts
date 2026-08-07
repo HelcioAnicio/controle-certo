@@ -16,7 +16,12 @@ import {
   setFixedExpenseActive,
   updateFixedExpense,
 } from "@/prisma/fixedExpenses";
-import { createTransaction, deleteTransaction, payTransaction, updateTransaction } from "@/prisma/transactions";
+import {
+  createTransaction,
+  deleteTransaction,
+  payTransaction,
+  updateTransaction,
+} from "@/prisma/transactions";
 import { setMonthStartDay, setTrackingStartPeriod } from "@/prisma/settings";
 import { parseLocalDate, type TxType } from "@/lib/finance";
 
@@ -113,7 +118,11 @@ export async function deleteFixedExpenseAction(id: string) {
   refresh();
 }
 
-export async function createCategoryAction(input: { name: string; color: string; icon: string }) {
+export async function createCategoryAction(input: {
+  name: string;
+  color: string;
+  icon: string;
+}) {
   const user = await requireUser();
   await createCategory(user.id, input);
   refresh();
@@ -166,7 +175,10 @@ export async function setTrackingStartPeriodAction(period: string | null) {
   refresh();
 }
 
-export async function setBudgetAction(input: { subcategoryId: string; monthlyAmount: number }) {
+export async function setBudgetAction(input: {
+  subcategoryId: string;
+  monthlyAmount: number;
+}) {
   const user = await requireUser();
   await upsertBudget(user.id, input.subcategoryId, input.monthlyAmount);
   refresh();

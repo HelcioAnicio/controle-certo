@@ -19,10 +19,12 @@ export type ExclusaoCtx = {
 };
 
 const DESCRIPTIONS: Record<NonNullable<ExclusaoCtx["kind"]>, string> = {
-  transaction: "Esta ação não pode ser desfeita. O lançamento será removido permanentemente da sua lista deste mês.",
+  transaction:
+    "Esta ação não pode ser desfeita. O lançamento será removido permanentemente da sua lista deste mês.",
   fixedExpense:
     "Esta ação não pode ser desfeita. Os lançamentos deste mês em diante que ainda não foram pagos serão apagados; os que já foram pagos permanecem no seu histórico.",
-  category: "Esta ação não pode ser desfeita. Só é possível excluir categorias sem subcategorias.",
+  category:
+    "Esta ação não pode ser desfeita. Só é possível excluir categorias sem subcategorias.",
   subcategory:
     "Esta ação não pode ser desfeita. Só é possível excluir subcategorias sem lançamentos ou gastos fixos vinculados.",
 };
@@ -50,7 +52,9 @@ export default function ConfirmarExclusaoModal({ ctx }: { ctx: ExclusaoCtx }) {
         closeModal();
         showToast("Excluído com sucesso");
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Não foi possível excluir.");
+        setError(
+          err instanceof Error ? err.message : "Não foi possível excluir.",
+        );
       }
     });
   }
@@ -60,8 +64,12 @@ export default function ConfirmarExclusaoModal({ ctx }: { ctx: ExclusaoCtx }) {
       <div className="mb-3.5 flex h-11 w-11 items-center justify-center rounded-md bg-danger-tint">
         <div className="h-[18px] w-[18px] rounded bg-danger" />
       </div>
-      <div className="mb-2 text-base font-bold">Excluir &quot;{ctx.desc}&quot;?</div>
-      <div className="mb-3.5 text-[13px] leading-normal text-text-secondary">{DESCRIPTIONS[kind]}</div>
+      <div className="mb-2 text-base font-bold">
+        Excluir &quot;{ctx.desc}&quot;?
+      </div>
+      <div className="mb-3.5 text-[13px] leading-normal text-text-secondary">
+        {DESCRIPTIONS[kind]}
+      </div>
       {error && <div className="mb-3.5 text-[13px] text-danger">{error}</div>}
       <div className="flex gap-2.5">
         <button type="button" onClick={closeModal} className={secondaryBtn}>

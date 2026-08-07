@@ -5,7 +5,10 @@ import { createClient } from "@/lib/supabase/server";
 
 export type AuthActionState = { error?: string; info?: string };
 
-export async function signIn(_prev: AuthActionState, formData: FormData): Promise<AuthActionState> {
+export async function signIn(
+  _prev: AuthActionState,
+  formData: FormData,
+): Promise<AuthActionState> {
   const email = String(formData.get("email") || "");
   const password = String(formData.get("password") || "");
 
@@ -17,7 +20,10 @@ export async function signIn(_prev: AuthActionState, formData: FormData): Promis
   redirect("/painel");
 }
 
-export async function signUp(_prev: AuthActionState, formData: FormData): Promise<AuthActionState> {
+export async function signUp(
+  _prev: AuthActionState,
+  formData: FormData,
+): Promise<AuthActionState> {
   const email = String(formData.get("email") || "");
   const password = String(formData.get("password") || "");
   const name = String(formData.get("name") || "");
@@ -36,7 +42,9 @@ export async function signUp(_prev: AuthActionState, formData: FormData): Promis
     return { error: "Não foi possível criar a conta. Tente novamente." };
   }
   if (!data.session) {
-    return { info: "Conta criada! Verifique seu e-mail para confirmar o acesso." };
+    return {
+      info: "Conta criada! Verifique seu e-mail para confirmar o acesso.",
+    };
   }
   redirect("/painel");
 }

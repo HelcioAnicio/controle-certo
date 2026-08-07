@@ -28,11 +28,17 @@ export default function HelpButton({
           <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
             <div className={modalHeader}>
               <div className={modalTitle}>{title}</div>
-              <button type="button" onClick={() => setOpen(false)} className={closeBtn}>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className={closeBtn}
+              >
                 ×
               </button>
             </div>
-            <div className="flex flex-col gap-3.5 text-[13px] leading-normal text-text-secondary">{children}</div>
+            <div className="flex flex-col gap-3.5 text-[13px] leading-normal text-text-secondary">
+              {children}
+            </div>
           </div>
         </div>
       )}

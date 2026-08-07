@@ -4,7 +4,11 @@ import { TbPencil } from "react-icons/tb";
 import { useModal } from "./providers/ModalProvider";
 import type { FixedExpense } from "@/prisma/fixedExpenses";
 
-export default function EditFixedExpenseButton({ fixedExpense }: { fixedExpense: FixedExpense }) {
+export default function EditFixedExpenseButton({
+  fixedExpense,
+}: {
+  fixedExpense: FixedExpense;
+}) {
   const { openModal } = useModal();
   return (
     <button

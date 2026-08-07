@@ -7,7 +7,12 @@ import { useModal } from "../providers/ModalProvider";
 import { useToast } from "../providers/ToastProvider";
 import { useSettings } from "../providers/SettingsProvider";
 import { createTransactionAction } from "@/app/(app)/actions";
-import { buildSubcategoryOptions, parseLocalDate, periodForDate, type TxType } from "@/lib/finance";
+import {
+  buildSubcategoryOptions,
+  parseLocalDate,
+  periodForDate,
+  type TxType,
+} from "@/lib/finance";
 import { cn } from "@/lib/cn";
 import {
   closeBtn,
@@ -27,7 +32,8 @@ export default function NovoLancamentoModal() {
   const { showToast } = useToast();
   const { monthStartDay } = useSettings();
   const searchParams = useSearchParams();
-  const currentPeriod = searchParams.get("month") || periodForDate(new Date(), monthStartDay);
+  const currentPeriod =
+    searchParams.get("month") || periodForDate(new Date(), monthStartDay);
 
   const [type, setType] = useState<TxType>("expense");
   const [subcategoryId, setSubcategoryId] = useState("");
@@ -38,7 +44,11 @@ export default function NovoLancamentoModal() {
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
 
-  const options = buildSubcategoryOptions(categories, subcategories, (s) => s.type === type);
+  const options = buildSubcategoryOptions(
+    categories,
+    subcategories,
+    (s) => s.type === type,
+  );
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -59,7 +69,9 @@ export default function NovoLancamentoModal() {
         subcategoryId: sub,
         description,
         amount: amountNum,
-        periodMonth: date ? periodForDate(parseLocalDate(date), monthStartDay) : currentPeriod,
+        periodMonth: date
+          ? periodForDate(parseLocalDate(date), monthStartDay)
+          : currentPeriod,
         dueDate: date || null,
         paid,
       });
@@ -117,7 +129,11 @@ export default function NovoLancamentoModal() {
       <div className={formGap}>
         <div>
           <div className={fieldLabel}>Subcategoria</div>
-          <select value={subcategoryId} onChange={(e) => setSubcategoryId(e.target.value)} className={inputStyle}>
+          <select
+            value={subcategoryId}
+            onChange={(e) => setSubcategoryId(e.target.value)}
+            className={inputStyle}
+          >
             <option value="">Selecione…</option>
             {options.map((o) => (
               <option key={o.id} value={o.id}>
@@ -138,16 +154,24 @@ export default function NovoLancamentoModal() {
         </div>
         <div>
           <div className={fieldLabel}>Data (opcional)</div>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputStyle} />
-          {date && parseLocalDate(date) > new Date(new Date().toDateString()) && (
-            <div className="mt-1.5 text-xs text-text-secondary">
-              Este gasto ficará agendado e só entrará no seu saldo em{" "}
-              {parseLocalDate(date).toLocaleDateString("pt-BR")}.
-            </div>
-          )}
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className={inputStyle}
+          />
+          {date &&
+            parseLocalDate(date) > new Date(new Date().toDateString()) && (
+              <div className="mt-1.5 text-xs text-text-secondary">
+                Este gasto ficará agendado e só entrará no seu saldo em{" "}
+                {parseLocalDate(date).toLocaleDateString("pt-BR")}.
+              </div>
+            )}
         </div>
         <div className="flex items-center justify-between px-0.5 py-2.5">
-          <span className="text-sm font-medium">{type === "income" ? "Já foi recebido?" : "Já foi pago?"}</span>
+          <span className="text-sm font-medium">
+            {type === "income" ? "Já foi recebido?" : "Já foi pago?"}
+          </span>
           <Switch checked={paid} onChange={setPaid} />
         </div>
         {error && <div className="text-[13px] text-danger">{error}</div>}
@@ -157,7 +181,11 @@ export default function NovoLancamentoModal() {
         <button type="button" onClick={closeModal} className={secondaryBtn}>
           Cancelar
         </button>
-        <button type="submit" disabled={pending} className={cn(primaryBtn, pending && "opacity-70")}>
+        <button
+          type="submit"
+          disabled={pending}
+          className={cn(primaryBtn, pending && "opacity-70")}
+        >
           {pending ? "Salvando…" : "Salvar"}
         </button>
       </div>
@@ -168,16 +196,27 @@ export default function NovoLancamentoModal() {
 function typeTabClass(active: boolean, activeTextClass: string): string {
   return cn(
     "flex-1 rounded-[9px] border-none p-2.5 text-sm font-semibold",
-    active ? `bg-surface shadow-[0_1px_3px_rgba(0,0,0,0.08)] ${activeTextClass}` : "bg-transparent text-text-secondary",
+    active
+      ? `bg-surface shadow-[0_1px_3px_rgba(0,0,0,0.08)] ${activeTextClass}`
+      : "bg-transparent text-text-secondary",
   );
 }
 
-export function Switch({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+export function Switch({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
   return (
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className={cn("relative h-6 w-[42px] shrink-0 rounded-full border-none", checked ? "bg-primary" : "bg-border")}
+      className={cn(
+        "relative h-6 w-[42px] shrink-0 rounded-full border-none",
+        checked ? "bg-primary" : "bg-border",
+      )}
     >
       <div
         className={cn(

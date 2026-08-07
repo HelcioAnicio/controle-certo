@@ -24,7 +24,10 @@ export default function SearchInput({ placeholder }: { placeholder: string }) {
 
   return (
     <div className="relative">
-      <TbSearch size={16} className="absolute top-1/2 left-3 -translate-y-1/2 text-text-disabled" />
+      <TbSearch
+        size={16}
+        className="absolute top-1/2 left-3 -translate-y-1/2 text-text-disabled"
+      />
       <input
         type="text"
         placeholder={placeholder}

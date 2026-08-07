@@ -5,7 +5,11 @@ import { updateMonthStartDayAction } from "@/app/(app)/actions";
 import { useToast } from "./providers/ToastProvider";
 import { cn } from "@/lib/cn";
 
-export default function MonthStartDaySelect({ initialDay }: { initialDay: number }) {
+export default function MonthStartDaySelect({
+  initialDay,
+}: {
+  initialDay: number;
+}) {
   const [day, setDay] = useState(initialDay);
   const [pending, startTransition] = useTransition();
   const { showToast } = useToast();

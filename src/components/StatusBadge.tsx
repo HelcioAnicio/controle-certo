@@ -6,7 +6,7 @@ export default function StatusBadge({ status }: { status: TxStatus }) {
   return (
     <span
       className={cn(
-        "whitespace-nowrap rounded-full px-[9px] py-[3px] text-[11px] font-semibold",
+        "rounded-full px-[9px] py-[3px] text-[11px] font-semibold whitespace-nowrap",
         meta.bgClass,
         meta.textClass,
       )}

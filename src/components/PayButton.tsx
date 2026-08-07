@@ -54,7 +54,9 @@ export default function PayButton({
           amount: Number(tx.amount),
           type: tx.type,
           locked,
-          lockDateLabel: tx.dueDate ? tx.dueDate.toLocaleDateString("pt-BR") : undefined,
+          lockDateLabel: tx.dueDate
+            ? tx.dueDate.toLocaleDateString("pt-BR")
+            : undefined,
         })
       }
       className={className}

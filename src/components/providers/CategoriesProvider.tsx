@@ -24,6 +24,7 @@ export function CategoriesProvider({
 
 export function useCategories() {
   const ctx = useContext(CategoriesContext);
-  if (!ctx) throw new Error("useCategories must be used within CategoriesProvider");
+  if (!ctx)
+    throw new Error("useCategories must be used within CategoriesProvider");
   return ctx;
 }

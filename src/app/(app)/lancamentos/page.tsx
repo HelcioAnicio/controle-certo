@@ -1,6 +1,10 @@
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { buildDailyLedger, loadMonthData, type EnrichedTransaction } from "@/lib/dashboard";
+import {
+  buildDailyLedger,
+  loadMonthData,
+  type EnrichedTransaction,
+} from "@/lib/dashboard";
 import { getUserSettings } from "@/prisma/settings";
 import { formatBRL, periodForDate } from "@/lib/finance";
 import CategoryIcon from "@/components/CategoryIcon";
@@ -29,7 +33,12 @@ export default async function LancamentosPage({
     if (q) params.set("q", q);
     redirect(`/lancamentos?${params.toString()}`);
   }
-  const { transactions } = await loadMonthData(user.id, period, monthStartDay, trackingStartPeriod);
+  const { transactions } = await loadMonthData(
+    user.id,
+    period,
+    monthStartDay,
+    trackingStartPeriod,
+  );
 
   if (transactions.length === 0) {
     return (
@@ -51,7 +60,8 @@ export default async function LancamentosPage({
       return false;
     }
     if (!query) return true;
-    const haystack = `${t.description ?? ""} ${t.subcategoryName}`.toLowerCase();
+    const haystack =
+      `${t.description ?? ""} ${t.subcategoryName}`.toLowerCase();
     return haystack.includes(query);
   });
 
@@ -80,17 +90,29 @@ export default async function LancamentosPage({
           {days.map((day) => (
             <div key={day.dateKey}>
               <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 px-1 pt-0 pb-2">
-                <div className="text-[13px] font-bold text-text">{formatDayHeader(day.date)}</div>
+                <div className="text-[13px] font-bold text-text">
+                  {formatDayHeader(day.date)}
+                </div>
                 <div className="flex gap-3 text-[11px] text-text-secondary">
                   <span>
                     Saldo{" "}
-                    <b className={day.actualBalance >= 0 ? "text-success" : "text-danger"}>
+                    <b
+                      className={
+                        day.actualBalance >= 0 ? "text-success" : "text-danger"
+                      }
+                    >
                       {formatBRL(day.actualBalance)}
                     </b>
                   </span>
                   <span>
                     Previsto{" "}
-                    <b className={day.projectedBalance >= 0 ? "text-primary" : "text-danger"}>
+                    <b
+                      className={
+                        day.projectedBalance >= 0
+                          ? "text-primary"
+                          : "text-danger"
+                      }
+                    >
                       {formatBRL(day.projectedBalance)}
                     </b>
                   </span>
@@ -98,7 +120,11 @@ export default async function LancamentosPage({
               </div>
               <div className="overflow-hidden rounded-lg border border-border bg-surface">
                 {day.transactions.map((t, i) => (
-                  <TxRow key={t.id} t={t} last={i === day.transactions.length - 1} />
+                  <TxRow
+                    key={t.id}
+                    t={t}
+                    last={i === day.transactions.length - 1}
+                  />
                 ))}
               </div>
             </div>
@@ -106,7 +132,9 @@ export default async function LancamentosPage({
 
           {undated.length > 0 && (
             <div>
-              <div className="px-1 pt-0 pb-2 text-[13px] font-bold text-text">Sem data definida</div>
+              <div className="px-1 pt-0 pb-2 text-[13px] font-bold text-text">
+                Sem data definida
+              </div>
               <div className="overflow-hidden rounded-lg border border-border bg-surface">
                 {undated.map((t, i) => (
                   <TxRow key={t.id} t={t} last={i === undated.length - 1} />
@@ -129,44 +157,58 @@ function LancamentosHelpContent() {
   return (
     <>
       <div>
-        <b className="text-text">Saldo do dia</b>: o quanto entrou/saiu de fato até
-        aquele dia (só conta o que já foi pago ou recebido).
+        <b className="text-text">Saldo do dia</b>: o quanto entrou/saiu de fato
+        até aquele dia (só conta o que já foi pago ou recebido).
       </div>
       <div>
-        <b className="text-text">Previsto</b>: o mesmo saldo, mas já considerando
-        contas com data de vencimento futura — mostra pra onde seu saldo vai, mesmo antes de
-        você confirmar o pagamento/recebimento.
+        <b className="text-text">Previsto</b>: o mesmo saldo, mas já
+        considerando contas com data de vencimento futura — mostra pra onde seu
+        saldo vai, mesmo antes de você confirmar o pagamento/recebimento.
       </div>
       <div>
         <b className="text-text">Ordem</b>: os lançamentos são agrupados por dia
-        (data de pagamento se já foi pago, senão a data de vencimento) e ordenados do mais
-        antigo pro mais recente. Sem nenhuma data, o lançamento aparece em &quot;Sem data
-        definida&quot;.
+        (data de pagamento se já foi pago, senão a data de vencimento) e
+        ordenados do mais antigo pro mais recente. Sem nenhuma data, o
+        lançamento aparece em &quot;Sem data definida&quot;.
       </div>
       <div>
         <b className="text-text">Botão de ação</b>: já indica o status — para
-        despesas, alterna entre Agendado, Pagar e Pago; para receitas, entre Agendado, Receber
-        e Recebido. &quot;Agendado&quot; fica bloqueado até a data chegar.
+        despesas, alterna entre Agendado, Pagar e Pago; para receitas, entre
+        Agendado, Receber e Recebido. &quot;Agendado&quot; fica bloqueado até a
+        data chegar.
       </div>
       <div>
-        <b className="text-text">Filtros e busca</b>: os chips filtram por status
-        (Pendentes, Pagos, A vencer, Atrasados) e o campo de busca filtra por descrição ou
-        subcategoria — os dois podem ser usados juntos.
+        <b className="text-text">Filtros e busca</b>: os chips filtram por
+        status (Pendentes, Pagos, A vencer, Atrasados) e o campo de busca filtra
+        por descrição ou subcategoria — os dois podem ser usados juntos.
       </div>
     </>
   );
 }
 
 function formatDayHeader(date: Date): string {
-  const s = date.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short" });
+  const s = date.toLocaleDateString("pt-BR", {
+    weekday: "short",
+    day: "2-digit",
+    month: "short",
+  });
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 function TxRow({ t, last }: { t: EnrichedTransaction; last: boolean }) {
   return (
-    <div className={cn("flex flex-col flex-wrap gap-3 px-4 py-3.5", !last && "border-b border-border-soft")}>
+    <div
+      className={cn(
+        "flex flex-col flex-wrap gap-3 px-4 py-3.5",
+        !last && "border-b border-border-soft",
+      )}
+    >
       <div className="flex min-w-0 flex-1 items-center gap-2.5">
-        <CategoryIcon icon={t.subcategoryIcon} color={t.categoryColor} size={32} />
+        <CategoryIcon
+          icon={t.subcategoryIcon}
+          color={t.categoryColor}
+          size={32}
+        />
         <div className="overflow-hidden text-base font-semibold text-ellipsis whitespace-nowrap">
           {t.description || t.subcategoryName}
         </div>
@@ -185,7 +227,11 @@ function TxRow({ t, last }: { t: EnrichedTransaction; last: boolean }) {
         <div
           className={cn(
             "w-[110px] text-right text-sm font-bold",
-            t.status === "paid" ? (t.type === "income" ? "text-success" : "text-text") : "text-text-disabled",
+            t.status === "paid"
+              ? t.type === "income"
+                ? "text-success"
+                : "text-text"
+              : "text-text-disabled",
           )}
         >
           {t.type === "income" ? "+ " : "- "}

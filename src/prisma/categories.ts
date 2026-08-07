@@ -1,6 +1,10 @@
 import "server-only";
 import { db } from "./db";
-import { DEFAULT_CATEGORIES, DEFAULT_SUBCATEGORIES, type TxType } from "@/lib/finance";
+import {
+  DEFAULT_CATEGORIES,
+  DEFAULT_SUBCATEGORIES,
+  type TxType,
+} from "@/lib/finance";
 
 export type Category = {
   id: string;
@@ -22,12 +26,18 @@ export type Subcategory = {
 };
 
 export async function listCategories(userId: string): Promise<Category[]> {
-  const rows = await db.orm.public.Category.where({ userId }).orderBy((c) => c.createdAt.asc()).all();
+  const rows = await db.orm.public.Category.where({ userId })
+    .orderBy((c) => c.createdAt.asc())
+    .all();
   return rows as Category[];
 }
 
-export async function listSubcategories(userId: string): Promise<Subcategory[]> {
-  const rows = await db.orm.public.Subcategory.where({ userId }).orderBy((s) => s.createdAt.asc()).all();
+export async function listSubcategories(
+  userId: string,
+): Promise<Subcategory[]> {
+  const rows = await db.orm.public.Subcategory.where({ userId })
+    .orderBy((s) => s.createdAt.asc())
+    .all();
   return rows as Subcategory[];
 }
 
@@ -56,22 +66,41 @@ export async function updateSubcategory(
 }
 
 /** Refuses to delete while subcategories still reference this category, since there's no DB-level FK to catch it. */
-export async function deleteCategory(userId: string, id: string): Promise<void> {
-  const remaining = await db.orm.public.Subcategory.where({ categoryId: id, userId }).take(1).all();
+export async function deleteCategory(
+  userId: string,
+  id: string,
+): Promise<void> {
+  const remaining = await db.orm.public.Subcategory.where({
+    categoryId: id,
+    userId,
+  })
+    .take(1)
+    .all();
   if (remaining.length > 0) {
-    throw new Error("Exclua as subcategorias desta categoria antes de removê-la.");
+    throw new Error(
+      "Exclua as subcategorias desta categoria antes de removê-la.",
+    );
   }
   await db.orm.public.Category.where({ id, userId }).delete();
 }
 
 /** Refuses to delete while transactions or fixed expenses still reference this subcategory, since there's no DB-level FK to catch it. */
-export async function deleteSubcategory(userId: string, id: string): Promise<void> {
+export async function deleteSubcategory(
+  userId: string,
+  id: string,
+): Promise<void> {
   const [transactions, fixedExpenses] = await Promise.all([
-    db.orm.public.Transaction.where({ subcategoryId: id, userId }).take(1).all(),
-    db.orm.public.FixedExpense.where({ subcategoryId: id, userId }).take(1).all(),
+    db.orm.public.Transaction.where({ subcategoryId: id, userId })
+      .take(1)
+      .all(),
+    db.orm.public.FixedExpense.where({ subcategoryId: id, userId })
+      .take(1)
+      .all(),
   ]);
   if (transactions.length > 0 || fixedExpenses.length > 0) {
-    throw new Error("Esta subcategoria tem lançamentos ou gastos fixos vinculados e não pode ser excluída.");
+    throw new Error(
+      "Esta subcategoria tem lançamentos ou gastos fixos vinculados e não pode ser excluída.",
+    );
   }
   await db.orm.public.Subcategory.where({ id, userId }).delete();
 }

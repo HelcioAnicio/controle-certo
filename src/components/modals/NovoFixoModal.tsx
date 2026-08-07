@@ -4,7 +4,10 @@ import { useState, useTransition } from "react";
 import { useCategories } from "../providers/CategoriesProvider";
 import { useModal } from "../providers/ModalProvider";
 import { useToast } from "../providers/ToastProvider";
-import { createFixedExpenseAction, updateFixedExpenseAction } from "@/app/(app)/actions";
+import {
+  createFixedExpenseAction,
+  updateFixedExpenseAction,
+} from "@/app/(app)/actions";
 import { buildSubcategoryOptions, type TxType } from "@/lib/finance";
 import { cn } from "@/lib/cn";
 import {
@@ -32,10 +35,16 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
   const { closeModal } = useModal();
   const { showToast } = useToast();
   const isEdit = !!ctx;
-  const editingSub = isEdit ? subcategories.find((s) => s.id === ctx.subcategoryId) : undefined;
+  const editingSub = isEdit
+    ? subcategories.find((s) => s.id === ctx.subcategoryId)
+    : undefined;
 
   const [type, setType] = useState<TxType>(editingSub?.type ?? "expense");
-  const options = buildSubcategoryOptions(categories, subcategories, (s) => s.type === type);
+  const options = buildSubcategoryOptions(
+    categories,
+    subcategories,
+    (s) => s.type === type,
+  );
 
   const [name, setName] = useState(ctx?.name ?? "");
   const [subcategoryId, setSubcategoryId] = useState(ctx?.subcategoryId ?? "");
@@ -50,8 +59,10 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
     const dayNum = Number(dueDay);
     if (!name.trim()) return setError("Informe um nome.");
     if (!subcategoryId) return setError("Selecione uma subcategoria.");
-    if (!amountNum || amountNum <= 0) return setError("Informe um valor estimado válido.");
-    if (!dayNum || dayNum < 1 || dayNum > 31) return setError("Informe um dia de vencimento entre 1 e 31.");
+    if (!amountNum || amountNum <= 0)
+      return setError("Informe um valor estimado válido.");
+    if (!dayNum || dayNum < 1 || dayNum > 31)
+      return setError("Informe um dia de vencimento entre 1 e 31.");
 
     setError("");
     startTransition(async () => {
@@ -94,7 +105,9 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
           }}
           className={cn(
             "flex-1 rounded-[9px] border-none p-2.5 text-sm font-semibold",
-            type === "expense" ? "bg-surface text-danger" : "bg-transparent text-text-secondary",
+            type === "expense"
+              ? "bg-surface text-danger"
+              : "bg-transparent text-text-secondary",
           )}
         >
           Despesa
@@ -107,7 +120,9 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
           }}
           className={cn(
             "flex-1 rounded-[9px] border-none p-2.5 text-sm font-semibold",
-            type === "income" ? "bg-surface text-success" : "bg-transparent text-text-secondary",
+            type === "income"
+              ? "bg-surface text-success"
+              : "bg-transparent text-text-secondary",
           )}
         >
           Receita
@@ -119,7 +134,9 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
           <div className={fieldLabel}>Nome</div>
           <input
             type="text"
-            placeholder={type === "income" ? "Ex.: Salário" : "Ex.: Conta de Luz"}
+            placeholder={
+              type === "income" ? "Ex.: Salário" : "Ex.: Conta de Luz"
+            }
             value={name}
             onChange={(e) => setName(e.target.value)}
             className={inputStyle}
@@ -128,7 +145,11 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
         </div>
         <div>
           <div className={fieldLabel}>Subcategoria</div>
-          <select value={subcategoryId} onChange={(e) => setSubcategoryId(e.target.value)} className={inputStyle}>
+          <select
+            value={subcategoryId}
+            onChange={(e) => setSubcategoryId(e.target.value)}
+            className={inputStyle}
+          >
             <option value="">Selecione…</option>
             {options.map((o) => (
               <option key={o.id} value={o.id}>
@@ -139,7 +160,9 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
         </div>
         <div className="flex gap-3">
           <div className="flex-1">
-            <div className={fieldLabel}>{type === "income" ? "Valor médio recebido" : "Valor estimado"}</div>
+            <div className={fieldLabel}>
+              {type === "income" ? "Valor médio recebido" : "Valor estimado"}
+            </div>
             <input
               type="number"
               step="0.01"
@@ -151,7 +174,9 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
             />
           </div>
           <div className="flex-1">
-            <div className={fieldLabel}>{type === "income" ? "Dia do recebimento" : "Dia de vencimento"}</div>
+            <div className={fieldLabel}>
+              {type === "income" ? "Dia do recebimento" : "Dia de vencimento"}
+            </div>
             <input
               type="number"
               min="1"
@@ -175,7 +200,11 @@ export default function NovoFixoModal({ ctx }: { ctx?: NovoFixoCtx }) {
         <button type="button" onClick={closeModal} className={secondaryBtn}>
           Cancelar
         </button>
-        <button type="submit" disabled={pending} className={cn(primaryBtn, pending && "opacity-70")}>
+        <button
+          type="submit"
+          disabled={pending}
+          className={cn(primaryBtn, pending && "opacity-70")}
+        >
           {pending ? "Salvando…" : "Salvar"}
         </button>
       </div>

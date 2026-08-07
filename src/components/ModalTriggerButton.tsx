@@ -2,7 +2,8 @@
 
 import { useModal, type ModalName } from "./providers/ModalProvider";
 
-const defaultClassName = "self-start rounded-md border-none bg-primary px-[18px] py-[11px] text-sm font-semibold text-white";
+const defaultClassName =
+  "self-start rounded-md border-none bg-primary px-[18px] py-[11px] text-sm font-semibold text-white";
 
 export default function ModalTriggerButton<N extends ModalName>({
   modal,
@@ -12,7 +13,8 @@ export default function ModalTriggerButton<N extends ModalName>({
 }: {
   modal: N;
   ctx?: N extends "novaCategoria"
-    ? { kind: "categoria" } | { kind: "subcategoria"; categoryId: string; categoryName: string }
+    ? | { kind: "categoria" }
+      | { kind: "subcategoria"; categoryId: string; categoryName: string }
     : never;
   children: React.ReactNode;
   className?: string;

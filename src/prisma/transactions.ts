@@ -24,8 +24,7 @@ export async function listTransactionsForPeriod(
   userId: string,
   periodMonth: string,
 ): Promise<Transaction[]> {
-  const rows = await db.orm.public.Transaction
-    .where({ userId, periodMonth })
+  const rows = await db.orm.public.Transaction.where({ userId, periodMonth })
     .orderBy((t) => t.createdAt.asc())
     .all();
   return rows as Transaction[];
@@ -45,14 +44,15 @@ export async function ensureFixedExpensesGeneratedForPeriod(
 
   const [fixedExpenses, existing, subcategories] = await Promise.all([
     listActiveFixedExpenses(userId),
-    db.orm.public.Transaction
-      .where({ userId, periodMonth, isFixed: true })
+    db.orm.public.Transaction.where({ userId, periodMonth, isFixed: true })
       .select("fixedExpenseId")
       .all(),
     listSubcategories(userId),
   ]);
 
-  const generatedIds = new Set(existing.map((t) => t.fixedExpenseId).filter(Boolean));
+  const generatedIds = new Set(
+    existing.map((t) => t.fixedExpenseId).filter(Boolean),
+  );
   const missing = fixedExpenses.filter((f) => !generatedIds.has(f.id));
   if (missing.length === 0) return;
 
@@ -125,7 +125,10 @@ export async function payTransaction(
   });
 }
 
-export async function deleteTransaction(userId: string, id: string): Promise<void> {
+export async function deleteTransaction(
+  userId: string,
+  id: string,
+): Promise<void> {
   await db.orm.public.Transaction.where({ id, userId }).delete();
 }
 
@@ -133,8 +136,7 @@ export async function listTransactionsInRange(
   userId: string,
   periods: string[],
 ): Promise<Transaction[]> {
-  const rows = await db.orm.public.Transaction
-    .where({ userId })
+  const rows = await db.orm.public.Transaction.where({ userId })
     .where((t) => t.periodMonth.in(periods))
     .all();
   return rows as Transaction[];

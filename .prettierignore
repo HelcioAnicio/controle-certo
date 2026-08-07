@@ -1,0 +1,8 @@
+.next/
+out/
+build/
+next-env.d.ts
+src/prisma/contract.d.ts
+src/prisma/contract.json
+migrations/
+pnpm-lock.yaml

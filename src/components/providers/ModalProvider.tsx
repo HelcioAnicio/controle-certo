@@ -3,11 +3,21 @@
 import { createContext, useCallback, useContext, useState } from "react";
 import NovoLancamentoModal from "../modals/NovoLancamentoModal";
 import NovoFixoModal, { type NovoFixoCtx } from "../modals/NovoFixoModal";
-import ConfirmarPagamentoModal, { type PagamentoCtx } from "../modals/ConfirmarPagamentoModal";
-import NovaCategoriaModal, { type NovaCategoriaCtx } from "../modals/NovaCategoriaModal";
-import ConfirmarExclusaoModal, { type ExclusaoCtx } from "../modals/ConfirmarExclusaoModal";
-import DefinirOrcamentoModal, { type OrcamentoCtx } from "../modals/DefinirOrcamentoModal";
-import EditarLancamentoModal, { type EditarLancamentoCtx } from "../modals/EditarLancamentoModal";
+import ConfirmarPagamentoModal, {
+  type PagamentoCtx,
+} from "../modals/ConfirmarPagamentoModal";
+import NovaCategoriaModal, {
+  type NovaCategoriaCtx,
+} from "../modals/NovaCategoriaModal";
+import ConfirmarExclusaoModal, {
+  type ExclusaoCtx,
+} from "../modals/ConfirmarExclusaoModal";
+import DefinirOrcamentoModal, {
+  type OrcamentoCtx,
+} from "../modals/DefinirOrcamentoModal";
+import EditarLancamentoModal, {
+  type EditarLancamentoCtx,
+} from "../modals/EditarLancamentoModal";
 
 export type ModalName =
   | "novoLancamento"
@@ -36,11 +46,17 @@ type ModalContextValue = {
 const ModalContext = createContext<ModalContextValue | null>(null);
 
 export function ModalProvider({ children }: { children: React.ReactNode }) {
-  const [active, setActive] = useState<{ name: ModalName; ctx: unknown } | null>(null);
+  const [active, setActive] = useState<{
+    name: ModalName;
+    ctx: unknown;
+  } | null>(null);
 
-  const openModal = useCallback(<N extends ModalName>(name: N, ctx?: ModalCtxMap[N]) => {
-    setActive({ name, ctx });
-  }, []);
+  const openModal = useCallback(
+    <N extends ModalName>(name: N, ctx?: ModalCtxMap[N]) => {
+      setActive({ name, ctx });
+    },
+    [],
+  );
   const closeModal = useCallback(() => setActive(null), []);
 
   return (
@@ -50,7 +66,9 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
             {active.name === "novoLancamento" && <NovoLancamentoModal />}
-            {active.name === "novoFixo" && <NovoFixoModal ctx={active.ctx as NovoFixoCtx | undefined} />}
+            {active.name === "novoFixo" && (
+              <NovoFixoModal ctx={active.ctx as NovoFixoCtx | undefined} />
+            )}
             {active.name === "confirmarPagamento" && (
               <ConfirmarPagamentoModal ctx={active.ctx as PagamentoCtx} />
             )}

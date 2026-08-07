@@ -49,7 +49,7 @@ export default function AppShell({
   return (
     <div className="flex min-h-screen">
       <aside className="app-sidebar sticky top-0 h-screen w-[232px] shrink-0 flex-col gap-[22px] border-r border-border bg-surface px-4 py-5">
-        <div className="flex items-center gap-2.5 py-1 px-1.5">
+        <div className="flex items-center gap-2.5 px-1.5 py-1">
           <div className="h-8 w-8 shrink-0 rounded-[10px] bg-primary" />
           <div className="text-base font-bold">Casa em Dia</div>
         </div>
@@ -71,10 +71,17 @@ export default function AppShell({
                 href={item.href}
                 className={cn(
                   "flex items-center gap-2.5 rounded-[10px] px-3 py-2.5 text-sm no-underline",
-                  active ? "bg-primary-tint font-semibold text-primary" : "bg-transparent font-medium text-white",
+                  active
+                    ? "bg-primary-tint font-semibold text-primary"
+                    : "bg-transparent font-medium text-white",
                 )}
               >
-                <Icon size={16} color={active ? "var(--color-primary)" : "var(--text-disabled)"} />
+                <Icon
+                  size={16}
+                  color={
+                    active ? "var(--color-primary)" : "var(--text-disabled)"
+                  }
+                />
                 <span>{item.label}</span>
               </Link>
             );
@@ -86,8 +93,12 @@ export default function AppShell({
             {initials || "?"}
           </div>
           <div className="min-w-0">
-            <div className="overflow-hidden text-ellipsis whitespace-nowrap text-[13px] font-semibold">{name}</div>
-            <div className="overflow-hidden text-ellipsis whitespace-nowrap text-xs text-text-secondary">{email}</div>
+            <div className="overflow-hidden text-[13px] font-semibold text-ellipsis whitespace-nowrap">
+              {name}
+            </div>
+            <div className="overflow-hidden text-xs text-ellipsis whitespace-nowrap text-text-secondary">
+              {email}
+            </div>
           </div>
         </div>
       </aside>
@@ -95,13 +106,17 @@ export default function AppShell({
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-canvas px-7 py-[18px]">
           <MonthSwitcher />
-          <div className="app-topbar-title text-lg font-bold">{SCREEN_TITLES[pathname] ?? ""}</div>
+          <div className="app-topbar-title text-lg font-bold">
+            {SCREEN_TITLES[pathname] ?? ""}
+          </div>
           <div className="app-topbar-avatar h-[34px] w-[34px] items-center justify-center rounded-full bg-primary-tint text-xs font-bold text-primary-dark">
             {initials || "?"}
           </div>
         </div>
 
-        <div className="app-screen-body flex flex-1 flex-col gap-[22px] px-7 pt-6 pb-10">{children}</div>
+        <div className="app-screen-body flex flex-1 flex-col gap-[22px] px-7 pt-6 pb-10">
+          {children}
+        </div>
       </div>
 
       <div className="app-bottom-nav fixed inset-x-0 bottom-0 z-40 h-16 items-center justify-around border-t border-border bg-surface px-1">
@@ -114,7 +129,9 @@ export default function AppShell({
               href={item.href}
               className={cn(
                 "flex flex-col items-center gap-1 bg-transparent px-2 py-1.5 no-underline",
-                active ? "font-semibold text-primary" : "font-medium text-text-disabled",
+                active
+                  ? "font-semibold text-primary"
+                  : "font-medium text-text-disabled",
               )}
             >
               <Icon size={18} />

@@ -20,14 +20,21 @@ export async function upsertBudget(
   subcategoryId: string,
   monthlyAmount: number,
 ): Promise<void> {
-  const existing = await db.orm.public.Budget.where({ userId, subcategoryId }).take(1).all();
+  const existing = await db.orm.public.Budget.where({ userId, subcategoryId })
+    .take(1)
+    .all();
   if (existing.length > 0) {
-    await db.orm.public.Budget.where({ id: existing[0].id, userId }).update({ monthlyAmount });
+    await db.orm.public.Budget.where({ id: existing[0].id, userId }).update({
+      monthlyAmount,
+    });
   } else {
     await db.orm.public.Budget.create({ userId, subcategoryId, monthlyAmount });
   }
 }
 
-export async function deleteBudget(userId: string, subcategoryId: string): Promise<void> {
+export async function deleteBudget(
+  userId: string,
+  subcategoryId: string,
+): Promise<void> {
   await db.orm.public.Budget.where({ userId, subcategoryId }).delete();
 }

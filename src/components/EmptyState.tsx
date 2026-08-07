@@ -19,7 +19,9 @@ export default function EmptyState({
         <TbMoodEmpty size={30} />
       </div>
       <div className="text-base font-bold">{title}</div>
-      <div className="max-w-80 text-[13px] text-text-secondary">{description}</div>
+      <div className="max-w-80 text-[13px] text-text-secondary">
+        {description}
+      </div>
       <button
         type="button"
         onClick={() => openModal("novoLancamento")}

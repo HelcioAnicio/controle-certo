@@ -1,7 +1,12 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { addMonths, periodDateRange, periodForDate, periodLabel } from "@/lib/finance";
+import {
+  addMonths,
+  periodDateRange,
+  periodForDate,
+  periodLabel,
+} from "@/lib/finance";
 import { TbChevronLeft, TbChevronRight } from "react-icons/tb";
 import { useSettings } from "./providers/SettingsProvider";
 import { cn } from "@/lib/cn";
@@ -14,7 +19,8 @@ export default function MonthSwitcher() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { monthStartDay, trackingStartPeriod } = useSettings();
-  const current = searchParams.get("month") || periodForDate(new Date(), monthStartDay);
+  const current =
+    searchParams.get("month") || periodForDate(new Date(), monthStartDay);
   const atFloor = !!trackingStartPeriod && current <= trackingStartPeriod;
 
   function goTo(period: string) {
@@ -23,7 +29,8 @@ export default function MonthSwitcher() {
     router.push(`${pathname}?${params.toString()}`);
   }
 
-  const range = monthStartDay > 1 ? periodDateRange(current, monthStartDay) : null;
+  const range =
+    monthStartDay > 1 ? periodDateRange(current, monthStartDay) : null;
 
   return (
     <div className="flex items-center gap-2.5">
@@ -39,12 +46,22 @@ export default function MonthSwitcher() {
         <div className="text-[15px] font-semibold">{periodLabel(current)}</div>
         {range && (
           <div className="text-[11px] text-text-secondary">
-            {range.start.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} –{" "}
-            {range.end.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
+            {range.start.toLocaleDateString("pt-BR", {
+              day: "2-digit",
+              month: "2-digit",
+            })}{" "}
+            –{" "}
+            {range.end.toLocaleDateString("pt-BR", {
+              day: "2-digit",
+              month: "2-digit",
+            })}
           </div>
         )}
       </div>
-      <button onClick={() => goTo(addMonths(current, 1))} className={navBtnStyle}>
+      <button
+        onClick={() => goTo(addMonths(current, 1))}
+        className={navBtnStyle}
+      >
         <TbChevronRight size={16} />
       </button>
     </div>

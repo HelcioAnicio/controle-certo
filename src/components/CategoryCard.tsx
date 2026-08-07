@@ -32,7 +32,9 @@ export default function CategoryCard({
         >
           <CategoryIcon icon={category.icon} color={category.color} size={40} />
           <div className="flex-1 text-base font-semibold">{category.name}</div>
-          <span className="text-xs text-text-disabled">{subcategories.length} subcategorias</span>
+          <span className="text-xs text-text-disabled">
+            {subcategories.length} subcategorias
+          </span>
           <span className="flex text-xs text-text-disabled">
             {expanded ? <TbChevronUp size={14} /> : <TbChevronDown size={14} />}
           </span>
@@ -52,7 +54,9 @@ export default function CategoryCard({
                 <div className="flex min-w-0 flex-col">
                   <span>{sub.name}</span>
                   {budgetAmount > 0 && (
-                    <span className="text-[11px] text-primary">Orçamento: {formatBRL(budgetAmount)}/mês</span>
+                    <span className="text-[11px] text-primary">
+                      Orçamento: {formatBRL(budgetAmount)}/mês
+                    </span>
                   )}
                 </div>
                 <span className="flex shrink-0 items-center gap-2.5">
@@ -75,15 +79,27 @@ export default function CategoryCard({
                       <TbTarget size={13} />
                     </button>
                   )}
-                  <EditSubcategoryButton subcategory={sub} categoryName={category.name} />
-                  <DeleteButton id={sub.id} desc={sub.name} kind="subcategory" variant="compact" />
+                  <EditSubcategoryButton
+                    subcategory={sub}
+                    categoryName={category.name}
+                  />
+                  <DeleteButton
+                    id={sub.id}
+                    desc={sub.name}
+                    kind="subcategory"
+                    variant="compact"
+                  />
                 </span>
               </div>
             );
           })}
           <ModalTriggerButton
             modal="novaCategoria"
-            ctx={{ kind: "subcategoria", categoryId: category.id, categoryName: category.name }}
+            ctx={{
+              kind: "subcategoria",
+              categoryId: category.id,
+              categoryName: category.name,
+            }}
             className="self-start bg-transparent px-0 py-1.5 text-xs font-semibold text-primary"
           >
             + Nova subcategoria

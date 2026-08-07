@@ -2,7 +2,10 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { listFixedExpenses } from "@/prisma/fixedExpenses";
 import { listCategories, listSubcategories } from "@/prisma/categories";
-import { ensureFixedExpensesGeneratedForPeriod, listTransactionsForPeriod } from "@/prisma/transactions";
+import {
+  ensureFixedExpensesGeneratedForPeriod,
+  listTransactionsForPeriod,
+} from "@/prisma/transactions";
 import { getUserSettings } from "@/prisma/settings";
 import { formatBRL, periodForDate } from "@/lib/finance";
 import CategoryIcon from "@/components/CategoryIcon";
@@ -26,23 +29,32 @@ export default async function GastosFixosPage({
     redirect(`/gastos-fixos?month=${trackingStartPeriod}`);
   }
 
-  await ensureFixedExpensesGeneratedForPeriod(user.id, period, monthStartDay, trackingStartPeriod);
-  const [fixedExpenses, categories, subcategories, transactions] = await Promise.all([
-    listFixedExpenses(user.id),
-    listCategories(user.id),
-    listSubcategories(user.id),
-    listTransactionsForPeriod(user.id, period),
-  ]);
+  await ensureFixedExpensesGeneratedForPeriod(
+    user.id,
+    period,
+    monthStartDay,
+    trackingStartPeriod,
+  );
+  const [fixedExpenses, categories, subcategories, transactions] =
+    await Promise.all([
+      listFixedExpenses(user.id),
+      listCategories(user.id),
+      listSubcategories(user.id),
+      listTransactionsForPeriod(user.id, period),
+    ]);
 
   const subById = new Map(subcategories.map((s) => [s.id, s]));
   const catById = new Map(categories.map((c) => [c.id, c]));
-  const generatedIds = new Set(transactions.map((t) => t.fixedExpenseId).filter(Boolean));
+  const generatedIds = new Set(
+    transactions.map((t) => t.fixedExpenseId).filter(Boolean),
+  );
 
   return (
     <div className="flex flex-col gap-4">
       <div className="rounded-[14px] bg-primary-tint px-[18px] py-3.5 text-[13px] leading-normal text-primary-dark">
-        Cadastre aqui as contas e receitas que se repetem todo mês, como aluguel, salário ou
-        assinaturas. O valor serve para a previsão; na hora de confirmar você informa o valor real.
+        Cadastre aqui as contas e receitas que se repetem todo mês, como
+        aluguel, salário ou assinaturas. O valor serve para a previsão; na hora
+        de confirmar você informa o valor real.
       </div>
 
       <ModalTriggerButton modal="novoFixo">+ Novo fixo</ModalTriggerButton>
@@ -59,17 +71,25 @@ export default async function GastosFixosPage({
             const sub = subById.get(f.subcategoryId);
             const cat = sub ? catById.get(sub.categoryId) : undefined;
             const generated = generatedIds.has(f.id);
-            const statusText = !f.active ? "Pausado" : generated ? "Gerado este mês" : "Ainda não gerado";
+            const statusText = !f.active
+              ? "Pausado"
+              : generated
+                ? "Gerado este mês"
+                : "Ainda não gerado";
             return (
               <div
                 key={f.id}
                 className={cn(
-                  "flex flex-wrap flex-col gap-3 border-b border-border-soft px-4 py-3.5",
+                  "flex flex-col flex-wrap gap-3 border-b border-border-soft px-4 py-3.5",
                   !f.active && "opacity-50",
                 )}
               >
                 <div className="flex min-w-0 flex-1 items-center gap-2.5">
-                  <CategoryIcon icon={sub?.icon ?? "folder"} color={cat?.color ?? "#64748B"} size={32} />
+                  <CategoryIcon
+                    icon={sub?.icon ?? "folder"}
+                    color={cat?.color ?? "#64748B"}
+                    size={32}
+                  />
                   <div className="overflow-hidden text-base font-semibold text-ellipsis whitespace-nowrap">
                     {f.name}
                   </div>
@@ -78,7 +98,9 @@ export default async function GastosFixosPage({
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="flex-1 text-[11px] text-text-disabled">{statusText}</div>
+                  <div className="flex-1 text-[11px] text-text-disabled">
+                    {statusText}
+                  </div>
                   <div
                     className={cn(
                       "w-[110px] text-right text-sm font-bold",

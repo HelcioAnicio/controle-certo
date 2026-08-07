@@ -4,7 +4,11 @@ import { TbPencil } from "react-icons/tb";
 import { useModal } from "./providers/ModalProvider";
 import type { EnrichedTransaction } from "@/lib/dashboard";
 
-export default function EditTransactionButton({ tx }: { tx: EnrichedTransaction }) {
+export default function EditTransactionButton({
+  tx,
+}: {
+  tx: EnrichedTransaction;
+}) {
   const { openModal } = useModal();
   return (
     <button

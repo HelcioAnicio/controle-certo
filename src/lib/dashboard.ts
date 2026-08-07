@@ -1,12 +1,22 @@
 import "server-only";
-import { listCategories, listSubcategories, type Category, type Subcategory } from "@/prisma/categories";
+import {
+  listCategories,
+  listSubcategories,
+  type Category,
+  type Subcategory,
+} from "@/prisma/categories";
 import {
   ensureFixedExpensesGeneratedForPeriod,
   listTransactionsForPeriod,
   type Transaction,
 } from "@/prisma/transactions";
 import { listBudgets, type Budget } from "@/prisma/budgets";
-import { COLOR_SWATCHES, computeStatus, formatBRL, type TxStatus } from "./finance";
+import {
+  COLOR_SWATCHES,
+  computeStatus,
+  formatBRL,
+  type TxStatus,
+} from "./finance";
 
 export type EnrichedTransaction = Transaction & {
   subcategoryName: string;
@@ -32,7 +42,8 @@ export function enrichTransactions(
     const sub = subById.get(t.subcategoryId);
     const cat = sub ? catById.get(sub.categoryId) : undefined;
     const status = computeStatus(t, today);
-    const displayAmount = status === "paid" ? Number(t.paidAmount) : Number(t.amount);
+    const displayAmount =
+      status === "paid" ? Number(t.paidAmount) : Number(t.amount);
     return {
       ...t,
       subcategoryName: sub?.name ?? "—",
@@ -56,7 +67,13 @@ export type MonthSummary = {
   saldoAtual: number;
   saldoPrevisto: number;
   progressPct: number;
-  pieSlices: { id: string; name: string; color: string; value: number; pct: number }[];
+  pieSlices: {
+    id: string;
+    name: string;
+    color: string;
+    value: number;
+    pct: number;
+  }[];
   pieGradient: string;
 };
 
@@ -78,7 +95,8 @@ export function computeMonthSummary(
     0,
   );
   const incomeForecastTotal = incomes.reduce(
-    (sum, t) => sum + (t.status === "paid" ? Number(t.paidAmount) : Number(t.amount)),
+    (sum, t) =>
+      sum + (t.status === "paid" ? Number(t.paidAmount) : Number(t.amount)),
     0,
   );
   const paidExpenseTotal = expenses
@@ -90,15 +108,22 @@ export function computeMonthSummary(
   );
   const previstoTotal =
     expenses.reduce(
-      (sum, t) => sum + (t.status === "paid" ? Number(t.paidAmount) : Number(t.amount)),
+      (sum, t) =>
+        sum + (t.status === "paid" ? Number(t.paidAmount) : Number(t.amount)),
       0,
     ) + budgetReserve;
   const pendingTotal = previstoTotal - paidExpenseTotal;
   const saldoAtual = incomeTotal - paidExpenseTotal;
   const saldoPrevisto = incomeForecastTotal - previstoTotal;
-  const progressPct = previstoTotal > 0 ? Math.round((paidExpenseTotal / previstoTotal) * 100) : 0;
+  const progressPct =
+    previstoTotal > 0
+      ? Math.round((paidExpenseTotal / previstoTotal) * 100)
+      : 0;
 
-  const catTotals = new Map<string, { name: string; color: string; value: number }>();
+  const catTotals = new Map<
+    string,
+    { name: string; color: string; value: number }
+  >();
   for (const t of expenses) {
     const key = t.categoryId || t.categoryName;
     const existing = catTotals.get(key);
@@ -106,7 +131,11 @@ export function computeMonthSummary(
     if (existing) {
       existing.value += amount;
     } else {
-      catTotals.set(key, { name: t.categoryName, color: t.categoryColor, value: amount });
+      catTotals.set(key, {
+        name: t.categoryName,
+        color: t.categoryColor,
+        value: amount,
+      });
     }
   }
   // Unspent budget reserve counts toward its category here too, mirroring how
@@ -120,7 +149,11 @@ export function computeMonthSummary(
     if (existing) {
       existing.value += reserve;
     } else {
-      catTotals.set(key, { name: b.categoryName, color: b.categoryColor, value: reserve });
+      catTotals.set(key, {
+        name: b.categoryName,
+        color: b.categoryColor,
+        value: reserve,
+      });
     }
   }
   const pieSlices = [...catTotals.entries()]
@@ -140,8 +173,11 @@ export function computeMonthSummary(
     acc += s.pct;
     return `${s.color} ${start}% ${acc}%`;
   });
-  if (acc < 100 && gradientParts.length) gradientParts.push(`#E2E8F0 ${acc}% 100%`);
-  const pieGradient = gradientParts.length ? `conic-gradient(${gradientParts.join(",")})` : "#E2E8F0";
+  if (acc < 100 && gradientParts.length)
+    gradientParts.push(`#E2E8F0 ${acc}% 100%`);
+  const pieGradient = gradientParts.length
+    ? `conic-gradient(${gradientParts.join(",")})`
+    : "#E2E8F0";
 
   return {
     incomeTotal,
@@ -192,7 +228,9 @@ export function computeBudgetProgress(
       const sub = subById.get(b.subcategoryId);
       const cat = sub ? catById.get(sub.categoryId) : undefined;
       const spent = transactions
-        .filter((t) => t.subcategoryId === b.subcategoryId && t.type === "expense")
+        .filter(
+          (t) => t.subcategoryId === b.subcategoryId && t.type === "expense",
+        )
         .reduce((sum, t) => sum + t.displayAmount, 0);
       const monthlyAmount = Number(b.monthlyAmount);
       return {
@@ -205,10 +243,15 @@ export function computeBudgetProgress(
         monthlyAmount,
         spent,
         remaining: monthlyAmount - spent,
-        pct: monthlyAmount > 0 ? Math.min(100, Math.round((spent / monthlyAmount) * 100)) : 0,
+        pct:
+          monthlyAmount > 0
+            ? Math.min(100, Math.round((spent / monthlyAmount) * 100))
+            : 0,
       };
     })
-    .sort((a, b) => a.subcategoryName.localeCompare(b.subcategoryName, "pt-BR"));
+    .sort((a, b) =>
+      a.subcategoryName.localeCompare(b.subcategoryName, "pt-BR"),
+    );
 }
 
 function dayKey(d: Date): string {
@@ -247,7 +290,8 @@ export function buildDailyLedger(
   for (const t of allTxs) {
     const effective = t.status === "paid" ? t.paidDate : t.dueDate;
     if (!effective) continue;
-    const amount = t.status === "paid" ? Number(t.paidAmount) : Number(t.amount);
+    const amount =
+      t.status === "paid" ? Number(t.paidAmount) : Number(t.amount);
     const signed = t.type === "income" ? amount : -amount;
     const key = dayKey(effective);
     const cur = deltaByDay.get(key) ?? { actual: 0, projected: 0 };
@@ -327,16 +371,29 @@ export function computeCategoryBreakdown(
   categoryId?: string,
   budgetProgress: BudgetProgress[] = [],
 ): CategoryBreakdown {
-  const mode: "category" | "subcategory" = categoryId ? "subcategory" : "category";
-  const scoped = categoryId ? currentExpenses.filter((t) => t.categoryId === categoryId) : currentExpenses;
-  const scopedPrev = categoryId ? previousExpenses.filter((t) => t.categoryId === categoryId) : previousExpenses;
-  const scopedBudgets = categoryId ? budgetProgress.filter((b) => b.categoryId === categoryId) : budgetProgress;
+  const mode: "category" | "subcategory" = categoryId
+    ? "subcategory"
+    : "category";
+  const scoped = categoryId
+    ? currentExpenses.filter((t) => t.categoryId === categoryId)
+    : currentExpenses;
+  const scopedPrev = categoryId
+    ? previousExpenses.filter((t) => t.categoryId === categoryId)
+    : previousExpenses;
+  const scopedBudgets = categoryId
+    ? budgetProgress.filter((b) => b.categoryId === categoryId)
+    : budgetProgress;
 
   function groupKey(t: EnrichedTransaction) {
-    return mode === "category" ? t.categoryId || t.categoryName : t.subcategoryId;
+    return mode === "category"
+      ? t.categoryId || t.categoryName
+      : t.subcategoryId;
   }
 
-  const groups = new Map<string, { name: string; icon: string; color: string; count: number; total: number }>();
+  const groups = new Map<
+    string,
+    { name: string; icon: string; color: string; count: number; total: number }
+  >();
   for (const t of scoped) {
     const key = groupKey(t);
     const existing = groups.get(key);
@@ -360,7 +417,8 @@ export function computeCategoryBreakdown(
   for (const b of scopedBudgets) {
     const reserve = Math.max(b.monthlyAmount - b.spent, 0);
     if (reserve <= 0) continue;
-    const key = mode === "category" ? b.categoryId || b.categoryName : b.subcategoryId;
+    const key =
+      mode === "category" ? b.categoryId || b.categoryName : b.subcategoryId;
     const existing = groups.get(key);
     if (existing) {
       existing.total += reserve;
@@ -385,12 +443,17 @@ export function computeCategoryBreakdown(
   const rows: BreakdownRow[] = [...groups.entries()]
     .map(([id, g], i) => {
       const prev = prevTotals.get(id);
-      const trendPct = prev ? Math.round(((g.total - prev) / prev) * 100) : null;
+      const trendPct = prev
+        ? Math.round(((g.total - prev) / prev) * 100)
+        : null;
       return {
         id,
         name: g.name,
         icon: g.icon || "folder",
-        color: mode === "category" ? g.color : COLOR_SWATCHES[i % COLOR_SWATCHES.length],
+        color:
+          mode === "category"
+            ? g.color
+            : COLOR_SWATCHES[i % COLOR_SWATCHES.length],
         count: g.count,
         total: g.total,
         trendPct,
@@ -405,8 +468,11 @@ export function computeCategoryBreakdown(
     acc += pct;
     return `${r.color} ${start}% ${acc}%`;
   });
-  if (acc < 100 && gradientParts.length) gradientParts.push(`#E2E8F0 ${acc}% 100%`);
-  const pieGradient = gradientParts.length ? `conic-gradient(${gradientParts.join(",")})` : "#E2E8F0";
+  if (acc < 100 && gradientParts.length)
+    gradientParts.push(`#E2E8F0 ${acc}% 100%`);
+  const pieGradient = gradientParts.length
+    ? `conic-gradient(${gradientParts.join(",")})`
+    : "#E2E8F0";
 
   return { mode, rows, total, pieGradient };
 }
@@ -418,7 +484,12 @@ export async function loadMonthData(
   monthStartDay: number = 1,
   trackingStartPeriod: string | null = null,
 ) {
-  await ensureFixedExpensesGeneratedForPeriod(userId, periodMonth, monthStartDay, trackingStartPeriod);
+  await ensureFixedExpensesGeneratedForPeriod(
+    userId,
+    periodMonth,
+    monthStartDay,
+    trackingStartPeriod,
+  );
   const [transactions, categories, subcategories, budgets] = await Promise.all([
     listTransactionsForPeriod(userId, periodMonth),
     listCategories(userId),
@@ -426,7 +497,18 @@ export async function loadMonthData(
     listBudgets(userId),
   ]);
   const enriched = enrichTransactions(transactions, subcategories, categories);
-  const budgetProgress = computeBudgetProgress(budgets, subcategories, categories, enriched);
+  const budgetProgress = computeBudgetProgress(
+    budgets,
+    subcategories,
+    categories,
+    enriched,
+  );
   const summary = computeMonthSummary(enriched, budgetProgress);
-  return { transactions: enriched, categories, subcategories, summary, budgetProgress };
+  return {
+    transactions: enriched,
+    categories,
+    subcategories,
+    summary,
+    budgetProgress,
+  };
 }

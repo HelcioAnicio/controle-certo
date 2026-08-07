@@ -10,8 +10,14 @@ const initialState: AuthActionState = {};
 
 export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
-  const [loginState, loginAction, loginPending] = useActionState(signIn, initialState);
-  const [signupState, signupAction, signupPending] = useActionState(signUp, initialState);
+  const [loginState, loginAction, loginPending] = useActionState(
+    signIn,
+    initialState,
+  );
+  const [signupState, signupAction, signupPending] = useActionState(
+    signUp,
+    initialState,
+  );
   const [googlePending, setGooglePending] = useState(false);
   const [oauthError, setOauthError] = useState(false);
 
@@ -51,7 +57,9 @@ export default function LoginPage() {
           <div className="h-5 w-5 rounded-[6px] bg-white" />
         </div>
         <div className="mb-1 text-center text-xl font-bold">Casa em Dia</div>
-        <div className="mb-7 text-center text-[13px] text-text-secondary">Controle financeiro doméstico</div>
+        <div className="mb-7 text-center text-[13px] text-text-secondary">
+          Controle financeiro doméstico
+        </div>
 
         {oauthError && (
           <div className="mb-3.5 rounded-md bg-danger-tint px-3 py-2.5 text-[13px] text-danger">
@@ -78,14 +86,30 @@ export default function LoginPage() {
           <div className="h-px flex-1 bg-border" />
         </div>
 
-        <form key={mode} action={isLogin ? loginAction : signupAction} className="flex flex-col gap-3.5">
+        <form
+          key={mode}
+          action={isLogin ? loginAction : signupAction}
+          className="flex flex-col gap-3.5"
+        >
           {!isLogin && (
             <Field label="Nome">
-              <input name="name" type="text" placeholder="Seu nome" required className={inputStyle} />
+              <input
+                name="name"
+                type="text"
+                placeholder="Seu nome"
+                required
+                className={inputStyle}
+              />
             </Field>
           )}
           <Field label="E-mail">
-            <input name="email" type="email" placeholder="voce@email.com" required className={inputStyle} />
+            <input
+              name="email"
+              type="email"
+              placeholder="voce@email.com"
+              required
+              className={inputStyle}
+            />
           </Field>
           <Field label="Senha">
             <input
@@ -98,8 +122,12 @@ export default function LoginPage() {
             />
           </Field>
 
-          {state?.error && <div className="text-[13px] text-danger">{state.error}</div>}
-          {state?.info && <div className="text-[13px] text-success">{state.info}</div>}
+          {state?.error && (
+            <div className="text-[13px] text-danger">{state.error}</div>
+          )}
+          {state?.info && (
+            <div className="text-[13px] text-success">{state.info}</div>
+          )}
 
           <button
             type="submit"
@@ -120,7 +148,9 @@ export default function LoginPage() {
             >
               {isLogin ? "Criar conta" : "Já tenho conta"}
             </button>
-            {isLogin && <span className="text-text-disabled">Esqueci a senha</span>}
+            {isLogin && (
+              <span className="text-text-disabled">Esqueci a senha</span>
+            )}
           </div>
         </form>
       </div>
@@ -128,13 +158,22 @@ export default function LoginPage() {
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div>
-      <div className="mb-1.5 text-[13px] font-semibold text-[#334155]">{label}</div>
+      <div className="mb-1.5 text-[13px] font-semibold text-[#334155]">
+        {label}
+      </div>
       {children}
     </div>
   );
 }
 
-const inputStyle = "w-full rounded-md border border-border bg-canvas px-3.5 py-3 text-[15px] outline-none";
+const inputStyle =
+  "w-full rounded-md border border-border bg-canvas px-3.5 py-3 text-[15px] outline-none";

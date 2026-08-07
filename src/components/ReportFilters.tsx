@@ -13,7 +13,11 @@ const RANGE_OPTIONS = [
 
 const selectStyle = "rounded-md px-3 py-2 text-[13px] font-medium";
 
-export default function ReportFilters({ categories }: { categories: Category[] }) {
+export default function ReportFilters({
+  categories,
+}: {
+  categories: Category[];
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -60,10 +64,17 @@ export default function ReportFilters({ categories }: { categories: Category[] }
         className={cn(
           selectStyle,
           "flex items-center gap-2 border",
-          considerBudget ? "border-primary bg-primary-tint text-primary-dark" : "border-border bg-surface text-text",
+          considerBudget
+            ? "border-primary bg-primary-tint text-primary-dark"
+            : "border-border bg-surface text-text",
         )}
       >
-        <span className={cn("relative h-[17px] w-[30px] shrink-0 rounded-full", considerBudget ? "bg-primary" : "bg-border")}>
+        <span
+          className={cn(
+            "relative h-[17px] w-[30px] shrink-0 rounded-full",
+            considerBudget ? "bg-primary" : "bg-border",
+          )}
+        >
           <span
             className={cn(
               "absolute top-0.5 h-[13px] w-[13px] rounded-full bg-white transition-[left] duration-150 [transition-timing-function:ease]",

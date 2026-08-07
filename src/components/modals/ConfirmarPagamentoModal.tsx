@@ -7,7 +7,15 @@ import { payTransactionAction } from "@/app/(app)/actions";
 import { formatBRL } from "@/lib/finance";
 import type { TxType } from "@/lib/finance";
 import { cn } from "@/lib/cn";
-import { closeBtn, fieldLabel, inputStyle, modalHeader, modalTitle, secondaryBtn, successBtn } from "./styles";
+import {
+  closeBtn,
+  fieldLabel,
+  inputStyle,
+  modalHeader,
+  modalTitle,
+  secondaryBtn,
+  successBtn,
+} from "./styles";
 
 export type PagamentoCtx = {
   id: string;
@@ -23,7 +31,11 @@ function todayInputValue() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-export default function ConfirmarPagamentoModal({ ctx }: { ctx: PagamentoCtx }) {
+export default function ConfirmarPagamentoModal({
+  ctx,
+}: {
+  ctx: PagamentoCtx;
+}) {
   const { closeModal } = useModal();
   const { showToast } = useToast();
   const [amount, setAmount] = useState(String(ctx.amount));
@@ -35,16 +47,24 @@ export default function ConfirmarPagamentoModal({ ctx }: { ctx: PagamentoCtx }) 
     const amountNum = Number(amount.replace(",", "."));
     if (!amountNum || amountNum <= 0) return;
     startTransition(async () => {
-      await payTransactionAction({ id: ctx.id, paidAmount: amountNum, paidDate: date });
+      await payTransactionAction({
+        id: ctx.id,
+        paidAmount: amountNum,
+        paidDate: date,
+      });
       closeModal();
-      showToast(isIncome ? "Recebimento registrado ✓" : "Pagamento registrado ✓");
+      showToast(
+        isIncome ? "Recebimento registrado ✓" : "Pagamento registrado ✓",
+      );
     });
   }
 
   return (
     <div>
       <div className={modalHeader}>
-        <div className={modalTitle}>{isIncome ? "Confirmar recebimento" : "Confirmar pagamento"}</div>
+        <div className={modalTitle}>
+          {isIncome ? "Confirmar recebimento" : "Confirmar pagamento"}
+        </div>
         <button type="button" onClick={closeModal} className={closeBtn}>
           ×
         </button>
@@ -66,10 +86,14 @@ export default function ConfirmarPagamentoModal({ ctx }: { ctx: PagamentoCtx }) 
       ) : (
         <>
           <div className="mb-0.5 text-sm font-semibold">{ctx.desc}</div>
-          <div className="mb-[18px] text-xs text-text-secondary">Valor planejado: {formatBRL(ctx.amount)}</div>
+          <div className="mb-[18px] text-xs text-text-secondary">
+            Valor planejado: {formatBRL(ctx.amount)}
+          </div>
           <div className="flex flex-col gap-3.5">
             <div>
-              <div className={fieldLabel}>{isIncome ? "Valor recebido" : "Valor pago"}</div>
+              <div className={fieldLabel}>
+                {isIncome ? "Valor recebido" : "Valor pago"}
+              </div>
               <input
                 type="number"
                 step="0.01"
@@ -80,8 +104,15 @@ export default function ConfirmarPagamentoModal({ ctx }: { ctx: PagamentoCtx }) 
               />
             </div>
             <div>
-              <div className={fieldLabel}>{isIncome ? "Data do recebimento" : "Data do pagamento"}</div>
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputStyle} />
+              <div className={fieldLabel}>
+                {isIncome ? "Data do recebimento" : "Data do pagamento"}
+              </div>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className={inputStyle}
+              />
             </div>
           </div>
           <div className="mt-[22px] flex gap-2.5">
@@ -94,7 +125,11 @@ export default function ConfirmarPagamentoModal({ ctx }: { ctx: PagamentoCtx }) 
               disabled={pending}
               className={cn(successBtn, pending && "opacity-70")}
             >
-              {pending ? "Confirmando…" : isIncome ? "Confirmar recebimento" : "Confirmar pagamento"}
+              {pending
+                ? "Confirmando…"
+                : isIncome
+                  ? "Confirmar recebimento"
+                  : "Confirmar pagamento"}
             </button>
           </div>
         </>

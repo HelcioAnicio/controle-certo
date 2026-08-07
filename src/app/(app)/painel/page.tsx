@@ -58,9 +58,12 @@ export default async function PainelPage({
           footer={
             <>
               <div>
-                Entradas {formatBRL(summary.incomeTotal)} · Já pago {formatBRL(summary.paidExpenseTotal)}
+                Entradas {formatBRL(summary.incomeTotal)} · Já pago{" "}
+                {formatBRL(summary.paidExpenseTotal)}
               </div>
-              <div className="mt-1">Previsão de receitas {formatBRL(summary.incomeForecastTotal)}</div>
+              <div className="mt-1">
+                Previsão de receitas {formatBRL(summary.incomeForecastTotal)}
+              </div>
             </>
           }
         />
@@ -80,16 +83,28 @@ export default async function PainelPage({
             <div key={b.subcategoryId}>
               <div className="mb-1.5 flex justify-between text-[13px] text-[#334155]">
                 <span className="flex items-center gap-2">
-                  <CategoryIcon icon={b.subcategoryIcon} color={b.categoryColor} size={24} />
+                  <CategoryIcon
+                    icon={b.subcategoryIcon}
+                    color={b.categoryColor}
+                    size={24}
+                  />
                   {b.subcategoryName}
                 </span>
-                <span className={cn("font-semibold", b.remaining < 0 ? "text-danger" : "text-text")}>
+                <span
+                  className={cn(
+                    "font-semibold",
+                    b.remaining < 0 ? "text-danger" : "text-text",
+                  )}
+                >
                   {formatBRL(b.spent)} de {formatBRL(b.monthlyAmount)}
                 </span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-border-soft">
                 <div
-                  className={cn("h-full rounded-full", b.remaining < 0 ? "bg-danger" : "bg-primary")}
+                  className={cn(
+                    "h-full rounded-full",
+                    b.remaining < 0 ? "bg-danger" : "bg-primary",
+                  )}
                   style={{ width: `${b.pct}%` }}
                 />
               </div>
@@ -104,22 +119,36 @@ export default async function PainelPage({
       )}
 
       <div className="app-metrics-grid grid grid-cols-4 gap-4">
-        <MetricCard label="Receitas do mês" value={summary.incomeTotal} colorClass="text-success" />
-        <MetricCard label="Total previsto" value={summary.previstoTotal} colorClass="text-primary" />
+        <MetricCard
+          label="Receitas do mês"
+          value={summary.incomeTotal}
+          colorClass="text-success"
+        />
+        <MetricCard
+          label="Total previsto"
+          value={summary.previstoTotal}
+          colorClass="text-primary"
+        />
         <MetricCard
           label="Já pago"
           value={summary.paidExpenseTotal}
           colorClass="text-success"
           badge={`${summary.progressPct}%`}
         />
-        <MetricCard label="A pagar" value={summary.pendingTotal} colorClass="text-warning" />
+        <MetricCard
+          label="A pagar"
+          value={summary.pendingTotal}
+          colorClass="text-warning"
+        />
       </div>
 
       <div className="app-pie-lists-grid">
-        <div className="[grid-area:pie] rounded-lg border border-border bg-surface p-5">
+        <div className="rounded-lg border border-border bg-surface p-5 [grid-area:pie]">
           <div className="mb-4 text-sm font-semibold">Gastos por categoria</div>
           {summary.pieSlices.length === 0 ? (
-            <div className="text-[13px] text-text-secondary">Sem despesas neste mês.</div>
+            <div className="text-[13px] text-text-secondary">
+              Sem despesas neste mês.
+            </div>
           ) : (
             <div className="flex flex-wrap items-center gap-6">
               <div
@@ -128,11 +157,21 @@ export default async function PainelPage({
               />
               <div className="flex min-w-[220px] flex-1 flex-col gap-2">
                 {summary.pieSlices.map((s) => (
-                  <div key={s.id} className="flex items-center gap-2 text-[13px]">
-                    <div className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: s.color }} />
+                  <div
+                    key={s.id}
+                    className="flex items-center gap-2 text-[13px]"
+                  >
+                    <div
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{ background: s.color }}
+                    />
                     <span className="flex-1 text-[#334155]">{s.name}</span>
-                    <span className="text-text-secondary">{formatBRL(s.value)}</span>
-                    <span className="w-10 text-right font-semibold">{s.pct}%</span>
+                    <span className="text-text-secondary">
+                      {formatBRL(s.value)}
+                    </span>
+                    <span className="w-10 text-right font-semibold">
+                      {s.pct}%
+                    </span>
                   </div>
                 ))}
               </div>
@@ -140,21 +179,28 @@ export default async function PainelPage({
           )}
         </div>
 
-        <div className="[grid-area:vencimentos] min-w-0 rounded-lg border border-border bg-surface px-5 py-[18px]">
+        <div className="min-w-0 rounded-lg border border-border bg-surface px-5 py-[18px] [grid-area:vencimentos]">
           <div className="mb-3 text-sm font-semibold">Próximos vencimentos</div>
           {upcoming.length === 0 ? (
-            <div className="text-[13px] text-text-secondary">Tudo pago por aqui ✓</div>
+            <div className="text-[13px] text-text-secondary">
+              Tudo pago por aqui ✓
+            </div>
           ) : (
             <div className="flex flex-col gap-3">
               {upcoming.map((t) => (
                 <div key={t.id} className="flex flex-col gap-2">
                   <div className="flex min-w-0 items-center gap-2.5">
-                    <CategoryIcon icon={t.subcategoryIcon} color={t.categoryColor} size={32} />
+                    <CategoryIcon
+                      icon={t.subcategoryIcon}
+                      color={t.categoryColor}
+                      size={32}
+                    />
                     <div className="overflow-hidden text-[13px] font-semibold text-ellipsis whitespace-nowrap">
                       {t.description || t.subcategoryName}
                     </div>
                     <div className="text-xs whitespace-nowrap text-text-secondary">
-                      {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR") : "—"} · {formatBRL(Number(t.amount))}
+                      {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR") : "—"}{" "}
+                      · {formatBRL(Number(t.amount))}
                     </div>
                   </div>
                   <div className="flex items-center gap-2 pl-[42px]">
@@ -167,29 +213,41 @@ export default async function PainelPage({
           )}
         </div>
 
-        <div className="[grid-area:lancamentos] min-w-0 rounded-lg border border-border bg-surface px-5 py-[18px]">
+        <div className="min-w-0 rounded-lg border border-border bg-surface px-5 py-[18px] [grid-area:lancamentos]">
           <div className="mb-3 flex items-center justify-between">
             <div className="text-sm font-semibold">Últimos lançamentos</div>
-            <Link href="/lancamentos" className="border-none bg-transparent text-xs font-semibold text-primary no-underline">
+            <Link
+              href="/lancamentos"
+              className="border-none bg-transparent text-xs font-semibold text-primary no-underline"
+            >
               ver todos →
             </Link>
           </div>
           <div className="flex flex-col gap-2.5">
             {recent.map((t) => (
               <div key={t.id} className="flex items-center gap-2.5">
-                <CategoryIcon icon={t.subcategoryIcon} color={t.categoryColor} size={32} />
+                <CategoryIcon
+                  icon={t.subcategoryIcon}
+                  color={t.categoryColor}
+                  size={32}
+                />
                 <div className="min-w-0 flex-1">
                   <div className="overflow-hidden text-[13px] font-semibold text-ellipsis whitespace-nowrap">
                     {t.description || t.subcategoryName}
                   </div>
                   <div className="text-xs text-text-secondary">
-                    {t.subcategoryName} · {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR") : "—"}
+                    {t.subcategoryName} ·{" "}
+                    {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR") : "—"}
                   </div>
                 </div>
                 <div
                   className={cn(
                     "text-[13px] font-bold",
-                    t.status === "paid" ? (t.type === "income" ? "text-success" : "text-text") : "text-text-disabled",
+                    t.status === "paid"
+                      ? t.type === "income"
+                        ? "text-success"
+                        : "text-text"
+                      : "text-text-disabled",
                   )}
                 >
                   {t.type === "income" ? "+ " : "- "}
@@ -205,7 +263,12 @@ export default async function PainelPage({
 }
 
 function statusOrder(status: string) {
-  const order: Record<string, number> = { overdue: 0, due: 1, pending: 2, scheduled: 3 };
+  const order: Record<string, number> = {
+    overdue: 0,
+    due: 1,
+    pending: 2,
+    scheduled: 3,
+  };
   return order[status] ?? 4;
 }
 
@@ -224,10 +287,21 @@ function BalanceCard({
 }) {
   return (
     <div className="rounded-[18px] border border-border bg-surface px-5 py-[22px] shadow-card">
-      <div className="mb-1.5 text-[13px] font-medium text-text-secondary">{label}</div>
-      <div className={cn("text-[32px] font-extrabold tracking-[-0.5px]", colorClass)}>{formatBRL(value)}</div>
+      <div className="mb-1.5 text-[13px] font-medium text-text-secondary">
+        {label}
+      </div>
+      <div
+        className={cn(
+          "text-[32px] font-extrabold tracking-[-0.5px]",
+          colorClass,
+        )}
+      >
+        {formatBRL(value)}
+      </div>
       <div className="mt-0.5 text-xs text-text-disabled">{hint}</div>
-      <div className="mt-2.5 border-t border-border-soft pt-2.5 text-xs text-text-secondary">{footer}</div>
+      <div className="mt-2.5 border-t border-border-soft pt-2.5 text-xs text-text-secondary">
+        {footer}
+      </div>
     </div>
   );
 }
@@ -253,7 +327,9 @@ function MetricCard({
           </span>
         )}
       </div>
-      <div className={cn("mt-1 text-[19px] font-bold", colorClass)}>{formatBRL(value)}</div>
+      <div className={cn("mt-1 text-[19px] font-bold", colorClass)}>
+        {formatBRL(value)}
+      </div>
     </div>
   );
 }

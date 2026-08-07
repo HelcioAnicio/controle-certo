@@ -5,7 +5,17 @@ import { useModal } from "../providers/ModalProvider";
 import { useToast } from "../providers/ToastProvider";
 import { deleteBudgetAction, setBudgetAction } from "@/app/(app)/actions";
 import { cn } from "@/lib/cn";
-import { closeBtn, fieldLabel, footerRow, formGap, inputStyle, modalHeader, modalTitle, primaryBtn, secondaryBtn } from "./styles";
+import {
+  closeBtn,
+  fieldLabel,
+  footerRow,
+  formGap,
+  inputStyle,
+  modalHeader,
+  modalTitle,
+  primaryBtn,
+  secondaryBtn,
+} from "./styles";
 
 export type OrcamentoCtx = {
   subcategoryId: string;
@@ -16,17 +26,23 @@ export type OrcamentoCtx = {
 export default function DefinirOrcamentoModal({ ctx }: { ctx: OrcamentoCtx }) {
   const { closeModal } = useModal();
   const { showToast } = useToast();
-  const [amount, setAmount] = useState(ctx.currentAmount > 0 ? String(ctx.currentAmount) : "");
+  const [amount, setAmount] = useState(
+    ctx.currentAmount > 0 ? String(ctx.currentAmount) : "",
+  );
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const amountNum = Number(amount.replace(",", "."));
-    if (!amountNum || amountNum <= 0) return setError("Informe um valor mensal válido.");
+    if (!amountNum || amountNum <= 0)
+      return setError("Informe um valor mensal válido.");
     setError("");
     startTransition(async () => {
-      await setBudgetAction({ subcategoryId: ctx.subcategoryId, monthlyAmount: amountNum });
+      await setBudgetAction({
+        subcategoryId: ctx.subcategoryId,
+        monthlyAmount: amountNum,
+      });
       closeModal();
       showToast("Orçamento salvo ✓");
     });
@@ -70,8 +86,8 @@ export default function DefinirOrcamentoModal({ ctx }: { ctx: OrcamentoCtx }) {
           />
         </div>
         <div className="rounded-[10px] bg-canvas px-3.5 py-3 text-xs leading-normal text-text-secondary">
-          Esse valor se repete todo mês. Conforme você lança despesas nesta subcategoria, o
-          restante do orçamento é abatido automaticamente.
+          Esse valor se repete todo mês. Conforme você lança despesas nesta
+          subcategoria, o restante do orçamento é abatido automaticamente.
         </div>
         {error && <div className="text-[13px] text-danger">{error}</div>}
       </div>
@@ -80,7 +96,11 @@ export default function DefinirOrcamentoModal({ ctx }: { ctx: OrcamentoCtx }) {
         <button type="button" onClick={closeModal} className={secondaryBtn}>
           Cancelar
         </button>
-        <button type="submit" disabled={pending} className={cn(primaryBtn, pending && "opacity-70")}>
+        <button
+          type="submit"
+          disabled={pending}
+          className={cn(primaryBtn, pending && "opacity-70")}
+        >
           {pending ? "Salvando…" : "Salvar"}
         </button>
       </div>

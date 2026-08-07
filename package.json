@@ -9,6 +9,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "contract:emit": "cross-env NODE_OPTIONS=--experimental-strip-types prisma-next contract emit",
     "db:init": "cross-env NODE_OPTIONS=--experimental-strip-types prisma-next db init",
     "db:update": "cross-env NODE_OPTIONS=--experimental-strip-types prisma-next db update",

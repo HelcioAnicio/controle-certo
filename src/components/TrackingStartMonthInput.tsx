@@ -5,7 +5,11 @@ import { setTrackingStartPeriodAction } from "@/app/(app)/actions";
 import { useToast } from "./providers/ToastProvider";
 import { cn } from "@/lib/cn";
 
-export default function TrackingStartMonthInput({ initialPeriod }: { initialPeriod: string | null }) {
+export default function TrackingStartMonthInput({
+  initialPeriod,
+}: {
+  initialPeriod: string | null;
+}) {
   const [period, setPeriod] = useState(initialPeriod ?? "");
   const [pending, startTransition] = useTransition();
   const { showToast } = useToast();
@@ -35,7 +39,11 @@ export default function TrackingStartMonthInput({ initialPeriod }: { initialPeri
         <button
           type="button"
           disabled={pending}
-          onClick={() => handleChange({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>)}
+          onClick={() =>
+            handleChange({
+              target: { value: "" },
+            } as React.ChangeEvent<HTMLInputElement>)
+          }
           className="border-none bg-transparent text-xs font-semibold text-danger"
         >
           Remover
