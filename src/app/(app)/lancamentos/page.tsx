@@ -189,13 +189,22 @@ function LancamentosHelpContent() {
 }
 
 function formatDayHeader(date: Date): string {
-  const s = date.toLocaleDateString("pt-BR", {
-    weekday: "short",
+  const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+  const weekday = cap(
+    date
+      .toLocaleDateString("pt-BR", { weekday: "short", timeZone: BR_TIMEZONE })
+      .replace(".", ""),
+  );
+  const day = date.toLocaleDateString("pt-BR", {
     day: "2-digit",
-    month: "short",
     timeZone: BR_TIMEZONE,
   });
-  return s.charAt(0).toUpperCase() + s.slice(1);
+  const month = cap(
+    date
+      .toLocaleDateString("pt-BR", { month: "short", timeZone: BR_TIMEZONE })
+      .replace(".", ""),
+  );
+  return `${weekday}, ${day}/${month}`;
 }
 
 function TxRow({ t, last }: { t: EnrichedTransaction; last: boolean }) {
