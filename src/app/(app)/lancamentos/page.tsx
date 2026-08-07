@@ -2,11 +2,12 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import {
   buildDailyLedger,
+  effectiveDate,
   loadMonthData,
   type EnrichedTransaction,
 } from "@/lib/dashboard";
 import { getUserSettings } from "@/prisma/settings";
-import { formatBRL, periodForDate } from "@/lib/finance";
+import { BR_TIMEZONE, formatBRL, periodForDate } from "@/lib/finance";
 import CategoryIcon from "@/components/CategoryIcon";
 import PayButton from "@/components/PayButton";
 import DeleteButton from "@/components/DeleteButton";
@@ -173,9 +174,9 @@ function LancamentosHelpContent() {
       </div>
       <div>
         <b className="text-text">Botão de ação</b>: já indica o status — para
-        despesas, alterna entre Agendado, Pagar e Pago; para receitas, entre
-        Agendado, Receber e Recebido. &quot;Agendado&quot; fica bloqueado até a
-        data chegar.
+        despesas, alterna entre Pagar e Pago; para receitas, entre Receber e
+        Recebido. Pode confirmar a qualquer momento, mesmo antes da data de
+        vencimento.
       </div>
       <div>
         <b className="text-text">Filtros e busca</b>: os chips filtram por
@@ -191,11 +192,13 @@ function formatDayHeader(date: Date): string {
     weekday: "short",
     day: "2-digit",
     month: "short",
+    timeZone: BR_TIMEZONE,
   });
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 function TxRow({ t, last }: { t: EnrichedTransaction; last: boolean }) {
+  const d = effectiveDate(t);
   return (
     <div
       className={cn(
@@ -214,12 +217,11 @@ function TxRow({ t, last }: { t: EnrichedTransaction; last: boolean }) {
         </div>
         <div className="text-xs text-text-secondary">
           {t.subcategoryName} ·{" "}
-          {(() => {
-            const effective = t.status === "paid" ? t.paidDate : t.dueDate;
-            if (!effective) return "—";
-            const label = effective.toLocaleDateString("pt-BR");
-            return t.status === "paid" ? `pago em ${label}` : label;
-          })()}
+          {d
+            ? t.status === "paid"
+              ? `pago em ${d.toLocaleDateString("pt-BR", { timeZone: BR_TIMEZONE })}`
+              : d.toLocaleDateString("pt-BR", { timeZone: BR_TIMEZONE })
+            : "—"}
         </div>
       </div>
       <div className="flex items-center justify-end gap-3">

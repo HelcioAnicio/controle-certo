@@ -15,6 +15,8 @@ import {
   COLOR_SWATCHES,
   computeStatus,
   formatBRL,
+  fromBRDateKey,
+  toBRDateKey,
   type TxStatus,
 } from "./finance";
 
@@ -254,9 +256,7 @@ export function computeBudgetProgress(
     );
 }
 
-function dayKey(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
+const dayKey = toBRDateKey;
 
 export type LedgerDay = {
   dateKey: string;
@@ -282,13 +282,24 @@ export type LedgerDay = {
  * (open-ended "pending" items) can't be placed on the timeline and come back
  * separately as `undated`.
  */
+/**
+ * The date a transaction is filed under everywhere in the app (day grouping,
+ * the date shown next to its name): its paid date once paid, otherwise its
+ * due date. Showing `dueDate` for a paid transaction would disagree with
+ * which day it's grouped under whenever it was paid on a different day than
+ * it was due.
+ */
+export function effectiveDate(t: EnrichedTransaction): Date | null {
+  return t.status === "paid" ? t.paidDate : t.dueDate;
+}
+
 export function buildDailyLedger(
   allTxs: EnrichedTransaction[],
   visibleTxs: EnrichedTransaction[],
 ): { days: LedgerDay[]; undated: EnrichedTransaction[] } {
   const deltaByDay = new Map<string, { actual: number; projected: number }>();
   for (const t of allTxs) {
-    const effective = t.status === "paid" ? t.paidDate : t.dueDate;
+    const effective = effectiveDate(t);
     if (!effective) continue;
     const amount =
       t.status === "paid" ? Number(t.paidAmount) : Number(t.amount);
@@ -313,7 +324,7 @@ export function buildDailyLedger(
   const visibleByDay = new Map<string, EnrichedTransaction[]>();
   const undated: EnrichedTransaction[] = [];
   for (const t of visibleTxs) {
-    const effective = t.status === "paid" ? t.paidDate : t.dueDate;
+    const effective = effectiveDate(t);
     if (!effective) {
       undated.push(t);
       continue;
@@ -328,13 +339,17 @@ export function buildDailyLedger(
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([key, txs]) => {
       const cum = cumByDay.get(key)!;
-      const [y, m, d] = key.split("-").map(Number);
+      const sorted = [...txs].sort((a, b) => {
+        const at = effectiveDate(a)?.getTime() ?? 0;
+        const bt = effectiveDate(b)?.getTime() ?? 0;
+        return at - bt;
+      });
       return {
         dateKey: key,
-        date: new Date(y, m - 1, d),
+        date: fromBRDateKey(key),
         actualBalance: cum.actual,
         projectedBalance: cum.projected,
-        transactions: txs,
+        transactions: sorted,
       };
     });
 

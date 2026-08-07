@@ -3,6 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   addMonths,
+  BR_TIMEZONE,
   periodDateRange,
   periodForDate,
   periodLabel,
@@ -49,11 +50,13 @@ export default function MonthSwitcher() {
             {range.start.toLocaleDateString("pt-BR", {
               day: "2-digit",
               month: "2-digit",
+              timeZone: BR_TIMEZONE,
             })}{" "}
             –{" "}
             {range.end.toLocaleDateString("pt-BR", {
               day: "2-digit",
               month: "2-digit",
+              timeZone: BR_TIMEZONE,
             })}
           </div>
         )}

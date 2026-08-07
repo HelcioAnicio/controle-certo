@@ -8,7 +8,9 @@ import { useToast } from "../providers/ToastProvider";
 import { useSettings } from "../providers/SettingsProvider";
 import { createTransactionAction } from "@/app/(app)/actions";
 import {
+  BR_TIMEZONE,
   buildSubcategoryOptions,
+  dateOnly,
   parseLocalDate,
   periodForDate,
   type TxType,
@@ -160,13 +162,15 @@ export default function NovoLancamentoModal() {
             onChange={(e) => setDate(e.target.value)}
             className={inputStyle}
           />
-          {date &&
-            parseLocalDate(date) > new Date(new Date().toDateString()) && (
-              <div className="mt-1.5 text-xs text-text-secondary">
-                Este gasto ficará agendado e só entrará no seu saldo em{" "}
-                {parseLocalDate(date).toLocaleDateString("pt-BR")}.
-              </div>
-            )}
+          {date && parseLocalDate(date).getTime() > dateOnly(new Date()) && (
+            <div className="mt-1.5 text-xs text-text-secondary">
+              Este gasto ficará agendado e só entrará no seu saldo em{" "}
+              {parseLocalDate(date).toLocaleDateString("pt-BR", {
+                timeZone: BR_TIMEZONE,
+              })}
+              .
+            </div>
+          )}
         </div>
         <div className="flex items-center justify-between px-0.5 py-2.5">
           <span className="text-sm font-medium">

@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { loadMonthData } from "@/lib/dashboard";
+import { effectiveDate, loadMonthData } from "@/lib/dashboard";
 import { getUserSettings } from "@/prisma/settings";
-import { formatBRL, periodForDate } from "@/lib/finance";
+import { BR_TIMEZONE, formatBRL, periodForDate } from "@/lib/finance";
 import CategoryIcon from "@/components/CategoryIcon";
 import StatusBadge from "@/components/StatusBadge";
 import PayButton from "@/components/PayButton";
@@ -199,7 +199,11 @@ export default async function PainelPage({
                       {t.description || t.subcategoryName}
                     </div>
                     <div className="text-xs whitespace-nowrap text-text-secondary">
-                      {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR") : "—"}{" "}
+                      {t.dueDate
+                        ? t.dueDate.toLocaleDateString("pt-BR", {
+                            timeZone: BR_TIMEZONE,
+                          })
+                        : "—"}{" "}
                       · {formatBRL(Number(t.amount))}
                     </div>
                   </div>
@@ -224,37 +228,44 @@ export default async function PainelPage({
             </Link>
           </div>
           <div className="flex flex-col gap-2.5">
-            {recent.map((t) => (
-              <div key={t.id} className="flex items-center gap-2.5">
-                <CategoryIcon
-                  icon={t.subcategoryIcon}
-                  color={t.categoryColor}
-                  size={32}
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="overflow-hidden text-[13px] font-semibold text-ellipsis whitespace-nowrap">
-                    {t.description || t.subcategoryName}
+            {recent.map((t) => {
+              const d = effectiveDate(t);
+              return (
+                <div key={t.id} className="flex items-center gap-2.5">
+                  <CategoryIcon
+                    icon={t.subcategoryIcon}
+                    color={t.categoryColor}
+                    size={32}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="overflow-hidden text-[13px] font-semibold text-ellipsis whitespace-nowrap">
+                      {t.description || t.subcategoryName}
+                    </div>
+                    <div className="text-xs text-text-secondary">
+                      {t.subcategoryName} ·{" "}
+                      {d
+                        ? d.toLocaleDateString("pt-BR", {
+                            timeZone: BR_TIMEZONE,
+                          })
+                        : "—"}
+                    </div>
                   </div>
-                  <div className="text-xs text-text-secondary">
-                    {t.subcategoryName} ·{" "}
-                    {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR") : "—"}
+                  <div
+                    className={cn(
+                      "text-[13px] font-bold",
+                      t.status === "paid"
+                        ? t.type === "income"
+                          ? "text-success"
+                          : "text-text"
+                        : "text-text-disabled",
+                    )}
+                  >
+                    {t.type === "income" ? "+ " : "- "}
+                    {formatBRL(t.displayAmount)}
                   </div>
                 </div>
-                <div
-                  className={cn(
-                    "text-[13px] font-bold",
-                    t.status === "paid"
-                      ? t.type === "income"
-                        ? "text-success"
-                        : "text-text"
-                      : "text-text-disabled",
-                  )}
-                >
-                  {t.type === "income" ? "+ " : "- "}
-                  {formatBRL(t.displayAmount)}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
