@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { buildDailyLedger, loadMonthData, type EnrichedTransaction } from "@/lib/dashboard";
+import { buildDailyLedger, effectiveDate, loadMonthData, type EnrichedTransaction } from "@/lib/dashboard";
 import { getUserSettings } from "@/prisma/settings";
 import { BR_TIMEZONE, formatBRL, periodForDate } from "@/lib/finance";
 import CategoryIcon from "@/components/CategoryIcon";
@@ -198,6 +198,7 @@ function formatDayHeader(date: Date): string {
 }
 
 function TxRow({ t, last }: { t: EnrichedTransaction; last: boolean }) {
+  const d = effectiveDate(t);
   return (
     <div
       style={{
@@ -215,7 +216,7 @@ function TxRow({ t, last }: { t: EnrichedTransaction; last: boolean }) {
           {t.description || t.subcategoryName}
         </div>
         <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-          {t.subcategoryName} · {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR", { timeZone: BR_TIMEZONE }) : "—"}
+          {t.subcategoryName} · {d ? d.toLocaleDateString("pt-BR", { timeZone: BR_TIMEZONE }) : "—"}
         </div>
       </div>
       <div style={{ display: "flex", gap: 12, alignItems: "center", justifyContent: "flex-end" }}>

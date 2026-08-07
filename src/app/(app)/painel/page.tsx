@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { loadMonthData } from "@/lib/dashboard";
+import { effectiveDate, loadMonthData } from "@/lib/dashboard";
 import { getUserSettings } from "@/prisma/settings";
 import { BR_TIMEZONE, formatBRL, periodForDate } from "@/lib/finance";
 import CategoryIcon from "@/components/CategoryIcon";
@@ -173,23 +173,26 @@ export default async function PainelPage({
             </Link>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {recent.map((t) => (
-              <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <CategoryIcon icon={t.subcategoryIcon} color={t.categoryColor} size={32} />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {t.description || t.subcategoryName}
+            {recent.map((t) => {
+              const d = effectiveDate(t);
+              return (
+                <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <CategoryIcon icon={t.subcategoryIcon} color={t.categoryColor} size={32} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {t.description || t.subcategoryName}
+                    </div>
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                      {t.subcategoryName} · {d ? d.toLocaleDateString("pt-BR", { timeZone: BR_TIMEZONE }) : "—"}
+                    </div>
                   </div>
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-                    {t.subcategoryName} · {t.dueDate ? t.dueDate.toLocaleDateString("pt-BR", { timeZone: BR_TIMEZONE }) : "—"}
+                  <div style={{ fontSize: 13, fontWeight: 700, color: t.status === "paid" ? (t.type === "income" ? "var(--color-success)" : "var(--text)") : "var(--text-disabled)" }}>
+                    {t.type === "income" ? "+ " : "- "}
+                    {formatBRL(t.displayAmount)}
                   </div>
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: t.status === "paid" ? (t.type === "income" ? "var(--color-success)" : "var(--text)") : "var(--text-disabled)" }}>
-                  {t.type === "income" ? "+ " : "- "}
-                  {formatBRL(t.displayAmount)}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
