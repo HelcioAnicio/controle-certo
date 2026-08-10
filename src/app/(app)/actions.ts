@@ -40,14 +40,16 @@ export async function createTransactionAction(input: {
   paid: boolean;
 }) {
   const user = await requireUser();
+  const dueDate = input.dueDate ? parseLocalDate(input.dueDate) : null;
   await createTransaction(user.id, {
     type: input.type,
     subcategoryId: input.subcategoryId,
     description: input.description,
     amount: input.amount,
     periodMonth: input.periodMonth,
-    dueDate: input.dueDate ? parseLocalDate(input.dueDate) : null,
+    dueDate,
     paid: input.paid,
+    paidDate: input.paid ? (dueDate ?? new Date()) : null,
   });
   refresh();
 }
@@ -76,10 +78,14 @@ export async function updateTransactionAction(input: {
   subcategoryId: string;
   description?: string;
   amount: number;
+  dueDate?: string | null;
 }) {
   const user = await requireUser();
-  const { id, ...rest } = input;
-  await updateTransaction(user.id, id, rest);
+  const { id, dueDate, ...rest } = input;
+  await updateTransaction(user.id, id, {
+    ...rest,
+    dueDate: dueDate ? parseLocalDate(dueDate) : null,
+  });
   refresh();
 }
 

@@ -105,12 +105,18 @@ export async function createTransaction(
 export async function updateTransaction(
   userId: string,
   id: string,
-  input: { subcategoryId: string; description?: string; amount: number },
+  input: {
+    subcategoryId: string;
+    description?: string;
+    amount: number;
+    dueDate?: Date | null;
+  },
 ): Promise<void> {
   await db.orm.public.Transaction.where({ id, userId }).update({
     subcategoryId: input.subcategoryId,
     description: input.description || null,
     amount: input.amount,
+    dueDate: input.dueDate ?? null,
   });
 }
 

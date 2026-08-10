@@ -20,6 +20,7 @@ export default function EditTransactionButton({
           subcategoryId: tx.subcategoryId,
           description: tx.description ?? "",
           amount: Number(tx.amount),
+          dueDate: tx.dueDate,
         })
       }
       className="flex h-[30px] w-[30px] items-center justify-center rounded-sm border border-border bg-surface text-text-disabled"

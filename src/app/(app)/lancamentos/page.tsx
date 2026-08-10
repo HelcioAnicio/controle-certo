@@ -242,11 +242,7 @@ function TxRow({ t, last }: { t: EnrichedTransaction; last: boolean }) {
         <div
           className={cn(
             "w-[110px] text-right text-sm font-bold",
-            paid
-              ? t.type === "income"
-                ? "text-success"
-                : "text-text"
-              : "text-text-disabled",
+            paid ? "text-text-secondary" : "text-text",
           )}
         >
           {t.type === "income" ? "+ " : "- "}

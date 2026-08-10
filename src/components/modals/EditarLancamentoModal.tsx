@@ -5,7 +5,11 @@ import { useCategories } from "../providers/CategoriesProvider";
 import { useModal } from "../providers/ModalProvider";
 import { useToast } from "../providers/ToastProvider";
 import { updateTransactionAction } from "@/app/(app)/actions";
-import { buildSubcategoryOptions, type TxType } from "@/lib/finance";
+import {
+  buildSubcategoryOptions,
+  toBRDateKey,
+  type TxType,
+} from "@/lib/finance";
 import { cn } from "@/lib/cn";
 import {
   closeBtn,
@@ -25,6 +29,7 @@ export type EditarLancamentoCtx = {
   subcategoryId: string;
   description: string;
   amount: number;
+  dueDate: Date | null;
 };
 
 export default function EditarLancamentoModal({
@@ -44,6 +49,9 @@ export default function EditarLancamentoModal({
   const [subcategoryId, setSubcategoryId] = useState(ctx.subcategoryId);
   const [amount, setAmount] = useState(String(ctx.amount));
   const [description, setDescription] = useState(ctx.description);
+  const [dueDate, setDueDate] = useState(
+    ctx.dueDate ? toBRDateKey(ctx.dueDate) : "",
+  );
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
 
@@ -60,6 +68,7 @@ export default function EditarLancamentoModal({
         subcategoryId,
         description,
         amount: amountNum,
+        dueDate: dueDate || null,
       });
       closeModal();
       showToast("Lançamento atualizado ✓");
@@ -109,6 +118,15 @@ export default function EditarLancamentoModal({
             onChange={(e) => setAmount(e.target.value)}
             className={inputStyle}
             autoFocus
+          />
+        </div>
+        <div>
+          <div className={fieldLabel}>Data de vencimento</div>
+          <input
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            className={inputStyle}
           />
         </div>
         <div className="rounded-[10px] bg-canvas px-3.5 py-3 text-xs leading-normal text-text-secondary">
