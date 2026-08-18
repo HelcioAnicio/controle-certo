@@ -1,0 +1,160 @@
+[
+  {
+    "id": "table.FixedExpenseSkip",
+    "label": "Create table \"FixedExpenseSkip\"",
+    "summary": "Creates table \"FixedExpenseSkip\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "FixedExpenseSkip"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"FixedExpenseSkip\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"FixedExpenseSkip\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"FixedExpenseSkip\"",
+        "sql": "CREATE TABLE \"public\".\"FixedExpenseSkip\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"fixedExpenseId\" character(36) NOT NULL,\n  \"id\" character(36) NOT NULL,\n  \"periodMonth\" text NOT NULL,\n  \"userId\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"FixedExpenseSkip\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"FixedExpenseSkip\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.FixedExpenseSkip.FixedExpenseSkip_fixedExpenseId_idx",
+    "label": "Create index \"FixedExpenseSkip_fixedExpenseId_idx\" on \"FixedExpenseSkip\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "FixedExpenseSkip_fixedExpenseId_idx",
+        "table": "FixedExpenseSkip"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"FixedExpenseSkip_fixedExpenseId_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"FixedExpenseSkip_fixedExpenseId_idx\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"FixedExpenseSkip_fixedExpenseId_idx\"",
+        "sql": "CREATE INDEX \"FixedExpenseSkip_fixedExpenseId_idx\" ON \"public\".\"FixedExpenseSkip\" (\"fixedExpenseId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"FixedExpenseSkip_fixedExpenseId_idx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"FixedExpenseSkip_fixedExpenseId_idx\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.FixedExpenseSkip.FixedExpenseSkip_fixedExpenseId_fkey",
+    "label": "Add foreign key \"FixedExpenseSkip_fixedExpenseId_fkey\" on \"FixedExpenseSkip\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "FixedExpenseSkip_fixedExpenseId_fkey",
+        "table": "FixedExpenseSkip"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"FixedExpenseSkip_fixedExpenseId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "FixedExpenseSkip_fixedExpenseId_fkey",
+          "public",
+          "\"public\".\"FixedExpenseSkip\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"FixedExpenseSkip_fixedExpenseId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"FixedExpenseSkip\"\nADD CONSTRAINT \"FixedExpenseSkip_fixedExpenseId_fkey\"\nFOREIGN KEY (\"fixedExpenseId\")\nREFERENCES \"public\".\"FixedExpense\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"FixedExpenseSkip_fixedExpenseId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "FixedExpenseSkip_fixedExpenseId_fkey",
+          "public",
+          "\"public\".\"FixedExpenseSkip\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rowLevelSecurity.public.FixedExpenseSkip",
+    "label": "Enable row-level security on \"FixedExpenseSkip\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "rowLevelSecurity",
+        "name": "FixedExpenseSkip"
+      }
+    },
+    "precheck": [
+      {
+        "description": "check RLS is not already enabled on \"FixedExpenseSkip\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND NOT (\"c\".\"relrowsecurity\"))) AS \"result\"",
+        "params": [
+          "public",
+          "FixedExpenseSkip"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "enable row-level security on \"FixedExpenseSkip\"",
+        "sql": "ALTER TABLE \"public\".\"FixedExpenseSkip\" ENABLE ROW LEVEL SECURITY"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify row-level security is enabled on \"FixedExpenseSkip\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"c\".\"relrowsecurity\")) AS \"result\"",
+        "params": [
+          "public",
+          "FixedExpenseSkip"
+        ]
+      }
+    ]
+  }
+]

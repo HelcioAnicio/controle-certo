@@ -42,9 +42,12 @@ export async function ensureFixedExpensesGeneratedForPeriod(
 ): Promise<void> {
   if (trackingStartPeriod && periodMonth < trackingStartPeriod) return;
 
-  const [fixedExpenses, existing, subcategories] = await Promise.all([
+  const [fixedExpenses, existing, skipped, subcategories] = await Promise.all([
     listActiveFixedExpenses(userId),
     db.orm.public.Transaction.where({ userId, periodMonth, isFixed: true })
+      .select("fixedExpenseId")
+      .all(),
+    db.orm.public.FixedExpenseSkip.where({ userId, periodMonth })
       .select("fixedExpenseId")
       .all(),
     listSubcategories(userId),
@@ -53,7 +56,10 @@ export async function ensureFixedExpensesGeneratedForPeriod(
   const generatedIds = new Set(
     existing.map((t) => t.fixedExpenseId).filter(Boolean),
   );
-  const missing = fixedExpenses.filter((f) => !generatedIds.has(f.id));
+  const skippedIds = new Set(skipped.map((s) => s.fixedExpenseId));
+  const missing = fixedExpenses.filter(
+    (f) => !generatedIds.has(f.id) && !skippedIds.has(f.id),
+  );
   if (missing.length === 0) return;
 
   const subTypeById = new Map(subcategories.map((s) => [s.id, s.type]));
@@ -141,10 +147,24 @@ export async function unpayTransaction(
   });
 }
 
+/**
+ * Deleting a fixed-expense-generated occurrence also records a skip for that
+ * (fixedExpense, periodMonth) pair — otherwise ensureFixedExpensesGeneratedForPeriod
+ * has no memory of the deletion and silently recreates the row on the next
+ * page load.
+ */
 export async function deleteTransaction(
   userId: string,
   id: string,
 ): Promise<void> {
+  const tx = await db.orm.public.Transaction.where({ id, userId }).first();
+  if (tx?.isFixed && tx.fixedExpenseId) {
+    await db.orm.public.FixedExpenseSkip.create({
+      userId,
+      fixedExpenseId: tx.fixedExpenseId,
+      periodMonth: tx.periodMonth,
+    });
+  }
   await db.orm.public.Transaction.where({ id, userId }).delete();
 }
 

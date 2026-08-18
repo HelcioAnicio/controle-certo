@@ -53,6 +53,26 @@ export const contract = defineContract({}, ({ field, model, rel }) => {
         to: "id",
       }),
       transactions: rel.hasMany("Transaction", { by: "fixedExpenseId" }),
+      skips: rel.hasMany("FixedExpenseSkip", { by: "fixedExpenseId" }),
+    },
+  });
+
+  // Records that a fixed expense's occurrence for a given period was deleted
+  // by the user on purpose (e.g. "not charged this month") — without this,
+  // ensureFixedExpensesGeneratedForPeriod has no memory of the deletion and
+  // regenerates the transaction on the very next page load.
+  const FixedExpenseSkip = model("FixedExpenseSkip", {
+    fields: {
+      id: field.id.uuidv7String(),
+      userId: field.text(),
+      fixedExpenseId: field.uuidString(),
+      periodMonth: field.text(),
+      createdAt: field.temporal.createdAt(),
+    },
+    relations: {
+      fixedExpense: rel
+        .belongsTo(FixedExpense, { from: "fixedExpenseId", to: "id" })
+        .sql({ fk: { onDelete: "cascade" } }),
     },
   });
 
@@ -120,6 +140,7 @@ export const contract = defineContract({}, ({ field, model, rel }) => {
       Category,
       Subcategory,
       FixedExpense,
+      FixedExpenseSkip,
       Transaction,
       UserSettings,
       Budget,
@@ -132,6 +153,7 @@ export const contract = defineContract({}, ({ field, model, rel }) => {
       rlsEnabled(Category),
       rlsEnabled(Subcategory),
       rlsEnabled(FixedExpense),
+      rlsEnabled(FixedExpenseSkip),
       rlsEnabled(Transaction),
       rlsEnabled(UserSettings),
       rlsEnabled(Budget),
