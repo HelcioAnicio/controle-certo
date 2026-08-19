@@ -57,7 +57,7 @@ export default async function ConfiguracoesPage() {
         </Row>
       </div>
       <div className="-mt-2 text-xs leading-normal text-text-secondary">
-        Se você recebe salário depois do dia 1, defina o dia aqui — os primeiros
+        Se você recebe salário depois do dia 1, defina o dia aqui. Os primeiros
         dias do mês continuam contando como parte do período anterior, junto com
         o que você já recebeu.
       </div>
@@ -100,7 +100,7 @@ export default async function ConfiguracoesPage() {
             Fale com a gente
           </div>
           <div className="mt-0.5 text-xs text-text-secondary">
-            Sugestões, reclamações ou dúvidas sobre o uso — mande uma mensagem
+            Sugestões, reclamações ou dúvidas sobre o uso? Mande uma mensagem
             no WhatsApp.
           </div>
         </div>

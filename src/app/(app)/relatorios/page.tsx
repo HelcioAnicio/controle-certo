@@ -273,7 +273,7 @@ export default async function RelatoriosPage({
         <div className="rounded-lg border border-border bg-surface p-5">
           <div className="mb-[18px] text-sm font-semibold">
             {barPeriods.length > 1
-              ? `Evolução — últimos ${barPeriods.length} meses`
+              ? `Evolução dos últimos ${barPeriods.length} meses`
               : "Evolução"}
           </div>
           <div className="flex h-[140px] items-end gap-3.5">

@@ -83,11 +83,11 @@ export default async function LancamentosPage({
       </div>
 
       {filtered.length === 0 ? (
-        <div className="max-w-[600px] rounded-lg border border-border bg-surface px-5 py-10 text-center text-sm text-text-secondary">
+        <div className="max-w-[860px] rounded-lg border border-border bg-surface px-5 py-10 text-center text-sm text-text-secondary">
           Nenhum lançamento neste filtro.
         </div>
       ) : (
-        <div className="flex max-w-[600px] flex-col gap-[18px]">
+        <div className="flex max-w-[860px] flex-col gap-[18px]">
           {days.map((day) => (
             <div key={day.dateKey}>
               <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 px-1 pt-0 pb-2">
@@ -146,7 +146,7 @@ export default async function LancamentosPage({
         </div>
       )}
 
-      <div className="flex max-w-[600px] justify-between rounded-[14px] border border-border bg-surface px-[18px] py-3.5 text-sm font-semibold">
+      <div className="flex max-w-[860px] justify-between rounded-[14px] border border-border bg-surface px-[18px] py-3.5 text-sm font-semibold">
         <span className="font-medium text-text-secondary">Total filtrado</span>
         <span>{formatBRL(filteredTotal)}</span>
       </div>
@@ -163,7 +163,7 @@ function LancamentosHelpContent() {
       </div>
       <div>
         <b className="text-text">Previsto</b>: o mesmo saldo, mas já
-        considerando contas com data de vencimento futura — mostra pra onde seu
+        considerando contas com data de vencimento futura. Mostra pra onde seu
         saldo vai, mesmo antes de você confirmar o pagamento/recebimento.
       </div>
       <div>
@@ -173,7 +173,7 @@ function LancamentosHelpContent() {
         lançamento aparece em &quot;Sem data definida&quot;.
       </div>
       <div>
-        <b className="text-text">Botão de ação</b>: já indica o status — para
+        <b className="text-text">Botão de ação</b>: já indica o status. Para
         despesas, alterna entre Pagar (azul) e Pago (tom azulado); para
         receitas, entre Receber (azul) e Recebido (verde). Pode confirmar a
         qualquer momento, mesmo antes da data de vencimento. Clicando de novo
@@ -182,7 +182,7 @@ function LancamentosHelpContent() {
       <div>
         <b className="text-text">Filtros e busca</b>: os chips filtram por
         status (Pendentes, Pagos, A vencer, Atrasados) e o campo de busca filtra
-        por descrição ou subcategoria — os dois podem ser usados juntos.
+        por descrição ou subcategoria; os dois podem ser usados juntos.
       </div>
     </>
   );

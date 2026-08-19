@@ -130,8 +130,12 @@ export default function EditarLancamentoModal({
           />
         </div>
         <div className="rounded-[10px] bg-canvas px-3.5 py-3 text-xs leading-normal text-text-secondary">
-          Isso atualiza só este lançamento, neste mês — não muda os outros meses
+          Isso atualiza só este lançamento, neste mês. Não muda os outros meses
           nem o valor já pago, se houver.
+        </div>
+        <div className="rounded-[10px] bg-canvas px-3.5 py-3 text-xs leading-normal text-text-secondary">
+          Quer editar o valor já pago ou recebido? Use o botão de ação (Pago /
+          Recebido) no lançamento.
         </div>
         {error && <div className="text-[13px] text-danger">{error}</div>}
       </div>

@@ -66,7 +66,7 @@ export default async function GastosFixosPage({
           actionLabel="Novo fixo"
         />
       ) : (
-        <div className="max-w-[600px] overflow-hidden rounded-lg border border-border bg-surface">
+        <div className="max-w-[860px] overflow-hidden rounded-lg border border-border bg-surface">
           {fixedExpenses.map((f) => {
             const sub = subById.get(f.subcategoryId);
             const cat = sub ? catById.get(sub.categoryId) : undefined;
